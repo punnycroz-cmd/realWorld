@@ -4429,3 +4429,432 @@ mints nothing absent capture — Cherry null, no indirect memory);
   ethnographically solid (family-lore work, Stone 1988); the
   0.15/0.3/0.1 numbers are sized against §114's norm_breach and need
   probe P857 to earn their range.
+
+# Part IX (v92) — the talk evaporates: conversational residue, fading ties, and the maps people carry wrong
+
+The prior eight parts built the social memory's content: who a person is,
+what they did, what was said about them. What remained unpriced is the
+*channel structure* — that ordinary conversation itself decays to a residue
+far thinner than the events it describes, that relationships fade on a
+contact clock independent of affection, that the map of third-party ties a
+character carries is a stale reconstruction rather than the world's truth,
+and that the social arena adds its own biases (false consensus, mimicry
+halos, vocal-minority norms, proposal theft, discounted second chances).
+
+## 126. Conversational memory — the talk evaporates **[CONSENSUS direction; rates HYPOTHESIS]**
+
+Stafford & Daly 1984 (*Communication Monographs* 51:379): participants
+recalling a recent conversation reproduced ~10% of its idea units at one
+month — and what survived was a small set of "conversational highlights"
+plus gist, not a transcript. Keenan, MacWhinney & Mayhew 1977 (*Pragmatics
+of Language*): memory for utterance content tracks *interactional
+content* — statements carrying interpersonal intent (insults, boasts,
+commitments) are recalled far better than low-content assertions.
+Hjelmquist 1984; Hjelmquist & Gidlund 1985: free recall of one's own
+conversations is poor for verbatim form, adequate for gist; recognition
+exceeds recall massively. Goldsmith & Baxter 1996: everyday remembering is
+organized by *events*, not talk — the conversation survives as a feature of
+the event record, not as its own store.
+
+Implement: utterance-level fields inside conversation events get a fast
+secondary decay — `convo_verbatim_hl` ≈ 0.5 day half-life on verbatim
+surface (vs record-level tau_episodic). Interaction-content utterances
+(those carrying self-relevance, other-directed evaluation, or commitment
+content) get `convo_interact_gain` ≈ 1.5 on E and are exempt from the
+fast leg. Formulaic/phatic utterances (greetings, fillers, ritual
+exchanges) mint at `formula_e_mult` ≈ 0.05 — effectively nothing.
+**Locked null `convo_formula_null`:** routine phatic talk writes no
+durable record at all — the "how are you / fine" exchange is gone before
+the coffee arrives, and no probe should find it at 24h.
+
+Emergent: a character remembers *that* a conversation happened, its gist,
+and two or three highlighted lines — a month later they're quoting a
+sentence the other person never said, which is §6.1 drift doing honest
+work on an honest residue.
+
+## 127. The fading acquaintance — bonds decay on a contact clock **[ROBUST direction; schedule HYPOTHESIS]**
+
+Roberts & Dunbar 2011 (*Social Networks* 33:138): emotional closeness to
+non-kin decays when contact frequency drops — the tie is maintained by
+interaction investment, not by stored regard. Sutcliffe, Dunbar, Binder
+& Arrow 2012 (*Psychol. Sci.*): the layered structure (~5/15/50/150) is
+real and enforced by contact budgets. Burt 2000 (*Am. J. Sociol.*
+106:347): network ties show decay functions on the order of years once
+interaction stops. Kin are the documented exception (Hill & Dunbar 2003;
+Roberts & Dunbar): kinship ties persist at low contact that would kill a
+friendship. Recontact rescues partially — "we picked up where we left
+off" is folk-consistent [HYPOTHESIS — direct evidence thin].
+
+Implement: `RelEdge.bond` decays via `tie_decay_hl` ≈ 180 days when no
+contact event lands (contact = any co-present or addressed event);
+kin-typed edges floor at `kin_floor` ≈ 0.35. Recontact restores at
+`recontact_rescue` ≈ 0.5 of the gap — faster than first acquisition but
+never full. Crossing below `tie_alert` (0.3) may emit `drifted:true` —
+the "we've drifted apart" realization is itself a recordable beat.
+**Locked null `tie_delete_null`:** faded ties decay toward zero, never
+delete — the acquaintance you haven't seen in years is still a node, and
+re-meeting them is a reactivation, not a new mint.
+
+Emergent: the neighborhood's ambient NPCs drift out of mains' active
+relationship set on a schedule that produces authentic "I used to see
+them all the time" — independent of whether anything went wrong.
+
+## 128. The stale map — who-knows-whom lags the world **[HYPOTHESIS composite; components CONSENSUS]**
+
+Krackhardt 1987 (*Admin. Sci. Q.* 32:109) and Krackhardt 1990 (*Soc.
+Networks* 12:239): perceived networks diverge *systematically* from actual
+interaction networks — people recall structure through schemata, not
+samples. Kumbasar, Rommey & Batchelder 1994 (*Am. J. Sociol.* 100:477):
+network recall is biased toward recency and transitivity (the balance
+machinery of Part IV supplies the transitivity arm). Freeman 1992:
+reconstructed group structure drifts toward stereotyped forms. The
+consequence for RW: a character's map of *other people's* ties is a
+belief store, and it goes stale.
+
+Implement: per-character `SocialMap` edges `{alterA, alterB, str,
+last_witnessed_day}` update **only on witnessed events** (co-presence,
+interaction, told_by report treated as one weak witness at half weight).
+Unwitnessed edges decay at `map_tau` ≈ 400 days; a witnessed contrary
+signal (the two visibly estranged) overwrites at `witness_refresh` ≈
+0.7. Stale edges (last_witnessed beyond map_tau) carry `stale:true` —
+world-renderable: "last I heard, they were still together."
+**Locked null `stale_map_fact_null`:** the world's canonical tie state
+never back-propagates into a character's map — only witnessed or reported
+events update it. This is the cleanest belief-vs-fact lever the spec has
+produced: two characters can hold contradictory maps of the same dyad
+and both be honestly wrong.
+
+## 129. The smile that was remembered — expression-contingent face memory **[ROBUST]**
+
+Baudouin, Gilibert, Sansone & Tiberghien 2000 (*Br. J. Psychol.*
+91:543): the "smile advantage" — faces encoded with happy expressions
+are recognized better than neutral. Replicated; angry expressions draw
+attention (Öhman, Lundqvist & Esteves 2001 — faces-in-crowd) WITHOUT a
+recognition advantage — the attention/memory dissociation is the key
+engineering fact. Boundary conditions (expression distinctiveness,
+own-group interactions) DEBATED; magnitude small-moderate.
+
+Implement: `expr_smile_gain` ≈ 0.15 multiplies familiarity accrual on
+face records encoded under a happy-expression tag (world supplies);
+`expr_angry_att` ≈ 0.2 raises attention capture at encoding but adds
+nothing to familiarity/identity tiers. **Locked null
+`smile_disposition_null`:** the expression at encoding biases
+*recognition*, never the trait ledger — a character who always sees
+someone smiling doesn't thereby encode "kind"; the smile makes the face
+stick, the inference stays §2.1's job.
+
+## 130. The apology's footprint — amends damp the sting, never the record **[CONSENSUS components; composite HYPOTHESIS]**
+
+Darby & Schlenker 1982: apologized transgressors judged less harshly —
+the apology changes evaluation, not memory for the act. Ohbuchi, Kameda
+& Agarie 1989 (*JPSP* 56:919): apology reduces anger and aggressive
+responding. Scher & Darley 1997 (*JESP* 33:509): full apologies repair;
+partial/incomplete apologies can backfire — worse than none. Pairs with
+§87 (forgiveness detaches the sting): forgiveness is the *valence*
+rewrite; the apology is the *event* that can trigger it. Distinct
+mechanics — an apology can be refused, forgotten, or recorded as
+insincere.
+
+Implement: `apology:true` event mints its own record AND applies
+`apology_damp` ≈ 0.3 to the linked offense record's retriggered affect
+at retrieval (content and strength untouched — `apology_eraser_null`).
+`partial:true` apologies below `apology_sincerity_gate` (0.4) apply
+`apology_backfire` ≈ 0.15 — a *negative* damp: the limp sorry makes the
+offense replay hotter. Emissions `apology_given` / `apology_partial`
+let the world render both.
+
+## 131. Everyone agrees with me — the false-consensus ledger **[CONSENSUS]**
+
+Ross, Greene & House 1977 (*JESP* 13:279): the false consensus effect —
+people estimate others' agreement with their own positions/choices well
+above base rate. Marks & Miller 1987 (*Psychol. Bull.* 102:72):
+meta-analytic robustness across domains; projection is the dominant
+mechanism account (with selective-exposure and motivational
+contributors, both real). Distinct from §116's prior assimilation: that
+bends what a *new person* looks like; this bends what *everyone* is
+assumed to think.
+
+Implement: when a character needs PersonModel[other].stance_est and has
+no witnessed evidence, default = own stance pulled by `fc_k` ≈ 0.5.
+Witnessed disagreement overwrites at `fc_expose_gain` ≈ 0.5 and raises
+surprise (a mismatch event can mint). `fc_conf_gain` ≈ 0.1 adds
+unearned confidence to the projection.
+**Locked null `fc_consent_null`:** assumed agreement mints nothing —
+the projection lives in inference and expectation only, so the
+character can be genuinely *surprised* by dissent rather than
+misremembering consent. Trait loadings: +self_srv, +meta_conf (confident
+projections), −distrust.
+
+Emergent: characters plan around imagined consensus ("nobody here minds
+the noise") until a witnessed objection lands — the Mission's actual
+politics become something the cast discovers rather than knows.
+
+## 132. The chameleon's halo — mimicry buys affiliation the mimicker didn't earn **[CONSENSUS effect; magnitudes HYPOTHESIS]**
+
+Chartrand & Bargh 1999 (*JPSP* 76:893): the chameleon effect —
+nonconscious mimicry of interaction partners. Lakin & Chartrand 2003
+(*Psychol. Sci.* 14:334): being mimicked increases liking and
+interaction smoothness toward the mimicker. van Baaren et al. 2004:
+mimicry increases prosocial behavior (larger tips). Boundary: detected
+deliberate mimicry can backfire; the effect is strongest below
+awareness (Chartrand & Bargh; later reviews).
+
+Implement: dialogue layer may tag `mimic:true` on an event when the
+speaker mirrors the partner's speech/posture (world supplies; frequency
+gated by speaker's new trait `mimic` [0,2] — loads extra/social).
+Receiver side: `PersonModel[speaker].eval += mimic_gain` ≈ 0.08 per
+tagged event, accumulating to `mimic_cap` ≈ 0.4. If the world flags
+`mimic_detected`, apply `mimic_detect_pen` ≈ 0.2 negative instead.
+**Locked null `mimic_recipient_null`:** mimicry moves eval/bond only —
+it never writes content, never raises credibility, never opens a topic
+in knowsTopics. The flattered listener likes the flatterer more and
+learns nothing true.
+
+## 133. The vocal minority writes the norm — pluralistic-ignorance records **[CONSENSUS phenomenon; mechanics HYPOTHESIS]**
+
+Prentice & Miller 1993 (*JPSP* 64:243): pluralistic ignorance —
+individuals privately reject a norm they believe everyone else accepts
+(college drinking paradigm). Blanton & Christie 2003 (*Rev. Gen.
+Psychol.* 7:261 — deviant regulation): identity acts track *perceived*
+norms, so a misperceived norm steers real behavior. The percept itself
+is sampled from *public* expression — private dissent is invisible by
+definition.
+
+Implement: per-venue `NormModel {topic, perceived_norm, conf,
+last_check_day}` — a lightweight record that updates only on *witnessed
+norm-expressive events* (someone asserting/acting/violating in public),
+weighted `norm_vocal_w` ≈ 1.3 for loud/public utterances and by speaker
+credibility. `norm_conf_k` ≈ 0.15 accrues confidence per witnessed
+expression; `norm_check_tau` ≈ 60d without a witnessed event lets
+confidence bleed. **Locked null `norm_truth_null`:** the norm record
+tracks sampled public expression, never the population's private mean —
+a norm model built on two loud regulars is wrong in exactly the human
+way. Emergent: a character misreads the block's tolerance because the
+two loudest voices set the sample — and acts on the misreading.
+
+## 134. Whose idea was it — proposal attribution drifts self-ward **[ROBUST direction; drift magnitude HYPOTHESIS]**
+
+Ross & Sicoly 1979 (*JPSP* 37:322): in joint tasks each party overclaims
+contribution — spouses' chore estimates sum past 100%. Extension to
+idea origination is the documented composite: generation effect (own
+utterances encode better, §2-adjacent) + constructive source inference
+means group members misremember shared proposals as their own. Distinct
+from v5.38 cryptomnesia (which covers *importing* foreign content as
+new); this is drift on the `proposed_by` tag of a real joint event.
+
+Implement: joint-decision records carry soft tag `proposed_by`
+(decays at beta_source like other source fields). On delayed retrieval,
+attribution error is self-biased by `idea_self_bias` ≈ 0.15 — the
+retriever's own candidacy gets a head start in §6.10 sourceInfer when
+the true proposer is out-of-source. `idea_pool_p` ≈ 0.5: probability a
+pooled brainstorm record loses the tag entirely ("the group decided" —
+origin erased). **Locked null `idea_verbatim_null`:** proposal phrasing
+never survives the merge — the dispute is always "I said that first" vs
+"we all did," never resolvable by quote. Reuse emission `claimed_mine`.
+
+## 135. The second-chance discount — breached trust recovers below the waterline **[CONSENSUS direction; magnitudes HYPOTHESIS]**
+
+Schweitzer, Hershey & Bradlow 2006 (*Organ. Behav. Hum. Decis.*
+101:1): after deception, promises and apologies partially recover trust
+— never fully. Kim, Ferrin, Cooper & Dirks 2004 (*JAP* 89:104): repair
+strategy interacts with violation type — apology helps competence
+violations; for integrity violations denial sometimes preserves more
+trust (apology confirms culpability — DEBATED but the asymmetry is
+robust). Tomlinson, Dineen & Lewicki 2004: reconciliation is a
+re-weighting, not a reset.
+
+Implement: post-breach, `PersonModel.credibility`/eval recover
+exponentially at `trust_recover_k` ≈ 0.05/day toward ceiling
+`(1 − breach_floor)`, `breach_floor` ≈ 0.15 — a permanent residual
+absent reconsolidating positive events (which eat the floor through
+normal §6.4 experience, not through the apology). `apology_floor_cut`
+≈ 0.3: a sincere apology for a competence-class breach shaves the
+floor; for integrity-class breaches it cuts the floor less and may
+freeze credibility lower in the no-evidence branch [DEBATED — expose
+as context]. **Locked null `trust_full_null`:** no apology pathway
+restores unbreached trust — the floor is real until lived experience
+re-earns it.
+
+Emergent: the neighborhood's long feuds don't resolve at the apology
+scene — they enter a years-long recovery asymptote viewers can watch.
+
+## 136. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121)
+
+| param | trait loadings | age note |
+|---|---|---|
+| convo_verbatim_hl | +verbal (rich residue) · +g_mem | verbatim leg shortens mildly with age_eff (source-monitoring arm rides discrim_mult already) |
+| convo_interact_gain | +social · +empathy | flat — interaction-content advantage robust across age |
+| formula_e_mult | −consc (the ritualist registers ritual) | flat |
+| tie_decay_hl / kin_floor | +social lengthens effective decay (more maintenance contact) | flat — maintenance is behavioral, not memorial [HYPOTHESIS] |
+| map_tau / witness_refresh | +social · −wmc (map upkeep is attention-hungry) | map_tau shortens with age_eff (thin social tracking) |
+| expr_smile_gain / expr_angry_att | +social | angry-att preserved in aging (threat channel); smile gain flat |
+| apology_damp / apology_backfire | +neurot × backfire · +empathy × damp | flat |
+| fc_k / fc_conf_gain | +self_srv · +meta_conf · −distrust | +older (projection rises as episodic check thins — HYPOTHESIS consistent with prior-reliance §33) |
+| mimic (trait) | +extra · +social · −attach_avoid | flat |
+| mimic_gain / mimic_detect_pen | +empathy (detect) | flat |
+| norm_vocal_w / norm_conf_k | +suggs · −checker | flat |
+| idea_self_bias / idea_pool_p | +self_srv · +meta_conf | +older (source-tag decay steepens origin loss) |
+| trust_recover_k / breach_floor | +distrust lowers recover_k, raises floor · +attach_anx raises floor | flat |
+
+New trait: **`mimic`** ∈[0,2] bible-pinnable — chameleon tendency;
+loads extra/social; speaker-side only (the receiver effect is
+population machinery). No other new traits needed — every loading
+lands on existing axes.
+
+## 137. Spec changes in v5.40 (summary)
+
+- Event fields: `apology:true` + `partial:true` (§130), `mimic:true` +
+  `mimic_detected` ctx flag (§132), `joint_decision` kind with soft
+  `proposed_by` tag (§134), norm-expressive event tag `norm_expr`
+  (§133), expression tag `expr:happy|angry|neutral` on face-encode
+  events (§129), `contact:true` flag marking bond-maintenance events
+  (§127).
+- New per-character stores: `NormModel` (per-venue perceived-norm
+  records, §133); `SocialMap` third-party tie edges with
+  `last_witnessed_day` + `stale:true` (§128).
+- PersonModel fields: `stance_est` (projected or witnessed, §131) —
+  belief-only, never a fact read.
+- §4 additions: convo verbatim fast leg (`convo_verbatim_hl`) on
+  utterance fields; RelEdge.bond contact-decay (`tie_decay_hl`,
+  `kin_floor`, `recontact_rescue`); SocialMap edge decay (`map_tau`,
+  `witness_refresh`).
+- §5 additions: `tie_alert` crossing emits `drifted:true`;
+  `proposed_by` self-biased sourceInfer (§134); apology damp on
+  offense retrigger (§130).
+- §6 additions: false-consensus projection at stance_est read
+  (§131); NormModel updates on witnessed `norm_expr` events (§133).
+- §7 +26 scalars, +1 trait, +10 locked nulls (see §138).
+- §10 contract: emissions `drifted:true`, `stale_edge` on map reads,
+  `apology_given`/`apology_partial`, `assumed_agree` (audit),
+  `mimicked:true` (ctx render), `norm_shift`, `trust_recover`
+  milestone; reuse `claimed_mine`. World obligations: supply `expr`
+  tags, `mimic`/`mimic_detected` flags, `contact:true` co-presence
+  marks, `norm_expr` tags, and witnessed co-presence for map upkeep —
+  the map NEVER reads canonical tie state (stale_map_fact_null).
+
+## 138. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | basis |
+|---|---|---|---|
+| convo_verbatim_hl | 0.5d | 0.1–2d | Stafford & Daly 1984 (~10% @1mo) |
+| convo_interact_gain | 1.5 | 1.0–2.5 | Keenan et al. 1977 interaction-content advantage |
+| convo_topic_gain | 0.2 | 0.0–0.5 | gist survives as event feature — ours |
+| formula_e_mult | 0.05 | 0.0–0.2 | phatic content ~nothing — Stafford & Daly consistent |
+| tie_decay_hl | 180d | 60–720d | Roberts & Dunbar 2011; Burt 2000 order-of-years |
+| kin_floor | 0.35 | 0.1–0.7 | Hill & Dunbar 2003 kin persistence |
+| recontact_rescue | 0.5 | 0.2–0.9 | folk-consistent; thin direct evidence — ours |
+| tie_alert | 0.3 | 0.1–0.6 | "drifted" realization threshold — ours |
+| map_tau | 400d | 120d–∞ | perceived-network persistence — ours |
+| witness_refresh | 0.7 | 0.3–1.0 | witnessed > reported (reported ×0.5) |
+| expr_smile_gain | 0.15 | 0.0–0.4 | Baudouin et al. 2000 smile advantage |
+| expr_angry_att | 0.2 | 0.0–0.5 | Öhman et al. 2001 attention-without-recognition |
+| apology_damp | 0.3 | 0.0–0.6 | Ohbuchi et al. 1989 damp; content spared |
+| apology_backfire | 0.15 | 0.0–0.4 | Scher & Darley 1997 partial-apology reversal |
+| apology_sincerity_gate | 0.4 | 0.2–0.7 | ours |
+| fc_k | 0.5 | 0.2–0.8 | Ross et al. 1977; Marks & Miller 1987 |
+| fc_expose_gain | 0.5 | 0.2–0.9 | counterevidence overwrite — ours |
+| fc_conf_gain | 0.1 | 0.0–0.3 | unearned confidence — ours |
+| mimic_gain / mimic_cap | 0.08 / 0.4 | 0.0–0.25 / 0.1–0.8 | Lakin & Chartrand 2003 — magnitude ours |
+| mimic_detect_pen | 0.2 | 0.0–0.5 | detected-mimicry backfire — ours |
+| norm_vocal_w | 1.3 | 0.8–2.0 | public-expression overweight — ours |
+| norm_conf_k / norm_check_tau | 0.15 / 60d | 0.05–0.4 / 14–180d | ours |
+| idea_self_bias / idea_pool_p | 0.15 / 0.5 | 0.0–0.4 / 0.2–0.9 | Ross & Sicoly 1979 direction; magnitudes ours |
+| trust_recover_k / breach_floor | 0.05/d / 0.15 | 0.01–0.2 / 0.0–0.5 | Schweitzer et al. 2006 partial repair |
+| apology_floor_cut | 0.3 | 0.0–0.6 | Kim et al. 2004 type-contingent repair |
+
+Locked nulls (all falsifiable): `convo_formula_null` (phatic talk
+writes nothing); `tie_delete_null` (faded ties never delete);
+`stale_map_fact_null` (canonical ties never back-propagate);
+`smile_disposition_null` (expression biases recognition, never traits);
+`apology_eraser_null` (damps affect, never deletes the offense);
+`fc_consent_null` (projection mints no record); `mimic_recipient_null`
+(moves eval only); `norm_truth_null` (samples expression, not mean);
+`idea_verbatim_null` (origin phrasing never survives the merge);
+`trust_full_null` (no apology path to unbreached trust).
+
+## 139. Validation probes (P970–P981)
+
+- **P970 the talk evaporates (MUST):** verbatim utterance fields at 30d
+  ≈ 10±5% of encoded; survivors enriched for interaction-content;
+  gist/event node intact. FAIL if >40% verbatim or gist lost.
+- **P971 the formulaic void (MUST — locked null):** greeting/phatic
+  exchanges mint ~nothing retrievable at 24h (convo_formula_null).
+  FAIL on any retrievable phatic verbatim.
+- **P972 the fading acquaintance (MUST):** no-contact RelEdge decays on
+  ~180d half-life; kin-typed edges floor >0; recontact restores partial
+  and `drifted:true` fires on tie_alert crossing. FAIL on deletion
+  (tie_delete_null) or kin matching friend decay.
+- **P973 the stale map (MUST — belief-vs-fact):** a tie dissolved in
+  world fact but unwitnessed stays in the character's SocialMap as
+  `stale:true`; a witnessed contrary event overwrites at
+  ~witness_refresh; canonical state never back-propagates
+  (stale_map_fact_null). FAIL on any unwitnessed refresh.
+- **P974 the smile that was remembered (SHOULD — tier-lock):**
+  happy-expression encodes recognize above neutral; angry captures
+  attention without familiarity gain; trait ledgers identical
+  (smile_disposition_null). FAIL if expression moves traits.
+- **P975 the apology's footprint (MUST):** `apology:true` damps
+  offense retrigger affect ~0.3 while record strength/content persist
+  (apology_eraser_null); `partial:true` below sincerity gate worsens
+  retrigger (backfire). FAIL on content loss or unconditional damp.
+- **P976 everyone agrees with me (MUST):** unwitnessed stance_est
+  projects own position at fc_k; witnessed dissent overwrites and can
+  mint surprise; no assumed-agreement record exists
+  (fc_consent_null). FAIL on minted consent or zero projection.
+- **P977 the chameleon's halo (SHOULD):** repeated `mimic:true`
+  events raise receiver eval to cap; `mimic_detected` reverses;
+  credibility/knowsTopics untouched (mimic_recipient_null); high-`mimic`
+  trait characters emit more flags.
+- **P978 the vocal minority writes the norm (SHOULD):** two repeated
+  loud `norm_expr` events shift a character's NormModel toward the
+  expressed position even when the sampled majority privately
+  dissents (norm_truth_null — model reflects expression, not mean).
+- **P979 whose idea (SHOULD):** delayed retrieval of joint_decision
+  records self-attributes at idea_self_bias above chance; pooled
+  records lose proposed_by at idea_pool_p; no verbatim resolution
+  exists (idea_verbatim_null); `claimed_mine` audits fire.
+- **P980 the second-chance discount (MUST — direction-lock):**
+  post-breach credibility recovers toward (1 − breach_floor), never
+  to baseline, via apology alone (trust_full_null); sincere apology
+  on competence breach cuts floor ~apology_floor_cut. FAIL on full
+  reset or zero recovery.
+- **P981 divergence (MUST — composite):** two profiles differing only
+  on `mimic`/`suggs` show different eval accrual from mirrored
+  partners AND different NormModel drift — the same room writes
+  different books.
+
+## 140. Honest limits (Part IX)
+
+- **The ~10% is a lab-conversation number.** Stafford & Daly's figure
+  is a same-sex dyad at one month; café talk with motive content will
+  carry more. We clamp convo_verbatim_hl ±4× rather than re-derive;
+  P970's band is deliberately wide.
+- **Tie-decay half-lives are order-of-magnitude fits.** Roberts &
+  Dunbar and Burt establish the direction and rough timescale; nobody
+  reports per-day rates convertible to sim ticks. `recontact_rescue`
+  in particular is folk-consistent but nearly unmeasured — flagged.
+- **The SocialMap is our composite.** Cognitive-social-structure
+  biases are consensus (Krackhardt; Kumbasar et al.); the
+  stale_edge/witness_refresh mechanics are our implementation. The
+  locked null is the honest half: belief-vs-fact divergence is the
+  point, not an oversight.
+- **Apology magnitudes are sized, not measured.** The direction
+  (full damp, partial backfire) is replicated; 0.3/0.15 are sized
+  against §87's forgiveness machinery and must earn their range in
+  P975.
+- **False consensus at stance_est is inference-scoped.** The
+  projection is consensus; applying it as a null-minting inference
+  layer is our design — it exists so characters can be *surprised*,
+  which is the behavior the user asked for.
+- **Mimicry detection is world-supplied.** The literature's backfire
+  condition requires the target to notice; the sim cannot compute
+  "noticing" — the world flags `mimic_detected` and memory prices it.
+- **NormModels are per-venue, not per-person.** Prentice & Miller's
+  effect is setting-anchored; we attach the model to the venue record
+  a character holds, which is cheap and keeps pluralistic ignorance
+  where it lives.
+- **Trust-floor permanence is asserted, not timed.** Schweitzer and
+  Kim establish partial repair; whether the residual truly never
+  closes absent new events is untested — `trust_full_null` is
+  conservative, and the floor's erosion runs through ordinary §6.4
+  experience so nothing is irreversible in principle.

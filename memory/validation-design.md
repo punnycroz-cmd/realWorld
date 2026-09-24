@@ -9254,3 +9254,120 @@ P959 OBSERVE.
   training near-yes/far-no); Shipstead, Redick & Engle
   2012; Owen et al. 2010 (*Nature* — 11,430-participant
   RCT, zero transfer).
+
+## 188. v92 suite (P970–P981) — social-memory IX
+
+Probes for the channel-structure layer: conversational residue,
+contact-clock ties, stale social maps, expression tiers, apology
+footprints, false consensus, mimicry halos, vocal-minority
+norms, proposal drift, breached-trust asymptote. Locked nulls
+probe-enforced.
+
+- **P970 the talk evaporates (MUST):** verbatim utterance
+  fields at 30d ≈ 10±5% of encoded; survivors enriched for
+  interaction-content (`convo_interact_gain`); gist/event node
+  intact. FAIL if >40% verbatim survives or gist is lost.
+- **P971 the formulaic void (MUST — locked null):**
+  greeting/phatic exchanges mint ~nothing retrievable at 24h
+  (convo_formula_null). FAIL on any retrievable phatic
+  verbatim.
+- **P972 the fading acquaintance (MUST):** no-contact RelEdge
+  decays ~`tie_decay_hl`; kin-typed edges floor at `kin_floor`;
+  recontact restores `recontact_rescue` fraction; `drifted:true`
+  fires on `tie_alert` crossing. FAIL on deletion
+  (tie_delete_null) or kin matching friend decay.
+- **P973 the stale map (MUST — belief-vs-fact):** a tie
+  dissolved in world fact but unwitnessed stays in the
+  character's SocialMap as `stale:true`; witnessed contrary
+  events overwrite at ~`witness_refresh`; told_by reports count
+  half; canonical state never back-propagates
+  (stale_map_fact_null). FAIL on any unwitnessed refresh.
+- **P974 the smile that was remembered (SHOULD — tier-lock):**
+  `expr:happy` encodes recognize above neutral; `expr:angry`
+  captures attention without familiarity gain; trait ledgers
+  identical (smile_disposition_null). FAIL if expression moves
+  traits.
+- **P975 the apology's footprint (MUST):** `apology:true` damps
+  offense retrigger affect ~`apology_damp` while record
+  strength/content persist (apology_eraser_null); `partial:true`
+  below `apology_sincerity_gate` worsens retrigger
+  (backfire). FAIL on content loss or unconditional damp.
+- **P976 everyone agrees with me (MUST):** unwitnessed
+  `stance_est` projects own position at `fc_k`; witnessed
+  dissent overwrites at `fc_expose_gain` and may mint a
+  mismatch record; no assumed-agreement record exists
+  (fc_consent_null). FAIL on minted consent or zero
+  projection.
+- **P977 the chameleon's halo (SHOULD):** repeated `mimic:true`
+  events raise receiver eval to `mimic_cap`; `mimic_detected`
+  reverses at `mimic_detect_pen`; credibility/knowsTopics
+  untouched (mimic_recipient_null); high-`mimic` trait
+  characters emit more flags.
+- **P978 the vocal minority writes the norm (SHOULD):** two
+  repeated loud `norm_expr` events shift a character's
+  NormModel toward the expressed position even when the
+  sampled majority privately dissents (norm_truth_null);
+  confidence bleeds past `norm_check_tau`.
+- **P979 whose idea (SHOULD):** delayed retrieval of
+  `joint_decision` records self-attributes at `idea_self_bias`
+  above chance; pooled records lose `proposed_by` at
+  `idea_pool_p`; no verbatim resolution exists
+  (idea_verbatim_null); `claimed_mine` audits fire.
+- **P980 the second-chance discount (MUST — direction-lock):**
+  post-breach credibility recovers toward
+  `1 − breach_floor`, never baseline, via apology alone
+  (trust_full_null); sincere apology on competence breach cuts
+  floor ~`apology_floor_cut`. FAIL on full reset or zero
+  recovery.
+- **P981 divergence (MUST — composite):** two profiles
+  differing only on `mimic`/`suggs` show different eval
+  accrual from mirrored partners AND different NormModel
+  drift — the same room writes different books.
+
+Registry: P1–P981. v92 suite: P970–P973, P975, P976, P980,
+P981 MUST; P974, P977–P979 SHOULD.
+
+## 189. Sources verified this version (P970–P981 backing)
+
+- **Conversational memory:** Stafford & Daly 1984
+  (*Communication Monographs* 51:379 — ~10% idea units at one
+  month, conversational highlights + gist); Keenan, MacWhinney
+  & Mayhew 1977 (interaction-content advantage); Hjelmquist
+  1984; Hjelmquist & Gidlund 1985 (poor verbatim, preserved
+  gist); Goldsmith & Baxter 1996 (event-organized everyday
+  remembering).
+- **Tie decay:** Roberts & Dunbar 2011 (*Social Networks*
+  33:138 — closeness tracks contact); Sutcliffe, Dunbar,
+  Binder & Arrow 2012 (*Psychol. Sci.* — layered structure);
+  Burt 2000 (*Am. J. Sociol.* 106:347 — tie decay functions);
+  Hill & Dunbar 2003 (kin persistence); Saramäki et al. 2014.
+- **Perceived networks:** Krackhardt 1987 (*Admin. Sci. Q.*
+  32:109); Krackhardt 1990 (*Soc. Networks* 12:239); Freeman
+  1992; Kumbasar, Rommey & Batchelder 1994 (*Am. J. Sociol.*
+  100:477 — recency/transitivity biases).
+- **Expression/face:** Baudouin, Gilibert, Sansone &
+  Tiberghien 2000 (*Br. J. Psychol.* 91:543 — smile
+  advantage); D'Argembeau et al. 2003; Öhman, Lundqvist &
+  Esteves 2001 (faces-in-crowd — attention without
+  recognition gain).
+- **Apology:** Darby & Schlenker 1982; Ohbuchi, Kameda &
+  Agarie 1989 (*JPSP* 56:919 — anger/aggression reduction);
+  Scher & Darley 1997 (*JESP* 33:509 — partial-apology
+  backfire); Bennett & Earwaker 1994.
+- **False consensus:** Ross, Greene & House 1977 (*JESP*
+  13:279); Marks & Miller 1987 (*Psychol. Bull.* 102:72 —
+  meta-analytic robustness); Dawes (consensus judgments).
+- **Mimicry:** Chartrand & Bargh 1999 (*JPSP* 76:893 —
+  chameleon effect); Lakin & Chartrand 2003 (*Psychol. Sci.*
+  14:334 — mimicry→liking); van Baaren et al. 2004
+  (prosociality/tips); Chartrand & Dalton 2009.
+- **Norms:** Prentice & Miller 1993 (*JPSP* 64:243 —
+  pluralistic ignorance); Blanton & Christie 2003 (*Rev. Gen.
+  Psychol.* 7:261 — deviant regulation).
+- **Contribution attribution:** Ross & Sicoly 1979 (*JPSP*
+  37:322 — overclaim, married-couple >100% sums).
+- **Trust repair:** Schweitzer, Hershey & Bradlow 2006
+  (*Organ. Behav. Hum. Decis.* 101:1 — partial recovery);
+  Kim, Ferrin, Cooper & Dirks 2004 (*JAP* 89:104 —
+  violation-type contingent repair); Tomlinson, Dineen &
+  Lewicki 2004.

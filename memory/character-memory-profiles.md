@@ -1177,6 +1177,16 @@ needs both.
 | preg_enc_dip / preg_exec_dip / preg_complaint | 0.0 / 0.0 / 0.0 | 0.4 / 0.3 / 1.0 | pregnancy trimester dip + complaint share (v5.39) |
 | caff_wd_tax / caff_wd_theta / caff_wd_breadth / caff_state_dep | 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.1 / 0.15 / 0.08 | caffeine withdrawal tax + tiny state-dep (v5.39) |
 | gamer_att_gain / gamer_spatial_gain / gamer_vis_k / nt_xfer | 0.0 / 0.0 / 0.0 / 0.0 | 0.05 / 0.08 / 0.1 / 0.3 | gaming channel gains + near-transfer channel (v5.39) |
+| convo_verbatim_hl / convo_interact_gain / convo_topic_gain / formula_e_mult | 0.1 / 1.0 / 0.0 / 0.0 | 2.0 / 2.5 / 0.5 / 0.2 | talk-residue decay + interaction-content + phatic floor (v5.40) |
+| tie_decay_hl / kin_floor / recontact_rescue / tie_alert | 60 / 0.1 / 0.2 / 0.1 | 720 / 0.7 / 0.9 / 0.6 | bond contact-decay + kin floor + rescue + drift alert (v5.40) |
+| map_tau / witness_refresh | 120 / 0.3 | inf / 1.0 | SocialMap edge decay + witnessed refresh (v5.40) |
+| expr_smile_gain / expr_angry_att | 0.0 / 0.0 | 0.4 / 0.5 | expression-contingent face tiers (v5.40) |
+| apology_damp / apology_backfire / apology_sincerity_gate | 0.0 / 0.0 / 0.2 | 0.6 / 0.4 / 0.7 | apology damp + partial backfire + sincerity gate (v5.40) |
+| fc_k / fc_expose_gain / fc_conf_gain | 0.2 / 0.2 / 0.0 | 0.8 / 0.9 / 0.3 | false-consensus projection + overwrite + confidence (v5.40) |
+| mimic_gain / mimic_cap / mimic_detect_pen | 0.0 / 0.1 / 0.0 | 0.25 / 0.8 / 0.5 | chameleon halo + cap + detected backfire (v5.40) |
+| norm_vocal_w / norm_conf_k / norm_check_tau | 0.8 / 0.05 / 14 | 2.0 / 0.4 / 180 | vocal-minority norm weight + confidence + check decay (v5.40) |
+| idea_self_bias / idea_pool_p | 0.0 / 0.2 | 0.4 / 0.9 | proposal attribution drift + pooling (v5.40) |
+| trust_recover_k / breach_floor / apology_floor_cut | 0.01 / 0.0 / 0.0 | 0.2 / 0.5 / 0.6 | breached-trust recovery + floor + apology cut (v5.40) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4584,3 +4594,59 @@ Pinning guidance:
   `caff_ability_null`, `gamer_episodic_null`,
   `braintrain_far_null`; frozen `nt_xfer` gate and
   `preg_trim_w` shape — probe-enforced (P958–P969).
+
+## 73. v5.40 note (social-memory IX — the talk evaporates, the ties fade, the maps lie)
+
+Eleven new clamp rows above price the social channel structure
+(social-memory.md Part IX §§126–140). What bibles/mods must know:
+
+- **`mimic` [0,2] is bible-pinnable — the chameleon.** Pin it on
+  the character who unconsciously mirrors their conversation
+  partner; it gates how often the world may tag `mimic:true` on
+  their talk. The halo lands on the *listener's* ledger
+  (`mimic_gain`→`mimic_cap`) — the flattered partner likes the
+  mimicker more and learns nothing true
+  (`mimic_recipient_null`). If the world flags
+  `mimic_detected`, the same mechanism backfires
+  (`mimic_detect_pen`). Write it as warmth, not strategy.
+- **Bonds fade on a contact clock, not a sentiment one.**
+  `tie_decay_hl` ~180d means a main who stops seeing an
+  acquaintance drifts below `tie_alert` and emits
+  `drifted:true` — "we used to talk all the time." Kin floor
+  (`kin_floor`) holds family through silence; `recontact_rescue`
+  means re-meeting rebuilds faster than first meeting built.
+  `tie_delete_null` locked — nobody is ever deleted.
+- **The SocialMap is belief, not fact.** Each character's map of
+  who-knows-whom updates only on witnessed events — a dissolved
+  tie nobody saw stays `stale:true`. World-builder: the world's
+  canonical tie state must NEVER back-propagate
+  (`stale_map_fact_null`); stale edges are the feature that lets
+  a character say "last I heard they're still together" and be
+  honestly wrong.
+- **`stance_est` is a projection layer.** With no witnessed
+  evidence a character assumes others hold their position at
+  `fc_k` — false consensus. It mints nothing (`fc_consent_null`),
+  so witnessed dissent lands as *surprise*. High
+  `self_srv`/`meta_conf` profiles project harder; `distrust`
+  projects less.
+- **Apologies damp, never erase.** `apology:true` cuts offense
+  retrigger affect ~0.3; `partial:true` below the sincerity gate
+  makes it *hotter* (`apology_backfire`). The offense record is
+  untouchable (`apology_eraser_null`) — and breached trust
+  recovers only toward `1 − breach_floor` (`trust_full_null`).
+  Long feuds asymptote; they don't resolve at the apology scene.
+- **NormModels hear the loud, not the many.** Per-venue norm
+  records update only on witnessed `norm_expr` events at
+  `norm_vocal_w` — two loud regulars can miswrite the whole
+  block's perceived norm (`norm_truth_null`). Pair with `suggs`
+  (believes the sample) and `checker` (discounts it).
+- **Proposals drift self-ward.** `joint_decision` records lose
+  `proposed_by` at `idea_pool_p` and self-attribute at
+  `idea_self_bias` — "I suggested that" disputes with no
+  verbatim resolution (`idea_verbatim_null`).
+- **Never pin:** locked nulls `convo_formula_null`,
+  `tie_delete_null`, `stale_map_fact_null`,
+  `smile_disposition_null`, `apology_eraser_null`,
+  `fc_consent_null`, `mimic_recipient_null`,
+  `norm_truth_null`, `idea_verbatim_null`,
+  `trust_full_null` — probe-enforced (P970–P981).

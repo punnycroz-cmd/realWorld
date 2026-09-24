@@ -3753,3 +3753,89 @@ al. 2018 (+2018 correction), Boot et al. 2011, Hilgard
 et al. 2017, Simons et al. 2016, Melby-Lervåg & Hulme
 2013, Shipstead et al. 2012, Owen et al. 2010 —
 probes P958–P969.
+
+## 70. v92 adds — social-memory IX (the talk evaporates, the ties fade, the maps lie)
+
+Part IX of `social-memory.md` (§§126–140) prices the channel
+structure the social ledger skipped — the residue ordinary
+conversation leaves, the contact clock that fades
+relationships, the stale third-party map, and five arena biases.
+
+- **Conversational memory.** Stafford & Daly 1984
+  (*Communication Monographs* 51:379): ~10% of idea units
+  reproduced at one month — residue is highlights + gist, not
+  transcript. Keenan, MacWhinney & Mayhew 1977: interaction-
+  content statements (insults, boasts, commitments) survive;
+  low-content assertions don't. Hjelmquist 1984 / Hjelmquist &
+  Gidlund 1985: verbatim poor, gist adequate, recognition >>
+  recall. Goldsmith & Baxter 1996: remembering organizes by
+  event, not by talk. → spec: `convo_verbatim_hl` fast leg,
+  `convo_interact_gain`, `formula_e_mult` phatic floor,
+  `convo_formula_null` locked.
+- **Tie decay on contact.** Roberts & Dunbar 2011 (*Social
+  Networks* 33:138): emotional closeness decays when contact
+  drops. Sutcliffe et al. 2012 (*Psychol. Sci.*): the
+  5/15/50/150 layer structure is contact-budgeted. Burt 2000
+  (*Am. J. Sociol.* 106:347): decay functions over years.
+  Hill & Dunbar 2003: kin ties persist at contact levels that
+  kill friendships. → `tie_decay_hl`, `kin_floor`,
+  `recontact_rescue` (HYPOTHESIS — thin direct evidence),
+  `tie_delete_null`.
+- **Cognitive social structures — the stale map.** Krackhardt
+  1987 (*ASQ* 32:109) & 1990 (*Soc. Networks* 12:239):
+  perceived networks diverge systematically from actual.
+  Kumbasar, Rommey & Batchelder 1994 (*AJS* 100:477): recency
+  + transitivity recall biases. Freeman 1992. → `SocialMap`
+  updates on witnessed events only; `stale_map_fact_null` —
+  belief-vs-fact by design.
+- **Expression-contingent face memory.** Baudouin et al. 2000
+  (*BJP* 91:543) smile advantage; Öhman, Lundqvist & Esteves
+  2001 angry faces capture attention WITHOUT recognition
+  advantage — the attention/memory dissociation. →
+  `expr_smile_gain`, `expr_angry_att`,
+  `smile_disposition_null`.
+- **Apology records.** Ohbuchi, Kameda & Agarie 1989 (*JPSP*
+  56:919) apology reduces anger/aggression; Scher & Darley
+  1997 (*JESP* 33:509) partial apologies backfire; Darby &
+  Schlenker 1982. → `apology_damp`/`apology_backfire` on
+  retrigger affect, `apology_eraser_null`.
+- **False consensus.** Ross, Greene & House 1977 (*JESP*
+  13:279); Marks & Miller 1987 (*Psychol. Bull.* 102:72 —
+  meta). → `fc_k` projection on `stance_est`,
+  `fc_consent_null` (projection mints nothing — surprise
+  survives).
+- **Mimicry.** Chartrand & Bargh 1999 (*JPSP* 76:893)
+  chameleon effect; Lakin & Chartrand 2003 (*Psychol. Sci.*
+  14:334) mimicry→liking; van Baaren et al. 2004; detected
+  mimicry backfires. → trait `mimic` (speaker gate),
+  `mimic_gain`/`mimic_cap`/`mimic_detect_pen`,
+  `mimic_recipient_null`.
+- **Pluralistic ignorance — the vocal minority's norm.**
+  Prentice & Miller 1993 (*JPSP* 64:243); Blanton & Christie
+  2003 (deviant regulation — perceived norms steer acts). →
+  `NormModel` per-venue, witnessed `norm_expr` only,
+  `norm_vocal_w`, `norm_truth_null`.
+- **Proposal attribution.** Ross & Sicoly 1979 (*JPSP* 37:322)
+  overclaim of joint contributions. → `idea_self_bias`,
+  `idea_pool_p`, `idea_verbatim_null`.
+- **Trust repair.** Schweitzer, Hershey & Bradlow 2006
+  (*OBHDP* 101:1 — partial recovery); Kim, Ferrin, Cooper &
+  Dirks 2004 (*JAP* 89:104 — violation-type contingent);
+  Tomlinson et al. 2004. → `trust_recover_k`,
+  `breach_floor`, `apology_floor_cut`, `trust_full_null`.
+
+New sources verified this version: Stafford & Daly 1984;
+Keenan, MacWhinney & Mayhew 1977; Hjelmquist 1984; Hjelmquist
+& Gidlund 1985; Goldsmith & Baxter 1996; Roberts & Dunbar
+2011; Sutcliffe et al. 2012; Burt 2000; Hill & Dunbar 2003;
+Saramäki et al. 2014; Krackhardt 1987/1990; Freeman 1992;
+Kumbasar, Rommey & Batchelder 1994; Baudouin et al. 2000;
+D'Argembeau et al. 2003; Öhman, Lundqvist & Esteves 2001;
+Darby & Schlenker 1982; Ohbuchi, Kameda & Agarie 1989; Scher
+& Darley 1997; Bennett & Earwaker 1994; Ross, Greene & House
+1977; Marks & Miller 1987; Chartrand & Bargh 1999; Lakin &
+Chartrand 2003; van Baaren et al. 2004; Prentice & Miller
+1993; Blanton & Christie 2003; Ross & Sicoly 1979;
+Schweitzer, Hershey & Bradlow 2006; Kim, Ferrin, Cooper &
+Dirks 2004; Tomlinson, Dineen & Lewicki 2004 — probes
+P970–P981.

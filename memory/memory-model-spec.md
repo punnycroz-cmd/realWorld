@@ -1,5 +1,50 @@
-# Memory Model Spec v5.39 — implementable human-like memory for RW characters
+# Memory Model Spec v5.40 — implementable human-like memory for RW characters
 
+> **v5.40 note (social-memory IX — the talk evaporates,
+> the ties fade, the maps lie):** `memory/social-memory.md`
+> Part IX (§§126–140) prices the channel structure the
+> social ledger skipped — conversation decays to residue,
+> relationships fade on a contact clock, and the map of
+> third-party ties is a stale reconstruction. **Conversational
+> residue** — utterance fields get a fast leg
+> (`convo_verbatim_hl` ~0.5d); interaction-content survivors
+> (`convo_interact_gain`); phatic talk mints nothing
+> (`convo_formula_null`; Stafford & Daly 1984 ~10% @1mo;
+> Keenan et al. 1977) — §6.204. **Fading acquaintance** —
+> RelEdge.bond decays at `tie_decay_hl` ~180d on no-contact,
+> kin floored (`kin_floor`), recontact rescues partial
+> (`recontact_rescue`); locked `tie_delete_null` (Roberts &
+> Dunbar 2011; Burt 2000) — §6.205. **The stale map** —
+> `SocialMap` third-party edges update on witnessed events
+> only (`witness_refresh`), decay at `map_tau`, emit
+> `stale:true`; locked `stale_map_fact_null` — canonical
+> ties never back-propagate (Krackhardt 1987/1990;
+> Kumbasar et al. 1994) — §6.206. **Expression-contingent
+> face memory** — `expr_smile_gain` on familiarity,
+> `expr_angry_att` attention-only; locked
+> `smile_disposition_null` (Baudouin et al. 2000; Öhman et
+> al. 2001) — §6.207. **The apology's footprint** —
+> `apology:true` damps retrigger affect (`apology_damp`),
+> partial apologies backfire; locked `apology_eraser_null`
+> (Ohbuchi et al. 1989; Scher & Darley 1997) — §6.208.
+> **False consensus** — unwitnessed `stance_est` projects
+> own stance at `fc_k`; locked `fc_consent_null` (Ross et
+> al. 1977; Marks & Miller 1987) — §6.209. **The
+> chameleon's halo** — `mimic:true` events raise receiver
+> eval to `mimic_cap`, detected mimicry backfires; new
+> trait `mimic`; locked `mimic_recipient_null` (Chartrand &
+> Bargh 1999; Lakin & Chartrand 2003) — §6.210. **The
+> vocal minority's norm** — `NormModel` updates on
+> witnessed `norm_expr` only, vocal-weighted; locked
+> `norm_truth_null` (Prentice & Miller 1993) — §6.211.
+> **Whose idea** — `proposed_by` soft tag drifts self-ward
+> (`idea_self_bias`), pools erase origin (`idea_pool_p`);
+> locked `idea_verbatim_null` (Ross & Sicoly 1979) —
+> §6.212. **The second-chance discount** — breached trust
+> recovers toward `1 − breach_floor` at `trust_recover_k`;
+> locked `trust_full_null` (Schweitzer et al. 2006; Kim et
+> al. 2004) — §6.213. +26 scalars, +1 trait, +10 locked
+> nulls; §10 contract adds. Probes P970–P981.
 > **v5.39 note (individual-differences VIII — the chemistry
 > and the crowd):** `memory/individual-differences.md` Part
 > VIII (§§92–107) prices the state-flavored axes the trait
@@ -11765,6 +11810,121 @@ arm — strategy deployment on real material (priced,
 §6-§85) vs far transfer from drill (banned) are both true
 at once, and the suite proves it.
 
+### 6.204 Conversational residue — the talk evaporates (new in v5.40)
+
+Utterance-level fields inside conversation events carry a fast
+secondary decay `convo_verbatim_hl` ≈ 0.5 day half-life on verbatim
+surface (vs record-level `tau_episodic`). Utterances flagged
+interaction-content (self-relevance, other-directed evaluation,
+commitment) get `convo_interact_gain` ≈ 1.5 on E and are exempt
+from the fast leg; formulaic/phatic utterances mint at
+`formula_e_mult` ≈ 0.05 — locked null `convo_formula_null`
+(phatic talk writes nothing retrievable). Stafford & Daly 1984
+(~10% idea units @1mo); Keenan, MacWhinney & Mayhew 1977;
+Hjelmquist & Gidlund 1985; `convo_topic_gain` ≈ 0.2 keeps gist
+as a feature of the event node. SM§126; probe P970/P971.
+
+### 6.205 The fading acquaintance — bonds on a contact clock (new in v5.40)
+
+`RelEdge.bond` decays at `tie_decay_hl` ≈ 180 days absent
+`contact:true` events (co-presence or addressed); kin-typed edges
+floor at `kin_floor` ≈ 0.35; recontact restores
+`recontact_rescue` ≈ 0.5 of the gap. Crossing `tie_alert` ≈ 0.3
+emits `drifted:true`. Locked null `tie_delete_null` — faded ties
+decay toward zero, never delete. Roberts & Dunbar 2011; Burt
+2000; Hill & Dunbar 2003 (kin persistence). SM§127; probe P972.
+
+### 6.206 The stale map — perceived third-party ties (new in v5.40)
+
+Per-character `SocialMap` edges `{alterA, alterB, str,
+last_witnessed_day}` update ONLY on witnessed events
+(co-presence/interaction at `witness_refresh` ≈ 0.7; `told_by`
+report counts half). Unwitnessed edges decay at `map_tau` ≈ 400d
+and read `stale:true`. Locked null `stale_map_fact_null` —
+canonical tie state never back-propagates. Krackhardt 1987/1990;
+Kumbasar, Rommey & Batchelder 1994; Freeman 1992. SM§128; probe
+P973.
+
+### 6.207 Expression-contingent face memory (new in v5.40)
+
+World-tagged `expr:happy` on face-encode events multiplies
+familiarity accrual by `1 + expr_smile_gain` (≈0.15);
+`expr:angry` raises attention capture `expr_angry_att` ≈ 0.2
+with zero familiarity/identity gain — attention/memory
+dissociation. Locked null `smile_disposition_null` — expression
+biases recognition tiers only, never trait ledgers. Baudouin et
+al. 2000; Öhman, Lundqvist & Esteves 2001. SM§129; probe P974.
+
+### 6.208 The apology's footprint (new in v5.40)
+
+`apology:true` events mint their own record and apply
+`apology_damp` ≈ 0.3 to the linked offense record's retriggered
+affect at retrieval (strength/content untouched —
+`apology_eraser_null`). `partial:true` below
+`apology_sincerity_gate` ≈ 0.4 applies negative damp
+`apology_backfire` ≈ 0.15. Emissions `apology_given` /
+`apology_partial`. Ohbuchi, Kameda & Agarie 1989; Darby &
+Schlenker 1982; Scher & Darley 1997; pairs with the §87
+forgiveness valence arm. SM§130; probe P975.
+
+### 6.209 False consensus — projected stances (new in v5.40)
+
+Reading `PersonModel[other].stance_est` with no witnessed
+evidence returns own stance pulled `fc_k` ≈ 0.5, confidence
+`+fc_conf_gain` ≈ 0.1; witnessed dissent overwrites at
+`fc_expose_gain` ≈ 0.5 and may mint a mismatch event. Locked
+null `fc_consent_null` — the projection mints nothing; assumed
+agreement is inference, never record. Ross, Greene & House 1977;
+Marks & Miller 1987 meta. Emission `assumed_agree` (audit).
+SM§131; probe P976.
+
+### 6.210 The chameleon's halo — mimicry residue (new in v5.40)
+
+World-tagged `mimic:true` events (speaker mirrors partner;
+emission frequency gated by speaker trait `mimic` [0,2]) add
+`mimic_gain` ≈ 0.08 to receiver's `PersonModel[speaker].eval`,
+capped `mimic_cap` ≈ 0.4; `mimic_detected` ctx reverses at
+`mimic_detect_pen` ≈ 0.2. Locked null `mimic_recipient_null` —
+eval/bond only; no content, credibility, or knowsTopics writes.
+Chartrand & Bargh 1999; Lakin & Chartrand 2003; van Baaren et
+al. 2004. Emission `mimicked:true` (ctx render). SM§132; probe
+P977.
+
+### 6.211 The vocal minority's norm — NormModel (new in v5.40)
+
+Per-venue `NormModel {topic, perceived_norm, conf,
+last_check_day}` updates only on witnessed `norm_expr` events,
+weighted `norm_vocal_w` ≈ 1.3 for public/loud utterances and by
+speaker credibility; `norm_conf_k` ≈ 0.15 per expression;
+confidence bleeds past `norm_check_tau` ≈ 60d. Locked null
+`norm_truth_null` — the model tracks sampled expression, never
+population mean. Prentice & Miller 1993; Blanton & Christie
+2003. Emission `norm_shift`. SM§133; probe P978.
+
+### 6.212 Whose idea — proposal attribution drift (new in v5.40)
+
+`joint_decision` records carry soft `proposed_by` (decays at
+beta_source); delayed retrieval self-biases candidacy
+`idea_self_bias` ≈ 0.15 inside §6.10 sourceInfer when the true
+proposer is out-of-source; `idea_pool_p` ≈ 0.5 strips the tag
+("the group decided"). Locked null `idea_verbatim_null` —
+proposal phrasing never survives; reuses emission
+`claimed_mine`. Ross & Sicoly 1979. SM§134; probe P979.
+
+### 6.213 The second-chance discount — breached-trust asymptote (new in v5.40)
+
+Post-breach `PersonModel.credibility`/eval recover
+exponentially `trust_recover_k` ≈ 0.05/day toward
+`(1 − breach_floor)`, `breach_floor` ≈ 0.15; sincere apology on
+competence-class breach shaves the floor `apology_floor_cut`
+≈ 0.3 (integrity-class: smaller cut, no-evidence branch may
+hold cred lower — DEBATED context). Locked null
+`trust_full_null` — no apology path restores unbreached trust;
+floor erosion runs through ordinary §6.4 experience. Schweitzer,
+Hershey & Bradlow 2006; Kim, Ferrin, Cooper & Dirks 2004;
+Tomlinson et al. 2004. Emission `trust_recover` milestone.
+SM§135; probe P980.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -13616,6 +13776,44 @@ MemoryParams = {
 "gamer_att_gain": 0.01, "gamer_spatial_gain": 0.02,
 "gamer_vis_k": 0.03,                         // §6.202
 "nt_xfer": 0.15,                             // §6.203
+// v5.40 additions (social-memory IX — SM§§126–135)
+"convo_verbatim_hl": 0.5, "convo_interact_gain": 1.5,
+"convo_topic_gain": 0.2, "formula_e_mult": 0.05, // §6.204
+"tie_decay_hl": 180.0, "kin_floor": 0.35,
+"recontact_rescue": 0.5, "tie_alert": 0.3,       // §6.205
+"map_tau": 400.0, "witness_refresh": 0.7,        // §6.206
+"expr_smile_gain": 0.15, "expr_angry_att": 0.2,  // §6.207
+"apology_damp": 0.3, "apology_backfire": 0.15,
+"apology_sincerity_gate": 0.4,                   // §6.208
+"fc_k": 0.5, "fc_expose_gain": 0.5,
+"fc_conf_gain": 0.1,                           // §6.209
+"mimic_gain": 0.08, "mimic_cap": 0.4,
+"mimic_detect_pen": 0.2,                       // §6.210
+"norm_vocal_w": 1.3, "norm_conf_k": 0.15,
+"norm_check_tau": 60.0,                        // §6.211
+"idea_self_bias": 0.15, "idea_pool_p": 0.5,    // §6.212
+"trust_recover_k": 0.05, "breach_floor": 0.15,
+"apology_floor_cut": 0.3,                      // §6.213
+// v5.40 trait: `mimic` [0,2] bible-pinnable (chameleon
+//   tendency; speaker-side emission gate — SM§132).
+// v5.40 locked nulls: convo_formula_null (P971);
+//   tie_delete_null (P972); stale_map_fact_null (P973);
+//   smile_disposition_null (P974); apology_eraser_null
+//   (P975); fc_consent_null (P976);
+//   mimic_recipient_null (P977); norm_truth_null
+//   (P978); idea_verbatim_null (P979); trust_full_null
+//   (P980).
+// v5.40 fields/state: event tags `apology:true` +
+//   `partial:true`, `mimic:true` + `mimic_detected` ctx,
+//   `joint_decision` kind + soft `proposed_by`,
+//   `norm_expr`, `expr:happy|angry|neutral`,
+//   `contact:true`; stores `NormModel`, `SocialMap`
+//   edge `{alterA,alterB,str,last_witnessed_day,stale}`;
+//   PersonModel `stance_est` (belief-only). Emissions
+//   `drifted:true`, `stale_edge`, `apology_given`/
+//   `apology_partial`, `assumed_agree`, `mimicked:true`,
+//   `norm_shift`, `trust_recover`; reuses `claimed_mine`.
+//   All snapshot-additive; absent = legacy.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -13697,7 +13895,9 @@ SM Part V §76; v5.6 adds `self_est` (self-evaluation — NOT metamemory;
 P614 null-locks the confusion), `elabor` (co-narration style), and
 `neurot_report` (self-reported distress — diverges from `neurot` only
 under defensiveness, the §6.102 repressor divergence); v5.13 adds
-`jealous` — romantic-rival vigilance, loads attach_anx/distrust,
+`jealous` — romantic-rival vigilance, loads attach_anx/distrust; v5.40
+adds `mimic` [0,2] — chameleon tendency, loads extra/social,
+speaker-side emission gate only (SM§132),
 EM§76; v5.14 adds `imagery` — imagery vividness/ability, loads the
 imagination stack (imagine_gain, imagined/dream verbatim richness,
 source_confuse, dream_flip_mult — FM§72); v5.15 adds hsam, sdam,
@@ -15728,6 +15928,37 @@ not resolved (DEBATED magnitude). P509/P511.
     (`nt_xfer` gate; `preg_trim_w` shape) + 11 locked
     nulls.
   - Probes P958–P969.
+- v5.40 additions (social-memory.md Part IX §§126–135):
+  - **New event tags (world-supplied):** `contact:true`
+    co-presence marks (bond maintenance, §6.205);
+    `expr:happy|angry|neutral` on face-encode events
+    (§6.207); `apology:true` + `partial:true` (§6.208);
+    `mimic:true` + `mimic_detected` ctx (§6.210);
+    `norm_expr` norm-expressive events (§6.211);
+    `joint_decision` kind + soft `proposed_by` (§6.212).
+  - **New stores:** `NormModel` per-venue perceived-norm
+    records (§6.211); `SocialMap` third-party edges
+    `{alterA, alterB, str, last_witnessed_day, stale}`
+    (§6.206). PersonModel `stance_est` — belief-only,
+    never a fact read (§6.209).
+  - **New trait:** `mimic` [0,2] bible-pinnable —
+    speaker-side emission gate (§6.210).
+  - **New emissions (world-renderable):** `drifted:true`
+    (tie_alert crossing), `stale_edge` on map reads,
+    `apology_given`/`apology_partial`, `assumed_agree`
+    (audit), `mimicked:true` (ctx), `norm_shift`,
+    `trust_recover` milestone; reuses `claimed_mine`.
+  - **Locked boundaries game-systems must honor:**
+    `stale_map_fact_null` (canonical ties never
+    back-propagate — belief-vs-fact is the point),
+    `tie_delete_null`, `convo_formula_null`,
+    `smile_disposition_null`, `apology_eraser_null`,
+    `fc_consent_null`, `mimic_recipient_null`,
+    `norm_truth_null`, `idea_verbatim_null`,
+    `trust_full_null`.
+  - **New params (§7):** 26 scalars + 1 trait + 10
+    locked nulls.
+  - Probes P970–P981.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
