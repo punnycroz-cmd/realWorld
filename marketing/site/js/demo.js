@@ -231,10 +231,10 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v53-A", "the block from overhead — Jules selected, needs and mood readable"],
-      ["shots/v53-B", "street level — names over heads, leaves in the air"],
-      ["shots/v53-C", "Dolores Park — blankets on the lawns, Karl's fog edging in"],
-      ["shots/v53-D", "director mode — the neighborhood reads like a set"]
+      ["shots/v78-A", "the block from overhead — Jules selected inside Mudhaus, the Wire's rooftop cam in the corner"],
+      ["shots/v78-B", "street level on 24th — Jules, Priya and Dani out, leaves in the air"],
+      ["shots/v78-C", "Dolores Park from above — blankets on the lawns, tennis courts at the south end"],
+      ["shots/v78-D", "rooftop height down the block — dressed facades, the director bug riding the corner"]
     ];
     // "Label the shot" overlay — one marker set per SHOTS entry. Every label
     // names something verifiable in the frame itself: the inspector panel,
@@ -243,30 +243,34 @@
     // Fallback-only: the live HUD names its own surfaces.
     var MARKS = [
       [
-        [14, 44, "Resident inspector — needs, mood & skills on select"],
-        [48, 47, "Jules — the selected resident"],
-        [30, 4, "World HUD — day, weather, block time"],
-        [82, 4, "The Wire — every request lands here"],
-        [62, 57, "24th St — the real Mission grid"]
+        [14, 62, "Resident inspector — needs, mood & the 'why' panel on select"],
+        [53, 43, "Jules — selected, inside Mudhaus Coffee"],
+        [48, 32, "Marcus & Victor — names over heads"],
+        [10, 3, "World HUD — Day 22, weather, block time"],
+        [85, 18, "The Wire — LIVE rooftop cam over Dolores Park"],
+        [50, 27, "Mudhaus Coffee — a parody storefront, by design"]
       ],
       [
-        [48, 36, "Jules — names over heads, always"],
-        [64, 36, "Priya — out on her routine"],
-        [11, 34, "Dani"],
-        [14, 44, "The same inspector, at street level"],
-        [50, 22, "Facades mid-dress — signage pass in progress"]
+        [52, 39, "Jules — follow-cam close, never steering"],
+        [46, 38, "Priya — out on her routine"],
+        [9, 37, "Dani — bubble up, mid-sentence"],
+        [14, 62, "The same inspector, at street level"],
+        [37, 9, "Every storefront is fictional — parody signage only"],
+        [85, 18, "The Wire — still LIVE in the corner"]
       ],
       [
-        [48, 34, "Dolores Park — the block's commons"],
-        [86, 30, "The palm allée"],
-        [33, 22, "Blankets out — residents on their own schedules"],
-        [12, 12, "Karl's fog pools at the edges — it edges in, never snaps"]
+        [52, 54, "Jules — out on the lawns"],
+        [17, 20, "Blankets out — residents on their own schedules"],
+        [37, 89, "Tennis courts at the park's south end"],
+        [50, 33, "The park paths — the block's commons"],
+        [85, 18, "The Wire — rooftop cam, same frame"]
       ],
       [
         [5, 9, "● REC — director mode"],
-        [50, 14, "DIRECTOR — free framing, still read-only"],
-        [62, 43, "Dressed facades — the block as its own postcard"],
-        [14, 44, "The inspector rides along in every mode"]
+        [48, 15, "DIRECTOR — free framing, still read-only"],
+        [28, 48, "STORE — signage pass, parody names only"],
+        [46, 27, "Leaves in the air — autumn on the block's clock"],
+        [14, 62, "The inspector rides along in every mode"]
       ]
     ];
     // Deep link: #shot=1..4 pins the deck (and its cam chip) on load, so a
@@ -345,10 +349,10 @@
     // spectator would be looking for. The notes describe the captures, not a
     // live feed, and say so on the card. ~12 s per beat.
     var TOUR = [
-      [0, "Start overhead. The fog band on the rooftops is the world's own weather — it keeps its schedule whether or not a camera is up here. Spectators get this roofline view for free."],
-      [1, "Now street level. This is the follow-cam the spectator view is built around: close enough to read the block — who opened the café, who isn't speaking to whom — never close enough to steer it."],
+      [0, "Start overhead. The inspector is open on Jules — needs, mood, even the 'why' panel are readable at a glance. Top right is the Wire's rooftop cam over the park: the feed's own eye, already in the frame."],
+      [1, "Now street level. This is the follow-cam the spectator view is built around: close enough to read the block — Jules mid-errand, Dani mid-sentence — never close enough to steer it."],
       [2, "Dolores Park, the block's commons. Viewer requests tend to land here because everyone watching can see them land — every intervention is public and attributed."],
-      [3, "Director mode. Framing the shot is part of watching; the pastel rowhouses on the hill are the postcard the feed writes under. When the build ships, this deck retires — live needs no script."]
+      [3, "Director mode, rooftop height. Framing the shot is part of watching; the dressed facades down the hill are the postcard the feed writes under. When the build ships, this deck retires — live needs no script."]
     ];
     var tourBeat = -1;
     function tourStep() {
@@ -415,6 +419,63 @@
         // the button's own data-rw-event emits cta_click{cta:"demo-labels"}
       });
     }
+
+    // Clip this frame — exports the current capture as a captioned PNG card.
+    // The watermark is the honesty: every clip says "development capture" in
+    // the image itself, so a shared frame can't be passed off as live. Falls
+    // back to downloading the raw capture where the canvas can't export
+    // (file:// taint) — same file, just without the caption band.
+    var clipBtn = document.getElementById("demo-clip");
+    var clipSay = function (msg) {
+      if (status) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 4000); }
+    };
+    if (clipBtn) {
+      clipBtn.addEventListener("click", function () {
+        var base = SHOTS[idx][0], label = SHOTS[idx][1];
+        var raw = function () {
+          var a = document.createElement("a");
+          a.href = base + ".png";
+          a.download = "realworld-capture-" + base.split("/").pop() + ".png";
+          document.body.appendChild(a); a.click(); a.remove();
+          clipSay("Saved the raw capture — captioned clips need http(s).");
+        };
+        var im = new Image();
+        im.onload = function () {
+          try {
+            var band = 96;
+            var cv = document.createElement("canvas");
+            cv.width = im.naturalWidth;
+            cv.height = im.naturalHeight + band;
+            var cx = cv.getContext("2d");
+            cx.fillStyle = "#0b0e14";
+            cx.fillRect(0, 0, cv.width, cv.height);
+            cx.drawImage(im, 0, 0);
+            cx.fillStyle = "#e8a04c";
+            cx.font = "600 28px system-ui, sans-serif";
+            cx.fillText("REAL WORLD · THE MISSION — development capture", 28, im.naturalHeight + 40);
+            cx.fillStyle = "#9aa3b2";
+            cx.font = "22px system-ui, sans-serif";
+            cx.fillText(label + " — not a live feed; the spectator build isn't wired in yet",
+              28, im.naturalHeight + 74);
+            cv.toBlob(function (b) {
+              if (!b) { raw(); return; }
+              var u = URL.createObjectURL(b);
+              var a = document.createElement("a");
+              a.href = u;
+              a.download = "realworld-clip-" + base.split("/").pop() + ".png";
+              document.body.appendChild(a); a.click(); a.remove();
+              setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+              clipSay("Clip saved — captioned, watermark in.");
+              if (window.rw && window.rw.track) {
+                window.rw.track("cta_click", { cta: "demo-clip-done" });
+              }
+            }, "image/png");
+          } catch (e) { raw(); }
+        };
+        im.onerror = raw;
+        im.src = base + ".png";
+      });
+    }
     if (screen && img) {
       if (hashShot >= 0) show(hashShot, false);
       if (!reduced) startAuto();
@@ -441,6 +502,8 @@
           resetAuto();
         } else if (e.key === "l" || e.key === "L") {
           if (labelBtn) labelBtn.click();
+        } else if (e.key === "c" || e.key === "C") {
+          if (clipBtn) clipBtn.click();
         }
       });
     } else {
@@ -457,6 +520,8 @@
     if (cb) cb.hidden = true;
     var lb = document.getElementById("demo-labels");
     if (lb) lb.hidden = true;
+    var cp = document.getElementById("demo-clip");
+    if (cp) cp.hidden = true;
   }
 
   // First-watch field card — a local checklist for a first visit. State is
