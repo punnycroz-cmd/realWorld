@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v68; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer)
+# Lease Flow — spec & copy deck (world v82; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v4), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v5), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v68`.
+  9088-5 only) / admin. localStorage `rw_lease_v82`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -673,3 +673,122 @@ arrived doesn't start a clock:
 - `node world/audit.js` G11 now also requires the v68 surfaces
   (guarantor, service, walkthrough, receipt) and fails on the old
   storage key.
+
+## 42. Notices of entry (the doorstep has paper too)
+
+A landlord may enter a tenant's home — but only on paper first:
+
+- Every entry posts a **notice of entry**: dated, served, stating a
+  **reason** (scheduled repair, unit inspection, showing when the unit is
+  listed) and a **window**, at least **24 hours ahead**. Demo: `entry`
+  array on the lease — `{svc, day, win, reason}`.
+- The notice is a **file doc, never a feed event** — a neighbor doesn't
+  get to watch when someone's door will be open.
+- The entry log is evidence. Repeated or unnotified entry is a dispute
+  ground (`entry_violation`, added to the grounds list) — the same
+  ledger-objects-only rule applies: the paper is the record, not
+  testimony.
+- Licensed landlords post entry notices on their own units only, same
+  cap as every other tool.
+
+## 43. A sale with a tenant in place (the paper follows the deed)
+
+Buildings sell; tenancies don't reset:
+
+- When an occupied unit sells, the **lease, deposit, move-in record, and
+  file move with the deed** — same terms, same protections, same
+  rent-control flag. A dated "sale — tenant in place" doc lands on the
+  tenant's file the day the deed transfers.
+- The feed line is the existing neutral template — "Sold — <address>
+  changes hands" — no tenant name, no terms.
+- **A sale never resets a tenancy**: no new screening, no new deposit,
+  no "the new owner's rules." Arrears, scars, open repairs, and frozen
+  raises all carry — the new owner inherits the file, not a clean slate.
+- Recording the sale is **admin-only** — licensed landlords can't sell
+  the owner's doors, and their own sale hands the file to the desk.
+- Demo: "Record sale — tenant in place" on 9263-4 (Reyes cousins) writes
+  the transfer doc and the feed line; the lease keeps running.
+
+## 44. Renewal offers (months 10–12 of a fixed term)
+
+The §20 term now has a real endgame:
+
+- Fixed-term leases track `termMo` — the month of the term the lease is
+  in. Serving month 12 flips the lease to month-to-month **on its own**:
+  staying is the default, no paperwork, no bump for staying.
+- Inside months **10–12**, the landlord file may post a **renewal
+  offer** — a new fixed 12-mo term at a stated rent. A number above the
+  current rent is a stated-basis posting under the same raise rules
+  (§13): the claim is still what a dispute examines.
+- **The tenant decides.** Accept and a new fixed term runs from signing
+  — same file, same deposit, same move-in record; the paper continues.
+  Decline — or let it lapse with the term — and the lease rolls to
+  month-to-month. An offer is not a raise: nothing bills until it's
+  signed.
+- File docs only, never a feed event. Demo: h01 sits at month 10 and
+  h02's 9088-5 at month 11, so both hats can exercise the window.
+
+## 45. Returned payments (a reversal, not a character flaw)
+
+A payment can come back — bank reversed it, the check didn't clear:
+
+- The returned payment **reverses onto the balance** and posts a
+  **returned-payment fee — house rule, capped $25**, stated in the lease
+  like the late fee.
+- **The ladder stands where it stood.** A returned payment is not a new
+  default — it doesn't jump the notice ladder, and it doesn't reset it
+  either; the lease keeps whatever rung it was on.
+- File doc + ledger lines only; never a feed event, never a moralizing
+  line in the copy. Demo: "Mark last payment returned" reverses the most
+  recent payment/installment line and adds the capped fee.
+
+## 46. Guarantor release (the co-signer earns their way off)
+
+§36's guarantor isn't a lifetime attachment:
+
+- After **12 on-time months**, the tenant may request a **guarantor
+  release** — the landlord file decides, same as every other file doc.
+- A release comes off the lease as a doc: the co-signer's liability
+  (rent + deposit) ends; the tenancy is the tenant's alone.
+- A declined release names what's missing (the months) and can be
+  re-requested — a document, not a door closing.
+- Request and decision both live on the file; never a feed event.
+  Demo: "Request guarantor release" on a lease carrying a guarantor →
+  the landlord file releases or declines.
+
+## 47. Copy deck additions (v82)
+
+|| Moment | Copy |
+|---|---|---|
+|| Entry notice | "Notice of entry — served day N; entry day N+1, 9:00–12:00, reason: repair. Stated reason, ≥24h, on the file — never on the feed." |
+|| Entry violation | "Repeated or unnotified entry is a dispute ground — the entry log is the evidence." |
+|| Sale, tenant view | "The deed transferred. Your lease, deposit, and file moved with it — same terms, same protections. A sale never resets a tenancy." |
+|| Renewal offered | "Renewal on the table — new fixed 12 mo at $N. You decide: sign and a new term runs; decline and you roll to month-to-month." |
+|| Renewal accepted | "Signed — new fixed term from day N. Same file, same deposit, same move-in record." |
+|| Term served | "Fixed term served — month-to-month now. Staying is the default; no paperwork, no bump for staying." |
+|| Returned payment | "The day-N payment came back — reversed onto the balance plus the capped $25 fee. The ladder stands where it stood." |
+|| Guarantor release | "Twelve on-time months — the co-signer comes off. The tenancy was always yours." |
+
+## 48. Merge notes (v82)
+
+- New demo fields: `termMo`, `entry` [{svc,day,win,reason}], `renewal`
+  {rent,day,decided}, `guarRelReq`, `sold` — all optional, all documented
+  above. LS key rolled `rw_lease_v68` → `rw_lease_v82` (old saves ignored
+  by design). Deposit returns now credit the tenant's bank in the demo.
+- leases.json v82 adds: `entry_notices`, `sale_occupied`, `renewal`,
+  `returned_payments`, `screening.guarantor.release`; `disputes.grounds`
+  gains `entry_violation`; power_map gains `post_entry_notices`,
+  `mark_returned_payments`, `offer_renewals`, `decide_guarantor_releases`
+  (licensed, own units) + `decide_renewal_offer`,
+  `request_guarantor_release` (tenant) + `record_sales` (admin-only).
+  Feed vocabulary unchanged — `Sold —` already existed; the four new
+  surfaces are file-only by design.
+- Engine contract at merge: entry notices need stated reason + ≥24h and
+  never post to the feed; a sale of an occupied unit carries the lease
+  object verbatim (no field resets); renewal offers bind only on tenant
+  signature and a lapsed offer rolls to month-to-month; a returned
+  payment reverses the payment line and must not move the notice ladder;
+  guarantor release is a file doc gated on 12 on-time months.
+- `node world/audit.js` G11 now also requires the v82 surfaces (entry
+  notice, sale-with-tenant, renewal, returned payment, guarantor
+  release) and fails on the old storage key.

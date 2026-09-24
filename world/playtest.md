@@ -164,6 +164,10 @@ One person can wear every hat; four real testers is the intended shape.
   scenario walk. PT73 (onboarding v6) audits the house-&-other-hands
   pass — admin-transparency tour beat, the S4f coexistence lesson,
   surge disclosure ordering, and the settle-time ownership arc.
+  PT74 (lease v82) audits the doorstep-&-deed layer — entry notices as
+  file-only docs, sale-with-tenant carryover, the months-10–12 renewal
+  window, returned payments that leave the ladder untouched, and the
+  guarantor release request/decide pair.
 
 ## 3. Running a session
 

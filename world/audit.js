@@ -893,8 +893,9 @@ const PUB = Object.values(PT.surfaces)
     /* v68 additions — the hand-off layer: guarantor path on near-miss
        screening, notice service records, move-out walkthrough, receipts */
     if (LJ.version >= 68) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v68')
-        add(g, 'fail', 'leases.json', null, 'v68 schema on an old storage key');
+      const keyN = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (keyN < 68)
+        add(g, 'fail', 'leases.json', null, 'v68+ schema on an old storage key');
       for (const [re, label] of [
         [/guarantor/i, 'guarantor path'],
         [/near-miss|near_miss/i, 'near-miss screening band'],
@@ -914,6 +915,50 @@ const PUB = Object.values(PT.surfaces)
       const sa = html.match(/window\.screenApp=function[\s\S]*?^\};/m);
       if (!sa || !/guar/.test(sa[0]))
         add(g, 'fail', 'lease.html', null, 'screenApp lacks the near-miss/guarantor branch');
+    }
+    /* v82 additions — the doorstep & the deed layer: entry notices,
+       sale-with-tenant paper, renewal offers, returned payments,
+       guarantor release */
+    if (LJ.version >= 82) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v82')
+        add(g, 'fail', 'leases.json', null, 'v82 schema on an old storage key');
+      for (const [re, label] of [
+        [/entry notice|notice of entry/i, 'notice of entry surface'],
+        [/entry_violation/i, 'entry-violation dispute ground'],
+        [/follows the deed|tenant in place/i, 'sale-with-tenant paper'],
+        [/renewal/i, 'renewal offer flow'],
+        [/termMo/i, 'fixed-term month counter'],
+        [/returned.payment|payment returned/i, 'returned-payment handling'],
+        [/guarantor release|release guarantor|guarRel/i, 'guarantor release flow']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v82 surface missing: ${label}`);
+      if (!LJ.entry_notices || !LJ.sale_occupied || !LJ.renewal || !LJ.returned_payments)
+        add(g, 'fail', 'leases.json', null, 'v82 blocks missing (entry_notices/sale_occupied/renewal/returned_payments)');
+      if (!LJ.screening.guarantor || !LJ.screening.guarantor.release)
+        add(g, 'fail', 'leases.json', null, 'guarantor.release block missing');
+      if (!(LJ.disputes.grounds || []).includes('entry_violation'))
+        add(g, 'fail', 'leases.json', null, 'entry_violation missing from dispute grounds');
+      if (LJ.sale_occupied && LJ.sale_occupied.admin_only !== true)
+        add(g, 'fail', 'leases.json', null, 'sale-of-occupied recording must stay admin-only');
+      if (!LJ.power_map.licensed_landlord.never.includes('record_sales'))
+        add(g, 'fail', 'leases.json', null, 'licensed landlords must never record sales');
+      /* own-unit guards on the new licensed tools; admin-only on sale */
+      for (const fn of ['postEntry', 'markReturned', 'offerRenewal', 'guarRelDecide']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (!fb) add(g, 'fail', 'lease.html', null, `${fn} missing`);
+        else if (!/myUnit/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} lacks the own-unit guard`);
+      }
+      const rs = html.match(/window\.recordSale=function[\s\S]*?^\};/m);
+      if (!rs) add(g, 'fail', 'lease.html', null, 'recordSale missing');
+      else if (!/mode!=='admin'|mode!=="admin"/.test(rs[0]))
+        add(g, 'fail', 'lease.html', null, 'recordSale must be admin-only');
+      /* file-only surfaces: entry / returned payment / renewal /
+         guarantor release never reach the feed */
+      for (const fn of ['postEntry', 'markReturned', 'offerRenewal', 'renewalDecide', 'reqGuarRel', 'guarRelDecide']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (fb && /wires\.push/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
+      }
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }

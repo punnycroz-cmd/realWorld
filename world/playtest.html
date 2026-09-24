@@ -19,7 +19,8 @@
   PT67 + book v74 / book gate v74, PT68 + wire v6 schedule/person layer,
   PT69 + archive v6 shape layer, PT70 + create v77 sketch & seats layer,
   PT71 + mod v78 second-eyes layer, PT72 + harness v76 revisit flags /
-  regression view / run sheet).
+  regression view / run sheet, PT73 + onboarding v6 house & other hands,
+  PT74 + lease v82 doorstep & deed layer / lease gate v82).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1635,7 +1636,30 @@ const PTS=[
  {do:"Run `node world/audit.js` and read the onboard gate.",
   exp:"onboard gate passes: 'schema v81 · 8 beats · key rw_onboard_v81', zero fails — admin-action copy, compensation wording, surge disclosure, arc naming, feed-admin anchor, S4f reachability, and the coAsk state guard all verified.",
   ck:["The gate reports 8 beats (was 7) and the v81 storage key", "The contention-for-sale sweep stays clean — coexistence copy never offers to buy another player's session"]}
- ]}];
+ ]},
+ {id:"PT74",title:"The Rent Book v5 — the doorstep & the deed layer (v82)",min:9,
+ persona:"tester in every hat — tenant h01, licensed landlord h02, and admin — walking the new file-only paper",
+ goal:"Verify the v82 lease pass: entry notices are dated docs with a stated reason and ≥24h window and never reach the feed; recording a sale on an occupied unit carries the lease/deposit/file across the deed intact; fixed-term leases run a renewal offer in months 10–12 that the tenant decides (accept = new fixed term, decline/lapse = month-to-month); a returned payment reverses onto the balance with a capped $25 fee and leaves the notice ladder untouched; and a guarantor release is a request-and-decide file doc.",
+ surfaces:["lease","audit"],
+ steps:[
+ {do:"In Tenant mode on 9457-2, read the header line and confirm the fixed-term month shows; switch to Admin and post an entry notice on any occupied lease.",
+  exp:"The lease header reads 'month 10 of the fixed term' on h01's file. Posting the entry notice writes a dated doc ('served day N — entry day N+1, 9:00–12:00, reason: scheduled repair visit'), a zero-amount ledger line, and NOTHING on the wire — the docs panel shows it, the feed does not.",
+  ck:["Entry notice doc carries serve day, entry day, window, and a stated reason","No wire event is posted — entry notices are file-only","The doc names entry_violation as the dispute ground for repeated/unnotified entry"]},
+ {do:"Stay in Admin, open 9263 Geneva Ave Unit 4 (Reyes cousins), and click 'Record sale — tenant in place'. Read the file and the wire.",
+  exp:"The ledger gains 'deed transferred — lease and deposit carried intact', the file gains the 'sale — tenant in place' doc ('the paper follows the deed — a sale never resets a tenancy'), the header flags 'sold day N — lease carried intact', and the wire posts the existing neutral 'Sold — 9263 Geneva Ave, Unit 4 changes hands'. Rent, term, control flag, and history are unchanged.",
+  ck:["Feed wording is the existing 'Sold —' template — no tenant name, no terms","The lease object carries over verbatim — nothing resets","In Landlord mode the Record sale button is absent on every unit — sales record at the owner's desk"]},
+ {do:"In Admin mode, click 'Offer renewal' on 9457-2 (month 10). Then switch to Tenant mode and read the offer card.",
+  exp:"Admin posts 'renewal offered — new fixed 12 mo' to the ledger and a doc stating the rent ($1,404 — band raise, stated basis). Tenant mode shows the offer card: accept runs a new fixed term, decline rolls to month-to-month. Nothing on the feed.",
+  ck:["Offer shows the band-raised number with its stated basis","An offer bills nothing — no charge line is posted","Offer only appears inside months 10–12 of a fixed term"]},
+ {do:"As the tenant, accept the renewal; then in Admin post another renewal on 9088-5's file and decline it in code or observe the decline copy path on a fresh reload.",
+  exp:"Accepting writes 'lease renewed — new fixed 12-mo term at $1,404', resets the file to month 1 of a renewed fixed term, and keeps deposit + move-in record. Declining (or letting the term lapse) rolls the lease to month-to-month with a doc — staying is the default either way.",
+  ck:["Accept posts the renewal ledger line and resets termMo to 1","The month-roll flips a served fixed term to month-to-month on its own, with a 'term served' doc","A lapsed offer reads 'renewal offer lapsed' — never a penalty"]},
+ {do:"In Admin on any lease with a payment line, click 'Mark last payment returned'. Check the ledger, the balance, and the state word.",
+  exp:"The payment reverses onto the balance and a 'returned-payment fee (house rule, cap $25)' line posts. The doc states the ladder stands where it stood — no state jump, no feed line. Paying again clears the new balance normally.",
+  ck:["Reversal + capped $25 fee are the only two ledger lines","The state word does not change on return — the ladder is untouched","Nothing posts to the wire"]},
+ {do:"Run `node world/audit.js` and read the lease gate.",
+  exp:"lease gate passes at 'schema v82 · 13 states · key rw_lease_v82' with the v82 checks green: entry_notices/sale_occupied/renewal/returned_payments blocks, guarantor.release, entry_violation in grounds, own-unit guards on the new licensed tools, recordSale admin-only, and no wires.push inside any file-only handler.",
+  ck:["Gate reports the v82 storage key and 13 states","Feed-only check confirms entry/returned-payment/renewal/release handlers never push wires","A missing myUnit guard on postEntry/markReturned/offerRenewal/guarRelDecide would FAIL — spot-check"]}]}];
 
 
 /* ---- state ---- */

@@ -1,11 +1,11 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 68,
+  "version": 82,
   "power_map": {
-    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "give_notice", "offer_to_buy"],
+    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "give_notice", "offer_to_buy", "decide_renewal_offer", "request_guarantor_release"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
-    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "decide_roommate_amendments", "post_itemized_deposit_returns", "make_mediation_offers", "file_for_eviction_review"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units"] },
-    "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "no_fault_notices", "rulings", "mint_addresses"],
+    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "decide_roommate_amendments", "post_itemized_deposit_returns", "make_mediation_offers", "file_for_eviction_review", "post_entry_notices", "mark_returned_payments", "offer_renewals", "decide_guarantor_releases"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units", "record_sales"] },
+    "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "no_fault_notices", "rulings", "mint_addresses", "record_sales"],
     "requests_pipeline": "admin-domain deny — lease/rent/eviction asks are unreachable by request (moderation.json v8)",
     "currency_wall": "credits never pay rent/deposits/fees — game dollars only"
   },
@@ -72,7 +72,8 @@
       "under_floor": "below 2.0x declines — private mail naming the criterion; no feed event",
       "attach": "tenant names a guarantor; verified on the same published checklist (income, references); co-signs the lease doc before signing",
       "liability": "rent + deposit; never a tenant, never an occupant line, never a feed event",
-      "demo_fields": "guar (near-miss flag), guarantor (name once attached); screening can't finish while guar is set and unattached"
+      "demo_fields": "guar (near-miss flag), guarantor (name once attached); screening can't finish while guar is set and unattached",
+      "release": "after 12 on-time months the tenant may request a guarantor release — the landlord file / admin decides; the release is a file doc (guarRelReq → decided), never a feed event; a declined release names the missing months and can be re-requested"
     }
   },
   "move_in_record": {
@@ -107,6 +108,35 @@
     "weight": "dispute evidence — the ledger and the receipt say the same thing; a receipt that disagrees with the ledger is itself a finding",
     "visibility": "tenant file only — never a feed event"
   },
+  "entry_notices": {
+    "rule": "entry needs a stated reason, a stated window, and >=24h of notice — every entry notice is a dated doc on the file",
+    "reasons": ["scheduled_repair", "unit_inspection", "showing_when_listed"],
+    "visibility": "tenant file only — never a feed event",
+    "violation": "repeated or unnotified entry is a dispute ground (entry_violation); the entry log is the evidence",
+    "demo_field": "entry — array of {svc, day, win, reason} per lease"
+  },
+  "sale_occupied": {
+    "rule": "the paper follows the deed — a sale with a sitting tenant carries the lease, deposit, move-in record, and file to the new owner of record, same terms, same protections, same rent-control flag",
+    "admin_only": true,
+    "tenant_doc": "a dated 'sale — tenant in place' doc lands on the tenant's file the day the deed transfers",
+    "feed": "Sold — <address> changes hands (existing template, neutral)",
+    "never": "a sale never resets a tenancy, a deposit, a term, or a file scar"
+  },
+  "renewal": {
+    "window": "months 10-12 of a fixed term (termMo >= 10)",
+    "offer": "landlord file / licensed landlord posts a renewal offer — new fixed 12-mo term at a stated rent; a number above current rent is a stated-basis posting subject to the same raise rules",
+    "decide": "the tenant decides — accept runs a new fixed term from signing (same file, same deposit, same move-in record); decline or lapse rolls the lease to month-to-month at term end",
+    "binding": "an offer is not a raise — nothing bills until it is signed",
+    "visibility": "file docs only — never a feed event",
+    "term_flip": "serving month 12 flips the lease to month-to-month on its own — staying is the default, no paperwork, no bump for staying",
+    "demo_fields": "termMo (month of fixed term), renewal {rent, day, decided}"
+  },
+  "returned_payments": {
+    "rule": "a returned payment reverses onto the balance and posts a returned-payment fee — house rule, capped $25, stated in the lease",
+    "ladder": "the ladder stands where it stood — a returned payment is not a new default and never resets or accelerates the notice ladder",
+    "visibility": "file only — never a feed event",
+    "demo": "markReturned reverses the last payment line and adds the capped fee"
+  },
   "repairs": {
     "flow": ["requested", "acknowledged", "scheduled", "done"],
     "kinds": {
@@ -123,7 +153,7 @@
     "demo_fields": "roomReq (pending decision), roommate (approved co-tenant name)"
   },
   "disputes": {
-    "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions"],
+    "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions", "entry_violation"],
     "flow": ["filed", "evidence_window_7d", "mediation_week", "ruling"],
     "raise_freeze": "a filing with rent_next pending sets rent_frozen — old rent bills on the 1st until ruling or a signed offer",
     "rulings": ["uphold", "reduce", "repair_credit"],
@@ -169,15 +199,16 @@
     "turnover":        "Unit turning over — <address> back on the board",
     "sale":            "Sold — <address> changes hands",
     "eviction":        "admin action — tenancy ended at <address>",
-    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms"]
+    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms", "entry notices", "renewal offers", "returned payments", "guarantor detail"]
   },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
-    "storage_key": "rw_lease_v68",
+    "storage_key": "rw_lease_v82",
     "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2, income $4,600/mo game-$)",
     "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
     "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen",
     "v54_surfaces": "prorated first month on mid-month signing; break fee inside a fixed term; repair clock (habitability ≤7-day SLA + breach line); roommate amendments; 21-day deposit clock with overdue line",
-    "v68_surfaces": "guarantor path on near-miss screening (9418-B at $2,100 is a near-miss on $4,600; 9127-A at $1,300 passes clean); service records on notices 2–4 (clock runs from service); move-out walkthrough doc; rent receipts"
+    "v68_surfaces": "guarantor path on near-miss screening (9418-B at $2,100 is a near-miss on $4,600; 9127-A at $1,300 passes clean); service records on notices 2–4 (clock runs from service); move-out walkthrough doc; rent receipts",
+    "v82_surfaces": "notices of entry (≥24h, stated reason + window, file-only); sale with a tenant in place (paper follows the deed — admin records it on an occupied unit, e.g. 9263-4); renewal offers inside months 10–12 of a fixed term (h01 at month 10, 9088-5 at month 11); returned payments (reversal + capped $25 fee, ladder unchanged); guarantor release after 12 on-time months"
   }
 }
