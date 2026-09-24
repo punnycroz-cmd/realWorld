@@ -5601,3 +5601,144 @@ aphantasia tail), ten pop constants, six locked nulls. Spec
   dejavu in a fatigued-newcomer ecology: the city he just
   moved to keeps feeling remembered. Sources §83 of
   human-memory-research.md; probes P1122–P1133.
+
+## 87. v118 note (character-profiles IX — the circumstance layer,
+##    compiled onto the cast; no spec change)
+
+Prior profile passes tuned what the machine keeps (encoding,
+decay, distortion), what it says (report layer), and what
+remembering looks like from inside (v5.54 hardware). The
+trait vocabulary added in v5.51–v5.63 — ears, shifts,
+smoke, practice, work complexity, loneliness, migraine,
+plus the credulity trio `tdef`/`rsq`/`imp_anchor` — had
+constants and locked nulls but no owners. This pass compiles
+it onto the 8 mains (cast-profiles.md Part VII §§37–41) and
+fixes the archetype-level pin rules below. **Spec stays
+v5.65: zero new fields, zero new nulls — pure pin compile.**
+
+Archetype pin rules for the circumstance layer (all clamps
+from §0 unchanged; new rows are pin *ranges*, not clamps):
+
+| trait | child | adolescent | young adult | midlife | older | notes |
+|---|---|---|---|---|---|---|
+| hear | 0 | 0–0.1 | 0–0.15 | 0–0.4 | 0.4–1.2 | Hoffman 2017 decade gradient; aid flag ~0.15 of eligibles (Chien & Lin 2012, HYPOTHESIS-strength) |
+| shift_wrk | 0 | 0–0.4 | 0–1.0 | 0–0.9 | 0–0.3 | service-sector draw ~15–20% above 1.0 |
+| smoker | 0 | 0–1 | {0:.62,1:.12,2:.26} | same | 2-biased | NHIS-2022-shaped; quit_yrs sets rescue phase |
+| migr | 0–0.5 | F-biased onset | F .17 / M .06 base | peak 30s–40s | tapers | Lipton 2007; chronic cap ~0.9% (Buse 2012) |
+| medit | 0 | 0–0.3 | 0–0.8 | 0–0.8 | 0–0.6 | ~14% use any (Clarke 2018); >0.5 = practice pin |
+| job_cplx | 0 | 0–0.3 | 0.2–0.7 | 0.3–0.8 | banked | `jobcplx_retire_null` — deposits persist |
+| lonely | low | Beta(2,4) | +0.3 newcomer | Beta(2,4) | Beta(3,4) | `lonely_crowd_null` — perception, not census |
+| tdef | 0.5±.1 | U(.3,.7) | U(.3,.7) | U(.3,.7) | U(.4,.8) | credulity prior; skeptic pin ≥0.7 |
+| rsq | n/a | U(.4,.8) | U(.3,.8) | U(.3,.7) | U(.3,.6) | snub detection + FP rate |
+| imp_anchor | n/a | U(.4,.8) | U(.3,.8) | U(.3,.7) | U(.3,.7) | primacy resistance |
+
+State seeds (bible must opt in — never sampled for mains):
+`retire` requires `retire_voluntary` + `post_engagement`;
+`grief` requires {onset, kin_type, ambivalence} — acute
+window is 90d (`grief_acute_d`); `menop` stage-gated,
+post-stage carries zero residual by `menop_rebound_d`;
+`apnea` defaults undiagnosed (no `cpap` rescue) when seeded
+for men 50+ per Peppard 2013 base rates; `diab`/`antichol`
+are disease pins — authored lines only, never ambient-drawn.
+
+**The one-vivid-circumstance rule.** Each main gets at most
+ONE circumstance trait that a reader could *notice* (Dani's
+migraine days, Carmen's unaided ear, Victor's bad sleep).
+The rest must sit below the phenotype's noise floor — real
+people are tax sums, not symptom lists. A bible that flags
+three vivid circumstances fails review, not because it's
+impossible but because it reads as diagnosis-shopping.
+
+**Compensation pairing is authored, not emergent.** When a
+tax trait is pinned ≥0.7 (`shift_wrk`, `hear`, `smoker 1`),
+the bible must say whether anything answers it (`medit`,
+`hear_aided`, `quit_yrs`, `post_engagement`) — or explicitly
+that nothing does. Victor is the nothing-does case; Priya
+is the answered case; that contrast is the eighth-pass
+distinctness axis (cast-profiles §39).
+
+Probes P1257–P1268 filed (validation-design §238). New
+primary sources for the pin priors: Hoffman 2017, Goman &
+Lin 2016, Chien & Lin 2012, Peppard 2013, Lipton 2007,
+Buse 2012, CDC NHIS 2022, Clarke 2018 — all pinned into
+human-memory-research.md §93. Mechanism constants unchanged
+and un-re-sourced (ID§§108–137, SM§§151–160 own them).
+
+## 88. v5.76 note (character-profiles X — the promoted tier:
+##    which dials promotion opens and which it seals)
+
+The Astra direction promotes 2–4 supporting residents to
+persistent memory "of the same quality as the mains." The
+ambient tier (§8.5-era template: role tags + 2-DOF jitter, no
+SelfModel, `individ_rate` 0.05) is a *compile tier*, not a
+person tier — a promoted resident needs every pin layer a main
+carries. cast-profiles.md Part VIII compiles the four ranked
+candidates (Bex, Esther, Asha, Kofe) at that depth; this note
+fixes the archetype-level rules for what promotion may and may
+not move.
+
+**What promotion freezes.** `promote_cont` (0.15σ) locks
+card-observable traits — voice register, schedule priors,
+greeting ecology, signature tells — because promotion.md's
+invariant is that the block doesn't notice (`promote_recast_null`,
+P1398). A promotion that re-samples how someone *sounds* has
+failed at the boundary, not the mechanism. Latent traits
+(everything the card couldn't show — `meta_*`, `narr_*`,
+`defens`, `self_complex`, `imagery`…) draw the full MVN
+conditioned on the card's observable pins — the standard
+profile-generation §1 step-3 conditioning, no special case.
+
+**What promotion seals.** Every pre-promotion record: verbatim,
+`era:"ambient"`, `class:"generic"`, `rk:"know"` except the
+~`promote_remember_isle_p` fraction that crossed the thin
+encoder's own theta — those mint `rk:"remember"` islands and
+are the ONLY episodic-grade records a promoted resident has of
+their ambient years. `promote_rewind_null` (P1392) bars the
+compiler from enriching a typed record into a scene — the
+temptation to "give the new character a real past" is exactly
+the cheat the era field exists to prevent. Backfill skeletons
+(`backfill:true`) mint gist/relationship class only and can
+never satisfy ledger-OBSERVED (`backfill_obs_null`, P1396) —
+a seeded quarrel drives behavior, never footage.
+
+**The meta_gap pin.** `meta_gap_init` 0.25 is the promoted
+tier's default — a SelfModel that believes its thin era at
+normal accessibility, decaying over `promote_calib_d` 21.
+Bibles may RAISE it (Esther 0.35 — the confident historian is
+a meta_gap phenotype) but never zero it: a promoted resident
+who accurately knows how thin their archive is would be the
+most unusual memory on the block. Human default is trust;
+calibration is learned (`promote_calib_d` is the learning
+timeconstant, not a switch).
+
+**Pin-range additions for the promoted tier** (all §0 clamps
+unchanged):
+
+| dial | promoted-resident range | notes |
+|---|---|---|
+| meta_gap_init | 0.15–0.35 | 0.25 default; Esther-tier confabulators 0.3+ |
+| ambient era span | = card tenure | years on the block pre-promotion, typed |
+| remember isles | 2–5 seeded | must be card-named events; never invented |
+| backfill records | 2–4 skeletons | promotion packet's relationships-to-seed only |
+| ambient_wit edges | thin-encoder actuals | no new edges minted at promotion |
+
+**The diversity rule, promoted-tier edition.** The four
+compiled residents must differ from each other AND from their
+nearest main on ≥3 trait axes at ≥2σ (P1402). The designed
+contrasts are error-structure contrasts, not surface ones:
+Esther vs Carmen (thin-fluent vs deep-wounded), Asha vs Priya
+(uncompensated-dark vs compensated-calibrated), Kofe vs Marcus
+(instrumental-shallow vs social-shallow), Bex vs Dani
+(withholding witness vs fluent liar). A fifth promotion
+compile that lands inside an existing pair's envelope fails
+review.
+
+**Minors stay gated.** A04/A20 carry teen-archetype-ready
+bands but `promote()` refuses without `guardian:true`
+(`minor_promote_null`, P1404) — the door exists, the lease
+comes first.
+
+Spec v5.75→v5.76: §§6.386–6.392, +12 scalars +8 locked nulls,
+fields `era`/`rk`/`backfill`/`guardian`, ops `promote`/`demote`.
+Probes P1392–P1404 (validation-design §262). Sources pinned
+to human-memory-research.md §105.

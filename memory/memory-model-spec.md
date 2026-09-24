@@ -1,5 +1,1294 @@
-# Memory Model Spec v5.58 — implementable human-like memory for RW characters
+# Memory Model Spec v5.89 — implementable human-like memory for RW characters
 
+> **v5.89 note (validation-design XII — the
+> consequence-and-provenance surface: the four
+> audit hooks the new battery needs):**
+> `memory/validation-design.md` §§288–293 adds
+> VA-CONT (longitudinal consequence continuity —
+> validate residue distributions, never scripted
+> outcomes; Wagenaar 1986, Barclay & Wellman
+> 1986), VA-PROV (provenance-labeling audit —
+> OBSERVED vs INFERRED as a measurable contract;
+> Johnson, Hashtroudi & Lindsay 1993; Buneman
+> et al. 2001), VA-IMP (implicit-without-explicit
+> dissociation; Graf & Schacter 1985, Johnson,
+> Kim & Risse 1985), and VA-CAL (confidence–
+> accuracy calibration; Sporer et al. 1995,
+> Lichtenstein & Fischhoff 1977, Roediger &
+> DeSoto 2014). §18 (new annex) specs the four
+> validation-only emitters they consume:
+> `residue_ref` + `cb_origin` tagging,
+> `prov_audit_sample` with S1/S2/S3 severity,
+> the `impl_str` orphan boundary, and
+> `conf_bin_report`. §18.5 +3 params +6 locked
+> nulls; probes P1541–P1552.
+> (Prior notes v4.x–v5.88 in the version log.)
+
+> **v5.88 note (character-profiles IX — the
+> trait backlog: the six profile axes the cast
+> compiles needed that v5.77–v5.87 hadn't
+> declared, and the provenance registry that
+> makes every pin auditable):**
+> `memory/cast-profiles.md` Part IX (§§48–54)
+> compiles all authored-trait machinery added
+> since the v130 pass (spec v5.76) into the 8
+> mains + 3 promoted residents. Six gaps the
+> compile exposed are now spec'd (§6.431):
+> `ifthen_use` (who plans in implementation
+> intentions — Gollwitzer & Sheeran 2006),
+> `rtr_mult` (per-character metacognitive veto —
+> Koriat 2007), `persp_shift_p` (deliberate
+> observer-retell propensity — §5.165 consumer),
+> `bored_sus` (boredom proneness — Farmer &
+> Sundberg 1986 BPS), `goal_dis`/`goal_reeng`
+> (Wrosch et al. 2003 Goal Adjustment Scale —
+> SEPARABLE capacities), and `collab_partner`
+> (derived dyad field; `lost:true` prices the
+> widow's transactive loss via §6.14
+> `transact_loss`). Plus the trait-provenance
+> registry: every pin resolves to
+> {authored-cited | derived | event-minted |
+> sampled-prior} — P1538 makes an unsourced pin
+> a compile failure. §7 +6 scalars +1 dyad
+> field +4 locked nulls; probes P1529–P1540.
+> (Prior notes v4.x–v5.87 in the version log.)
+
+> **v5.87 note (formal-model XIII — the ground
+> under the heads: the durability partition, the
+> daylog barrier, the promotion law, the
+> consequence battery, and the wiring ledger):**
+> `memory/formal-model.md` Part XIII (§§117–125)
+> makes production-3 auditable. **Durability** —
+> every field is DURABLE / DERIVED / EPHEMERAL;
+> round-trip `=_state`; DERIVED never stored
+> (`persist_derived_null`). **Daylog** — mints
+> land volatile (`consolidated:false`) until the
+> sleep barrier commits them selectively
+> (`cls_write_frac`; restart pre-barrier loses
+> them — `daylog_durable_null`; McClelland,
+> McNaughton & O'Reilly 1995 CLS; Born & Wilhelm
+> 2012; reconsolidation write-back `reconsol_
+> rewrite_p`, Nader et al. 2000 — DEBATED).
+> **Promotion** — `resident_tier:{main,promoted,
+> ambient}`; promoted residents draw from the same
+> §76 prior and run the full op set — only
+> cadence/replay compute differ
+> (`prom_quality_null`, `prom_shadow_null`,
+> `prom_camera_null`). **Battery** — CB-0..CB-3
+> longitudinal acceptance tests: remembered
+> disappointment (Schweitzer, Hershey & Bradlow
+> 2006; `breach_erase_null`), voluntary repair
+> with EVLN reporting and `origin:"char"` only
+> (`script_repair_null`; Rusbult, Zembrodt & Gunn
+> 1982), revised priorities (`goal_sub_p`,
+> `goal_grief_days`, `goal_resurrect_null`;
+> Wrosch et al. 2003). **Wiring** —
+> `wire_status` per section, `wireCov` monotone
+> (`wire_regress_null`). §17 annex; §7 +9 scalars
+> +3 fields +9 locked nulls; probes P1517–P1528.
+> (Prior notes v4.x–v5.86 in the version log.)
+
+> **v5.86 note (social-memory XIV — the unequal
+> books II: the secret that thinks of itself, the
+> forgiveness that never erases, the teller who
+> feels closer, the insult of being forgotten, the
+> advisor's vindication, the credit that evaporates,
+> each side's promise, the betrayal half-seen, the
+> compressed neighborhood, and remembering itself
+> as a kindness):** `memory/social-memory.md` Part
+> XIV (§§197–206) prices the production-3 unequal-
+> knowledge layer. **Secrets** — `secret:true`
+> records join the §5.84 mind-pop queue
+> (`sec_pop_boost`); cost rides pop count, never
+> concealment (`sec_int_null`; Slepian, Chun &
+> Mason 2017, verified). **Forgiveness** —
+> `forgiven:true` reprices avoid/revenge response
+> channels only; strength and retrievability
+> untouched (`forgive_erase_null`; McCullough et
+> al. 1998 two-channel dissociation).
+> **Disclosure asymmetry** — `discl_self_gain` >
+> `discl_recv_gain`; the difference accrues to
+> `MetaModel.intimacy_gap` (`discl_equal_null`;
+> Collins & Miller 1994 + HYPOTHESIS asymmetry).
+> **Being forgotten** — witnessed `recall_fail`
+> mints victim `forgot_me` sting vs forgetter `emb`
+> embarrassment, asymmetric books
+> (`forgot_equal_null`; Reis responsiveness lit).
+> **Advisor vindication** — `outcome_bad` after
+> ignored advice boosts advisor record
+> (`toldya_boost`) and suppresses advisee receipt
+> (`toldya_sym_null`; Yaniv & Kleinberger 2000 +
+> §174 generation leg). **Provenance erosion** —
+> `learned_from` decays on `prov_tau`, re-labels
+> `prov:"common"` below threshold
+> (`prov_sticky_null`; Johnson et al. 1993).
+> **Promise scope drift** — per-role `scope_cred`/
+> `scope_debt` fields drift ±`scope_drift`, no
+> canonical term-set ever (`scope_canon_null`;
+> Kunda 1990 + Thompson & Loewenstein 1992).
+> **Betrayal blindness** — dependence ≥
+> `bb_dep_thresh` suppresses eval/retell legs,
+> record intact and restorable
+> (`bb_erase_null`; Freyd 1996; Freyd, DePrince &
+> Gleaves 2007). **Network compression** —
+> `netRecall` returns triad/kin-boosted,
+> weak-tie-thinned, closure-inflated graphs
+> (`net_exact_null`; Brashears 2013, verified;
+> Brashears & Quintane 2015). **Witnessed recall**
+> — `recall_ok` observed mints `responsiveness`
+> EMA on the rememberer, staleness-scaled
+> (`rem_kind_auto_null`; Maisel & Gable 2009).
+> §§6.421–6.430; §7 +20 scalars +3 record fields
+> +1 dyad field +10 locked nulls; probes
+> P1506–P1516.
+> (Prior notes v4.x–v5.85 in the version log.)
+
+> **v5.85 note (individual-differences XII — the
+> résumé and the wear: the level that isn't a slope,
+> the mind that kept working, the reason that slows
+> the slide, the counted crowd, the pressure years,
+> the heart that isn't a stroke, the sound a child
+> can't leave, the decade of drinks, the early birth,
+> the honest nap, the private gate, the count of bad
+> years, and three more refusals):**
+> `memory/individual-differences.md` Part XII
+> (§§164–183) prices the biography layer.
+> **Education** — `edu` pays LEVEL legs (semantic
+> density, fluency, weak episodic) and is banned from
+> every slope (`edu_slope_null`; Lövdén et al. 2020;
+> Zahodne et al. 2011, verified) + `edu_mask_k`
+> detection-lag (threshold model, DEBATED).
+> **Cognitive activity** — `cog_act` damps
+> beta_episodic slope and raises retell-mint ecology;
+> `cogact_level_null` (Wilson et al. 2013; reverse
+> causation discounted in the price). **Purpose** —
+> `purpose` moderates `age_eff`-routed decline legs
+> (Boyle et al. 2012 autopsy interaction, verified)
+> + a HYPOTHESIS-priced PM-intention survival leg.
+> **Social network** — `soc_net` (counted) vs `lonely`
+> (felt): slope rescue follows lonely, rehearsal
+> ecology follows soc_net; `socnet_felt_null`.
+> **Midlife hypertension** — `htn` accrues slope only
+> inside the 45–65 window, treated ×0.6
+> (Gottesman et al. 2014 ARIC, verified);
+> `htn_late_null`. **CVD events** — `cvd_hist` small
+> step + transient dip, stores exempt. **Chronic
+> noise** — child recognition tax dose-ordered and
+> reversible (Stansfeld 2005 RANCH; Hygge 2002,
+> verified); adult leg hypothesis-priced;
+> `noise_sust_null`/`noise_road_gain_null`.
+> **Alcohol history** — heavy-dose slope + frontal
+> fields; moderate arm locked identical to abstinent
+> (`alc_mod_null` — the J-curve is a banned emission;
+> Sabia 2014; Stockwell 2016). **Preterm birth** —
+> ordered level taxes exec>speed>episodic
+> (Aarnoudse-Moens 2009; Eryigit Madzwamuse 2018);
+> `pt_slope_null`. **The honest nap** — `nap_event`
+> consolidates morning mints ×1.1; `nap_long` is a
+> decline-minted marker with locked-zero legs
+> (`nap_long_cause_null`; Li et al. 2022
+> bidirectional). **Repress II** — §6.102 gains the
+> private gate (`repr_pub_null`: public contexts
+> restore recall) and valence-gated specificity tax
+> (Myers & Derakshan 2004, verified).
+> **Cumulative adversity** — `advers_cum` dose counter,
+> encode tax + threat over-match, steeling upside
+> banned (`steel_null`). **Three refusals** —
+> `vitd_null`, `omega3_null`, `bil_res_null`: mandated
+> nulls 8–10 (VITAL/DO-HEALTH/Cochrane nulls; bilingual
+> reserve banned while §11/§86 language costs stay —
+> asymmetric on purpose).
+> §§6.407–6.420; §7 +26 scalars +11 traits +5 states/
+> flags +16 locked nulls; probes P1492–P1505.
+> (Prior notes v4.x–v5.84 in the version log.)
+
+> **v5.84 note (false-memory VI — the label
+> that blesses the unlabeled, the correction
+> that needs a cause, the verbatim veto, the
+> stance you never held, the count that tells
+> a story, the selfish shrink, and the rumor
+> that keeps the teeth):** `memory/false-
+> memory.md` Part VI (§§65–74) prices seven
+> directional-distortion channels. **Implied
+> truth** — warning one rumor boosts untagged
+> corpus-mates (`imptruth_gain`), verified
+> tags reverse it (Pennycook et al. 2020,
+> verified); `imptruth_free_null`. **Causal-
+> gap corrections** — `alt_cause` fills the
+> causal slot and drops residue to
+> `cie_resid_alt` (Johnson & Seifert 1994;
+> Chan et al. 2017 meta); `corr_alt_equal_null`.
+> **Verbatim veto** — surviving verbatim
+> contradictors suppress false candidates at
+> emission (`rtr_*`, recollection rejection —
+> Brainerd/Reyna 2003; Rotello & Heit 2000);
+> `rtr_free_null`. **Stance swap** —
+> `about_own_stance` accounts can flip stance
+> fields; confabulated justifications drive
+> the lasting shift (Strandberg et al. 2018,
+> verified); `sswap_last_null`. **Frequency
+> emission** — emitted counts sample instances
+> and salience, never read the honest `freq`
+> store raw (Lichtenstein et al. 1978;
+> Tversky & Kahneman 1973); `freq_verid_null`.
+> **Selfish shrink** — self-benefit magnitudes
+> emit pulled toward authored `fair_std`,
+> gated on standard violation + responsibility
+> (Carlson et al. 2020, verified N=3190);
+> `selfdir_flat_null`. **Threat transmission**
+> — hazard-tagged fields survive rumor hops
+> and sharpen per hop (Fessler et al. 2014;
+> Heath et al. 2001); `dread_flat_null`.
+> §5.169 + §§6.401–6.406; §7 +22 scalars
+> +1 trait +1 account flag +4 fields +7 locked
+> nulls; probes P1485–P1491.
+> (Prior notes v4.x–v5.83 in the version log.)
+
+> **v5.83 note (emotional-memory XII — the blind
+> beat, the wound that re-lives, the ping that
+> feeds the fear, the camera move that sticks,
+> the warm-faint day, the bored reach backward,
+> the sleep that sells the background, their
+> feeling that fades first, and the forecast that
+> draws the reachable):** `memory/emotional-
+> memory.md` Part XII (§§154–163) prices nine
+> affect mechanisms. **Biphasic window** — hot
+> mints tax the NEXT mint (`eib_pen`) and split
+> the previous on priority (`retro_prio_gain`)
+> (Most et al. 2005; Sakaki/Fryer/Mather 2014,
+> verified); `eib_free_null`+`retro_flat_null`.
+> **Social pain re-lives** — `rej`-tagged records
+> relive at `rej_relive` 0.85, FAB-exempt;
+> physical pain 0.3 (Meyer et al. 2015,
+> verified); `rej_flat_null`. **Incubation** —
+> brief cue pings strengthen intense CondEntries
+> instead of safeCount (Eysenck 1968, DEBATED);
+> `incub_mild_null`. **Perspective is plastic
+> one-way** — field→observer shift persists and
+> cools (`persp_stick`/`persp_cool`), no reheat
+> (Sekiguchi & Nonaka 2014, verified);
+> `persp_reheat_null`. **Warm but faint** —
+> `calm:true` (pos valence, low arousal) encodes
+> neutral but keeps positive retrieval treatment
+> (Kensinger 2004); `calm_boost_null`. **Boredom
+> reaches backward** — `bored` state opens the
+> nostalgia draw (van Tilburg & Igou 2013,
+> verified); `nost_rand_null`. **Sleep re-runs
+> the trade** — `sleep_ctx_mult` erodes hot
+> records' context fields while centers save
+> (Payne et al. 2008, verified);
+> `sleep_ctx_null`. **Their feeling fades
+> first** — `oth_emo` records decay 1.4× unless
+> shared-arousal re-flags; `oth_free_null`.
+> **Forecast draws the reachable** — top-R sample
+> × max, not domain mean (Morewedge et al.
+> 2005); `fc_mean_null`. **The appraisal mints
+> the wound** — `rej_sens` trait mints appraisal-
+> tier rejection records from ambiguous cues
+> (Downey & Feldman 1996); `rej_amb_null`.
+> §§4.105–4.109 + §§5.165–5.168 + §6.400; §7 +20
+> scalars +1 trait +4 fields +1 state +10 locked
+> nulls; probes P1475–P1484.
+> (Prior notes v4.x–v5.82 in the version log.)
+
+> **v5.82 note (age-decline XII — the mouth that
+> wanders, the idea that changes owners, the dyad
+> that edits, the errand that taxes the hour, the
+> plan that binds the cue, the retest that stops
+> paying, the week that erases the hour, the craft
+> that holds its own, the reason for retelling, and
+> the belief that starves the muscle):**
+> `memory/age-decline.md` Part XII (§§167–176)
+> prices ten reallocation channels. **Off-target
+> verbosity** — retell bouts drift into real
+> neighbor records `offtarg:true`, topic-weighted
+> (Arbuckle & Gold 1993; Trunk & Abrams 2009,
+> verified); `offtarg_content_null`. **Cryptomnesia**
+> — `gen_by` rides the source leg; below
+> `plag_thresh` generation emits relabel self at
+> flat conf (McCabe, Smith & Parks 2007, verified);
+> `plag_source_null`. **The dyad edits** —
+> `collab` bout: age-flat hit inhibition + partner
+> challenge + elder production-inhibition +
+> age-scaled contagion (Ross et al. 2008, verified);
+> `collab_sum_null`. **Held intentions tax** —
+> `pm_hold_tax` on concurrent E/latency, nonfocal
+> 2× (Smith & Bayen 2006; Ihle 2013);
+> `pm_free_null`. **If-then rescue ages out** —
+> `if_then` binding cuts `pm_evt_pen`, inverts past
+> `ifthen_agecap` 78 (Liu & Park 2004; Zimmermann
+> & Meier 2010, verified); `ifthen_free_null`.
+> **Practice slope fails first** — `practice_gain`
+> halved under `prodrome` while level holds (Duff
+> et al. 2017, verified); `prac_level_null`.
+> **ALF second burn** — `alf:true` adds a delayed
+> fast-decay leg; early retention intact (Weston
+> et al. 2018, verified); `alf_short_null`.
+> **Expertise is domain-locked** — `expert_dom`
+> rebates age_eff ≤15y, envsup-gated (Morrow et
+> al. 1994/2003, verified); `expert_general_null`.
+> **Reminiscence has motives** — `remfn` bout field
+> resamples WHICH records rehearse (Wong & Watt
+> 1991; Webster 1993, verified);
+> `remfn_random_null`. **Belief starves effort** —
+> `mse` state scales willingness/strategy, never
+> capacity (Berry et al. 1989; Lachman et al.
+> 1992); `mse_perf_null`.
+> §§4.101–4.104 + §§5.160–5.164 + §6.399; §7 +25
+> named params +2 traits +10 locked nulls +5
+> fields +2 states; probes P1465–P1474 in
+> validation-design.md §§274–275.
+> (Prior notes v4.x–v5.81 in the version log.)
+
+> **v5.81 note (age-development XII — the wordless
+> file, the trait-set wall, order without a clock,
+> the free counter, the paradox, the twin
+> episodes, chains vs islands, the bump of firsts,
+> the optimistic prophet, and the flat channel):**
+> `memory/age-development.md` Part XII (§§140–149)
+> prices ten lifespan channels. **Preverbal
+> lockout** — `encodeAge < language_age` mints
+> `preverbal:true`; verbal cues ×0, sensory ×1.6,
+> enactive ×1.8; emits `prov:"enactive"` INFERRED
+> only (Simcock & Hayne 2002, verified);
+> `pv_talk_null`. **Amnesia offset is a trait** —
+> `amnesia_offset`/`remnis_style` author the era
+> gate's center `offset_eff` (Bauer & Larkina
+> 2014; Fivush et al. 2006; Wang 2006; MacDonald
+> et al. 2000). **Order splits** — `ord_within`
+> full from ~4, `ord_betw_mult(encodeAge)` matures
+> to ~12; child `when` emits cyclic anchors only
+> (Friedman 1991, 2007). **Frequency is free** —
+> `freq` accumulator, attention-free, age-flat
+> (Hasher & Zacks 1979); `freq_attn_null`. **PM
+> paradox** — `pm_locus` splits: routine-cued
+> rises past 60, nonfocal falls (Rendell & Craik
+> 2000, verified); `pm_flat_null`. **Pattern
+> separation U** — `patsep_mult(age_now)` gates
+> sibling-lure emission (Ngo et al. 2018/2019;
+> Stark et al. 2013, verified). **Recall order
+> splits** — `clust_temp_w` near-flat with old dip
+> vs `clust_sem_w` childhood-acquired (Kahana et
+> al. 2002). **The bump mints firsts** — `first`/
+> `selfdef` mint flags scale `bump_bonus`;
+> `selfdef` holds a goal-gated decay floor
+> (Jansari & Parkin 1996; Rathbone et al. 2008).
+> **Child metamemory inflates** — `jol_child_bias`
+> on prospective predictions, not on E or
+> confidence (Flavell et al. 1970). **Priming is
+> flat** — `prime` activation, no bout, INFERRED,
+> `prime_age_null` (Fleischman & Gabrieli 1998).
+> §§4.96–4.100 + §§5.155–5.159; §7 +18 scalars
+> +3 traits +4 locked nulls +7 fields; probes
+> P1455–P1464 in validation-design.md §§272–273.
+> (Prior notes v4.x–v5.80 in the version log.)
+
+> **v5.80 note (retrieval-cues XIV — the cue has
+> an address, a shelf, an hour, a listener, and a
+> lie):** six retrieval-side channels the cue
+> vector never priced. **Who-knows route** —
+> records minted under expectation-of-access
+> carry `holder`; directory-first retrieval at
+> `tx_dir_p`, own-search at `tx_lazy_mult`,
+> `holder` fields decay at `tx_where_w`
+> advantage (Wegner 1987; Sparrow, Liu & Wegner
+> 2011, verified: where 0.49 vs what 0.23);
+> `tx_mem_null` — the address is not the fact.
+> **Session PI shelf** — same-class cue
+> repetition builds `piq_state` to `piq_cap`;
+> foreign-class cues release fully (Wickens
+> 1963/1970, verified); `piq_none_null`.
+> **Circadian synchrony** — trait
+> `circ_peak_hr`, bout quality gaussian
+> `circ_sigma`/`circ_gain`, elders pay
+> `circ_age_k` more off-peak (May, Hasher &
+> Stoltzfus 1993, verified); `circ_flat_null`.
+> **Retrieval hindsight** — success writes
+> `fok_bias += retro_fok_inf` decaying
+> `retro_inf_tau`; monitor-only (Christensen-
+> Szalanski & Willham 1991, verified meta
+> r=.17); `retro_acc_null`. **Audience tuning**
+> — retell `audience`/`uptake` fields; message
+> shifts `tune_msg`, writeback gated
+> `tune_gate`·`tune_believe` — saying is
+> believing only in a shared room (Higgins &
+> Rholes 1978; Echterhoff et al. 2005/2013,
+> verified); `tune_free_null`. **Schema-mismatch
+> cue** — venue `schema` vector; entry mismatch
+> >`schemis_thresh` opens a bout at
+> `schemis_fac` on the last-verified record;
+> consistent fills emit `prov:"schema"` at
+> `schemis_intr` (Brewer & Treyens 1981; Pezdek
+> et al. 1989, verified); `schema_free_null`.
+> §§5.149–5.154; §7 +16 scalars +1 trait +6
+> locked nulls +fields `holder`/`fok_bias`/
+> `schema`/`audience`/`uptake`/`piq_state`;
+> probes P1443–P1454 in validation-design.md
+> §§270–271. (Prior notes v4.x–v5.79 in the
+> version log.)
+
+> **v5.79 note (forgetting-curves XII — the
+> neighborhood prices the record):** six places
+> where retention is a function of the
+> neighborhood, not the record. **Neighbor tax**
+> — `arousal ≥ emo_nbr_thresh` mints tax
+> neighbors inside `emo_nbr_win` (±~30 game-min)
+> at `emo_nbr_tax`, co-hot neighbors exempt,
+> `da_enc` halves it (Strange, Hurlemann & Dolan
+> 2003, verified; Knight & Mather 2009 bounds);
+> `emo_free_null` — the spike's advantage is
+> partly paid for. **Post-encoding credit** —
+> records in `(emo_nbr_win, post_emo_win]`
+> before a spike gain `post_emo_gain` posted at
+> the next sleep tick, never at mint
+> (Nielson & Powless 2007); `post_emo_instant_null`.
+> **Suppression is a lease** — §4.2 loss splits
+> `interf_perm_frac`/`supp`; `supp` decays at
+> `supp_recover`, RIF shares the state at
+> `rif_recover_tau`, retrieval reads
+> `R_eff = R·(1−supp)` (Briggs 1954; Underwood
+> 1948; Wheeler 1995); `supp_perm_null` +
+> `supp_instant_null`. **Sleep armor** — the
+> sleep tick grants `interf_shield` decaying at
+> `interf_shield_decay` (Ellenbogen et al. 2006);
+> `sleep_fragile_null`. **Context-varied retell**
+> — retell S-growth scaled by context novelty vs
+> `lastAccessCtx`, floor `ctx_var_floor`
+> (Glenberg 1979); `ctx_same_null`. **Rote is
+> not rehearsal** — `rote:true` retells (same
+> context, gap<`rote_gap`, effort<`rote_effort`)
+> earn `rote_mult`, no lag credit, no
+> `prevGapDays` (Craik & Watkins 1973; Karpicke &
+> Roediger 2007); `rote_free_null`. §§4.92–4.95,
+> §§5.147–5.148; §7 +15 scalars +7 locked nulls
+> +record fields `supp`/`shield`/`lastAccessCtx`
+> +retell flag `rote:true`; probes P1431–P1442
+> in validation-design.md §§268–269. (Prior
+> notes v4.x–v5.78 in the version log.)
+
+> **v5.78 note (encoding-mechanics — the will, the
+> want, the pattern, the smell, the bear, the
+> distance):** six intake channels the store never
+> priced. **Volitional mint** — `chosen` events
+> (≥`choice_opt_min` live options, self-picked) get
+> `choice_gain` (Murty, DuBrow & Davachi 2015:
+> anticipatory striatum → hippocampus, content-
+> independent); `choice_trivial_null` — agency
+> theater is not agency. **Motivational intensity
+> breadth** — `motiv_intensity` state input narrows
+> peripheral field-write above `motiv_gate`
+> regardless of valence (Gable & Harmon-Jones 2008;
+> 2025 registered replication failed → magnitude
+> DEBATED, SHOULD); `motiv_valence_null`. **Statistical
+> learning** — attended co-occurrences accrue in a
+> pattern ledger; at `stat_thresh` they mint
+> `pattern:true` records (`rk:"know"`,
+> `prov:"implicit"`, `dateKnown:null`) — undated
+> sourceless regularities, the quiet substrate of
+> unequal knowledge; `stat_event_null` (never
+> episode-cited) + `stat_unseen_null` (attention-
+> gated per Turk-Browne 2005). **Odor binding** —
+> `odor` events write a `ctx_odor` field decaying at
+> `odor_beta_mult` 0.5 with `odor_rescue_gain`
+> reaching archived records (Willander & Larsson
+> 2006 — childhood bump <10 y); `odor_name_null`
+> caps verbal attenuation at `odor_name_mult`.
+> **Suppression cost/rebound** — `suppressing` flag
+> spends `sup_load` daLoad at mint and marks the
+> target for `sup_rebound_p`/`rebound_gain`
+> intrusion inside `rebound_win` (Wegner 1987/1994);
+> `sup_free_null`. **Construal distance** —
+> `construal:"abstract"` mints thin verbatim fields
+> at unchanged E (Trope & Liberman 2003; mapping
+> HYPOTHESIS). §§6.393–6.398; §7 +18 scalars +6
+> locked nulls; probes P1419–P1430 in
+> validation-design.md §§266–267. (Prior notes
+> v4.x–v5.77 in the version log.)
+
+> **v5.77 note (validation-design XI — consequence-
+> continuity contracts):** the battery gains the
+> longitudinal instruments the Astra direction made
+> load-bearing — unequal knowledge, honest provenance,
+> and the spec→wired gap. **Dyad-pair bookkeeping** —
+> every shared event registers a `pairId`; per-party
+> records are sampled independently, so a promise
+> lives in two heads with two decay clocks (Kenny SRM
+> partition sanity bounds). **Breach/repair scenario
+> schema** — a standard missed-commitment fixture
+> carrying breach arm (honest-admission vs denial),
+> matched `untouched_arm` control run, and
+> `persist_probe_days` window; remembered
+> disappointment must be *memory-mediated*
+> (`memless_behav_null` — deleting the record collapses
+> the signature) and repair must be *emergent*
+> (`repair_script_null` — identical repair rate in a
+> memory-lesioned arm = fail). **Deception scar** —
+> Schweitzer, Hershey & Bradlow 2006: breach+denial
+> recovery asymptotes `deception_asym` below
+> breach+admission. **Provenance audit** — every
+> memory-backed surface emission carries a
+> `display_tier` (`label_gap_null`); audited κ ≥
+> `kappa_prov_min` 0.80 against human-tier labels
+> (Cohen 1960). **Persistence measurement** — trait
+> memory measures report ICC(2,k) ≥
+> `icc_persist_min` 0.60 across `persist_probe_days`
+> (Shrout & Fleiss 1979); revised priorities must
+> persist ≥ `priority_persist_d` 7 sim-days (Fleeson
+> 2001 within-person variability check — the sim must
+> not collapse to trait determinism). **Two-clock
+> honesty** — accelerated replay skips zero commitment
+> checkpoints (`ffwd_checkpoint_null`). **Coverage
+> gate** — locked-null params without ≥1 live probe
+> fail at `cover_gate_min` 0.9 (the battery audits its
+> own wiring, per the Astra spec→wired finding).
+> §14.9; §7 +10 scalars +4 locked
+> nulls; probes P1405–P1418 in
+> validation-design.md §§264–265. (Prior notes
+> v4.x–v5.76 in the version log.)
+
+> **v5.76 note (character-profiles X — the promoted
+> tier):** `memory/cast-profiles.md` Part VIII gives the
+> four ranked promotion candidates (world/promotion.md §5:
+> A14 Bex, A05 Esther, A09 Asha, A06 Kofe) full-quality
+> memory compiles, and the spec gains the promotion-era
+> mechanics they required. **`promote()`/`demote()`** —
+> era-transition ops; records carry immutable
+> `era:"ambient"|"promoted"`; ambient-era records kept
+> verbatim (`promote_rewind_null`), card-observable traits
+> frozen inside `promote_cont` (`promote_recast_null`).
+> **The typed era** — ambient-era records are
+> `class:"generic"` + `rk:"know"` (repetition-collapsed
+> GERNs; Conway & Pleydell-Pearce 2000 general-events
+> level; Neisser 1981; Barsalou 1988); ambient-era
+> theta-crossings mint `rk:"remember"` islands at
+> `promote_remember_isle_p`; know-tier retrieval caps
+> detail at `know_detail_cap` and rehearsal never flips
+> rk (`know_upgrade_null` — modeling choice on a DEBATED
+> dual-vs-single-process literature). **Backfill** —
+> world-seeded skeletons mint `backfill:true` gist-class
+> records (`backfill_detail_null`) that can never stand
+> as ledger-OBSERVED sim events (`backfill_obs_null` —
+> the honest-provenance primitive for seeded pasts).
+> **The thin-years SelfModel** — `meta_gap_init` 0.25:
+> the promoted SelfModel believes its ambient era better
+> than the record supports; calibration decay
+> `promote_calib_d` 21 (Johnson, Hashtroudi & Lindsay
+> 1993 source monitoring). **Ambient witness edges** —
+> thin-era `ambient:true` edges resurface as TOLD-tier
+> gist at `ambient_wit_gain` — promoted NPCs are
+> real-but-thin witnesses of the mains' public pasts.
+> **Demotion** — `demote()` freezes encoding to thin,
+> keeps every record (`demote_keep_null`) → a dense
+> promoted-era island that reactivates with savings on
+> re-promotion. **Minor guard** — `promote()` refuses
+> minors without `guardian:true` (`minor_promote_null`).
+> §§6.386–6.392; §7 +12 scalars +8 locked nulls +record
+> fields (`era`,`rk`,`backfill`,`guardian`) +2 ops;
+> §10 contract; probes P1392–P1404.
+
+> **v5.75 note (formal-model XII — the epistemic
+> layer):** `memory/formal-model.md` Part XII
+> (§§104–116) binds the scattered provenance
+> machinery into one contract: who knows what, who
+> thinks others know, and what the UI may claim.
+> **The provenance lattice** — `tier()` maps every
+> record to OBSERVED > TOLD > INFERRED > UNKNOWN on
+> a strength-independent axis; merges take
+> max-tier; upgrades closed to `absorb`/`witness`/
+> `reality_flip` (locked `prov_up_null`,
+> `tier_strength_null`). **The chain crossover** —
+> Kashima's SI-early/SC-late sign flip declared as
+> `chain_crossover_h` 3 (Kashima 2000; Lyons &
+> Kashima 2003 — verified). **`knows()`** —
+> recognition-mode recall returning
+> `{tier,conf,hops}|null`; locked `knows_db_null`
+> keeps the ledger and other heads unreachable.
+> **`knowsOf()`** — noisy-OR meta-knowledge over
+> told_to/co-presence/shared/rumor edges, wrong in
+> both directions by construction
+> (`meta_omni_null`; Gopie & MacLeod 2009
+> destination < source). **`disclose()`** — the
+> paired asymmetric write: `told_to` at `dest_E`,
+> `heard_from` at source strength, hearer tier
+> capped at TOLD (`tell_obs_null`), confidentiality
+> gate routes leaks through `leak:true` +
+> `disclosed_by`. **`discoverWithheld()`** — the
+> "you knew all along" meta-record, idempotent.
+> **`acknowledge()`** — repair records linked
+> `repair_of`, breach preserved (`repair_erase_null`),
+> integrity-kind gain at `repair_integ_mult` (Kim
+> et al. 2004 ordering). **`PromiseView`** — paired
+> promiser/promisee records, self-role skew
+> `promise_self_boost` (Ross & Sicoly 1979),
+> divergence bound `promise_div_max`. **Display
+> contract** — every emission carries
+> `display_tier`; OBSERVED ⇔ witnessed at ledger
+> (`obs_label_null`). §§6.378–6.385; §7 +13 scalars
+> +7 locked nulls +2 record classes (`withheld`,
+> `repair`) +5 ops (`knows`, `knowsOf`,
+> `disclose`, `discoverWithheld`, `acknowledge`);
+> §10 contract; probes P1380–P1391.
+
+> **v5.74 note (social-memory XIII — the intention
+> layer):** `memory/social-memory.md` Part XIII
+> (§§181–196) prices the interpretive half of social
+> memory — what observers *infer* rather than see,
+> and the social records that never become facts.
+> **Reading the mind behind the move** — spontaneous
+> goal inference mints `intent_inferred` fields with
+> permanent `provenance:"inferred"` (Hassin, Aarts &
+> Ferguson 2005; Gilbert 1988 load gate; Jones &
+> Davis 1965 discounting); locked `intent_fact_null`.
+> **"Let's get lunch" is not a promise** — `commit_soft`
+> phatic tokens mint low courtesy records, no debt,
+> no breach, ever; locked `soft_breach_null`
+> (Clark & Bavelas 2004). **Half-heard counsel** —
+> `advice` records weight `advice_w` 0.4 vs own prior,
+> advisor overestimates uptake `advice_over_est`
+> (Bonaccio & Dalal 2006; Yaniv & Kleinberger 2000).
+> **The granter warms** — voluntary costly favors
+> raise granter-side eval (`benfrank_gain`);
+> coerced grants null (`benfrank_vol_null`;
+> Jecker & Landy 1969, DEBATED dose). **Fear by
+> proxy** — `warned:true` (`instruct_fear`) and
+> witnessed `aversive` (`obs_fear`) mint avoidance
+> without first-person harm (Rachman 1977; Mineka
+> 1984; Olsson & Phelps 2007; Askew & Field 2007);
+> locked `indirect_exceed_null`/`instruct_erase_null`.
+> **Talk tilts the room** — group polarization drifts
+> stored valence toward mean lean, gated;
+> `polar_zero_null` (Isenberg 1986). **The doorway
+> in the party** — `boundary:true` edge records,
+> `boundary_gain`, `boundary_reset_tax`, `seg_grain`,
+> `seg_norm` aging leg (Zacks 2007; Radvansky 2006;
+> Zacks 2006). **The punisher's dividend** —
+> proportionate sanction buys observer trust through
+> a per-observer `prop` gate reading the OBSERVER's
+> own offense record; `punish_free_null` (Barclay
+> 2006; Jordan 2016). **"Everyone was there"** —
+> `rosterRecall` reconstructs guest lists from tie +
+> typicality with patterned intrusions; perfect
+> rosters banned (`roster_exact_null`;
+> Freeman & Romney 1987). **The laugh eats the next
+> line** — `humor_gain` on the joke, `humor_tax` on
+> ±1 neighbors, saturation collapse, `humor_bond`
+> (Schmidt 1994; Fraley & Aron 2004). **Person models
+> for collectives** — `collective:true` PMs with
+> downward `stereo_prior` for thin member PMs;
+> `stereo_fact_null` keeps group traits out of member
+> facts (Campbell 1958; Hamilton & Sherman 1996).
+> §§6.367–6.377; §7 +26 scalars +10 locked nulls +2
+> record classes +1 op (`rosterRecall`); §10
+> contract; probes P1366–P1379.
+
+> **v5.73 note (individual-differences XI — the chart
+> nobody shows):** `memory/individual-differences.md`
+> Part XI (§§143–163) prices the medical-history layer:
+> the deficits that were always there, the injuries
+> that leave a chart entry, the air you can't choose,
+> the small reversibles — plus mandated nulls six and
+> seven. **The loop that never buffered** — `dyslex`
+> taxes phonological/name/verbatim and serial-order
+> fields, gist preserved, compensation routing via
+> `dys_comp_p` offload notes (Swanson 2009; Staels &
+> Van den Broeck 2017); locked `dys_gist_null`/
+> `dys_sem_null`. **A different buffer** — `deaf_sign`
+> reweights channels (visuospatial/face gain, heard
+> dead-zone), equal-strength records; `deaf_sign` ⊘
+> `hear` forbidden co-mint (Rönnberg 2004); locked
+> `deaf_total_null`. **The eye that spends** —
+> `vision` mirrors `hear`'s three legs on seen-channel
+> + visual cue-match; `vis_corrected` rescue 0.5
+> (DEBATED — no RCT); `dual_sensory` additive
+> (Lin M.Y. 2013; Pichora-Fuller 2016); locked
+> `vis_gist_null`. **The lesion on the record** —
+> `stroke_hist` = `age_eff` step (4.0y at sev 2) +
+> faster control-layer slope + material-side field
+> haircut (Levine 2015); locked `stroke_sem_null`/
+> `stroke_pro_null`. **The interruption and the pill**
+> — `epilep` material-lock + `seizure:true` zero-
+> record gaps + `aed_burden` TOT tax (Bell 2011;
+> Mula 2012); locked `ep_ret_null`. **The controlled
+> infection's residue** — `hiv_hist` subcortical
+> ordering speed>att>epi, `on_art` halves, complaint
+> under-reports (Heaton 2010; Sacktor 2018 DEBATED);
+> locked `hiv_sem_null`. **The fog that mostly lifts**
+> — `post_viral` dose-ordered (resolved −0.2,
+> persistent −0.35 at sev 2), `pv_recover_tau` 365d,
+> `pv_var_k` era-scaling, small `pv_resid` step
+> (Hampshire 2024; Douaud 2022); locked
+> `pv_sudden_null`/`pv_complaint_null` (complaint-legs
+> corr ≤0.4). **The deficit that won't sit still** —
+> `cfs_state` speed-bound + NEW `cfs_fatigue` in-bout
+> decline leg + complaint premium (Cockshell &
+> Mathias 2010); locked `cfs_ep_null`. **The cheap
+> fix** — `b12_state` enc/att taxes, treated rescue
+> 0.8 at 90d (Allen 2009); locked `b12_ret_null`.
+> **The weak-signal complaint** — `thyroid_state`
+> stage-capped legs (subclinical ≤0.05 — locked
+> `thy_sub_null`), complaint premium, near-full
+> rescue (Ritchie & Yeap 2015). **The air you can't
+> choose** — `air_poll` cumulative exposure →
+> `age_eff` slope 0.2y/yr at poll 2 + `aqi_day`>150
+> same-day attention tax (Weuve 2012; Cleland 2022);
+> locked `air_loc_null`/`air_ind_null`. **The winter
+> that borrows through mood** — `sad_state` is a
+> fractional driver INTO the `depr` overlay ONLY;
+> locked `sad_direct_null` (mediation-lock, P1363).
+> **The surgery that lingers** — `postop` enc/speed
+> taxes, 90d tau, 10% residual step, no mint <50
+> (Monk 2008); locked `postop_young_null`. **The pill
+> that almost works** — `multivit` ≥60 slope-damp on
+> beta_episodic only (Vyas 2024 COSMOS, DEBATED);
+> locked `mv_exec_null`/`mv_level_null`. **Two more
+> refusals** — `fast_null` (Benau 2014) and
+> `glp1_null` (two-sided, EVOKE pending) are
+> parameter-level bans. §§6.351–6.366; §7 +34
+> scalars +8 authored traits +2 caps +17 locked
+> nulls +states/fields; §10 contract; probes
+> P1352–P1365.
+
+> **v5.72 note (false-memory XI — the social-credit
+> layer):** `memory/false-memory.md` Part XI (§§129–139)
+> prices the meta-level: how characters judge each
+> other's memory and their own, and why the lie
+> outtravels the correction. **Trivial-detail
+> credibility** — peripheral-detail density inflates the
+> *listener's* `cred_est` of the speaker (perceiver-
+> side EMA, feeds future `sourceCredibility`); locked
+> `triv_acc_null` — accuracy untouched (Bell & Loftus
+> 1989). **Memory distrust** — trait `mem_distrust` +
+> state `md_state` accrued per disconfirmed
+> contradiction; boosts external adoption, mutes own
+> emission; locked `md_str_null` (Gudjonsson & MacKeith
+> 1982; van Bergen 2008/2009; Otgaar 2023 counter —
+> trait leg DEBATED). **Secondhand adoption** — vivid
+> `told` records migrate `told→observed→witnessed` via
+> retell credit + `sh_hl` hazard; locked `sh_free_null`
+> (Pynoos & Nader 1989; Lindner et al. 2010).
+> **Self-generation advantage** — `self_guess`
+> candidates adopted ×`selfgen_mult`; locked
+> `sg_ext_null` (Slamecka & Graf 1978; Zaragoza et al.
+> 2001). **Conformity split** — normative leg writes
+> `conform_public` emission flags only (status +
+> audience), informational leg keeps §6.3 writes;
+> public rehearsal converts at p_info·0.5; locked
+> `conf_priv_null` (Gabbert et al. 2003; French et
+> al.). **Confidence contract** — `conf_emit` =
+> within-person resolution slope + trait offset;
+> report field, INFERRED surface; locked
+> `conf_cross_null` — between-person confidence
+> carries no accuracy rank (Brewer & Wells 2006;
+> Koriat & Goldsmith 1996). **Correction reach** —
+> corrections propagate at `corr_reach_mult` with
+> `corr_seen` exposure-biased audience; locked
+> `corr_equal_null` — residue is permanent (Vosoughi
+> et al. 2018). **Metamemory** — `ret_pred` report
+> field biased high by `meta_bias·(1−meta_mem)`;
+> planning reads it, decay never does; locked
+> `meta_store_null` (Kornell & Bjork 2009).
+> **Contagion floor** — adoption credibility factor
+> becomes `floor+(1−floor)·cred`; locked
+> `contag_zero_null` (Roediger, Meade & Bergman
+> 2001). **Commitment hardening** — `public:true`
+> emissions freeze fields vs contradiction for
+> `commit_freeze_hl`; locked `commit_priv_null`
+> (Wells & Bradfield; Bregman & McAllister 1982).
+> **Self-contribution bias** — `joint:true` records
+> inflate self-share at emission, partner shares decay
+> faster, sums unnormalized; locked `contrib_sum_null`
+> — the >100% sum is the finding (Ross & Sicoly 1979;
+> Caruso et al. 2006). §§6.340–6.350; §7 +22 scalars
+> +3 authored traits +1 knot curve +11 locked nulls;
+> §10 contract; probes P1341–P1351.
+
+> **v5.71 note (emotional-memory XI — the affect that
+> reaches behavior):** `memory/emotional-memory.md` Part XI
+> (§§140–149) closes the loop from stored affect to
+> observable behavior and other minds. **Social sharing**
+> — emotional records mint a sharing drive ∝ arousal
+> (`share_*`), spent in trust-gated discussEvent bouts,
+> shame/guilt damped; locked `share_cool_null` — telling
+> never cools the tag (Rimé et al. 1991/1992; Zech & Rimé
+> 2005). **Two-layer avoidance** — deliberate
+> `sit_sel_w` option bias plus procedural `avoid_habit`
+> records that outlive extinction; locked `habit_aff_null`
+> (Salkovskis 1991; de Wit et al. 2018). **Somatic
+> choice bias** — `choice_aff_w` bounded affect term on
+> option scoring; locked `choice_fact_null` (Bechara et
+> al. 1997). **Rumination splits** — `brooding`
+> re-stamps arousal only (`brood_content_null`);
+> `reflect` buys coherence (Treynor et al. 2003; Watkins
+> 2008). **PE-gated reconsolidation** — the §5.9 window
+> opens only on prediction error or disconfirmation;
+> routine retell = strength only (`recon_routine_null`;
+> DEBATED — Sevenster, Beckers & Kindt 2012 vs Luyten &
+> Beckers 2017). **Attachment bundles** — `attach_anx`/
+> `attach_avo` authored traits remap existing knobs;
+> emitted-vs-stored asymmetry for avoidance;
+> `attach_content_null` (Mikulincer & Shaver 2007).
+> **Transference** — resemblance ≥`transf_thresh` leaks
+> an `affect_prior` onto new PersonModels flagged
+> `provenance:"inferred"`; locked `transf_fact_null`
+> (Andersen & Cole 1990). **Fluency heuristic** —
+> retrieval ease inflates emitted confidence + reported
+> arousal (`flu_*`), age-knotted; locked `flu_acc_null`
+> (Koriat 1993; Jacoby & Rhodes 2006). **Stress substrate
+> shift** — acute stress under the §118 two-factor gate
+> reweights deliberative→habitual choice substrates
+> (`stress_habit_*`); locked `stress_ep_fact_null`
+> (Schwabe & Wolf 2009). **Spotlight** — estimated
+> other-retention of own embarrassment ×`spotlight_k`;
+> locked `spot_fact_null` (Gilovich, Medvec & Savitsky
+> 2000). §§6.330–6.339; §7 +20 scalars +4 traits +3 knot
+> curves +10 locked nulls; §10 contract; probes
+> P1331–P1340.
+
+> **v5.70 note (age-decline XI — what still works, what
+> lies about it, what bends last):** `memory/age-decline.md`
+> Part XI (§§153–162) prices the spared channels, the
+> clouding overlays, and the cohort stamp. **Automaticity
+> exemption** — `freq_count` fields mint age-flat
+> (`auto_freq_flat`); locked `auto_loc_null` — space/time
+> fields still age (Hasher & Zacks 1979/1984; Naveh-
+> Benjamin 1989's partial refutation). **Choice-supportive
+> drift** — decision records drift positive-on-chosen at
+> `choicesup_w(age)`, anchored on `believed_chosen` not
+> fact; locked `choicesup_val_neutral_null` (Mather &
+> Johnson 2000; Henkel & Mather 2007). **Self-reference
+> spared** — `selfrel_keep` holds `w_self` age-flat;
+> locked `selfrel_third_null` (Gutchess et al. 2007).
+> **Depression overlay** — `depr` state taxes effortful
+> mints, biases OGM, skews rehearsal negative, remits on
+> `dep_remit_tau`; locked `dep_sem_null` (Byers & Yaffe
+> 2011; Jorm 2000; Williams et al. 2007). **Odor-ID leads**
+> — `odor_id_eff` knot curve leads episodic legs by
+> `odor_enc_lead`; locked `odor_sem_null` (Wilson et al.
+> 2007, 2011). **Idea density** — `idea_dens` trait
+> front-loads `reserve`; locked `idea_late_null`
+> (Snowdon et al. 1996). **Awareness inverts** —
+> `aware_eff` = SCD hump minus `aware_invert_k`·prodrome;
+> locked `aware_perf_null` (Wilson et al. 2015; Jessen
+> 2014). **Semantic bend** — `sem_bend` late leg ≤0.4×
+> episodic; locked `sem_bend_healthy_null` (Rönnlund et
+> al. 2005). **Applied-numeric leak** — `fin_num_hl` on
+> transact fields + `fin_conf_keep` report split; locked
+> `fin_decl_null` (Triebel et al. 2009). **Cohort shift**
+> — `cohort_shift` translates all age knots per profile;
+> locked `cohort_within_null` (Rönnlund & Nilsson 2009).
+> §§4.84–4.91 + §§5.145–5.146 + §6.329; §7 +19 named
+> params +10 locked nulls; §10 contract; probes
+> P1321–P1330.
+
+> **v5.69 note (age-development XI — the lifespan's
+> retrieval shapes):** `memory/age-development.md` Part XI
+> (§§126–135) prices ten lifespan legs left unpriced.
+> **TOT/name block** — failed name retrieval terminates in
+> `tot:true` with age-graded partials and spontaneous
+> resolution (`tot_*`); locked `tot_sem_null` — the block
+> is phonology-only (Burke et al. 1991; Cohen & Faulkner
+> 1986). **Destination memory** — retells mint `told_to`
+> edges at `dest_mult(age)`; confident misses endorse
+> repeat-telling; locked `dest_src_null` — direction-
+> locked, source arm age-flat (Gopie & MacLeod 2009;
+> Gopie, Craik & Hasher 2010). **Era-keyed senses** —
+> cue `sense:"odor"` re-aims era weighting to <10y,
+> `"music"` to the bump; locked `ecue_name_null` —
+> naming the odor halves the shift (Willander & Larsson
+> 2006, 2007; Chu & Downes 2000). **The late inhibitor** —
+> `rif_amp(age)` gates retrieval-practice suppression:
+> zero under ~6, intact to ~75, declining after (Aslan &
+> Bäuml 2010, 2013); locked `rif_item_null`.
+> **Part-cue harm** — supplied subsets tax the unsupplied
+> remainder through `rif_amp`, so young children are
+> IMMUNE, not just weak (Slamecka; Zellner & Bäuml);
+> locked `partcue_free_null`. **The eval frame** —
+> `eval:true` contexts tax the old via `stereo_w`·
+> `stereo_val`·leg; locked `stereo_impl_null` (Hess et
+> al. 2003). **Savings** — below-floor traces mint
+> re-encodes at discount, infant latents at the larger
+> fraction; locked `savings_recall_null` (Ebbinghaus;
+> Perris et al. 1990). **Own-age bias** — person-identity
+> fields mint at `ownage_gain`·gaussian(Δage), contact-
+> attenuated; locked `ownage_sem_null` (Anastasi & Rhodes
+> 2005). **Divided-encoder** — `ctx.divided` cost is
+> U-shaped in age; locked `da_ret_over_null` keeps encode
+> above retrieval (Craik et al. 1996; Anderson et al.
+> 1998). **FOK noise** — old arm adds variance, not bias
+> (child arm stays biased-high); locked `fok_store_null`
+> (Souchay et al. 2007). Spec §§4.80–4.83, §§5.139–5.144,
+> §7 +23 scalars +6 knot curves +10 locked nulls +1 trait
+> +1 edge field +1 state, §10 contract; probes P1311–P1320.
+
+> **v5.68 note (retrieval-cues XI — the cue's crowd, clock,
+> and breath):** `memory/retrieval-cues.md` Part XI
+> (§§108–112) prices five retrieval-side legs left unpriced.
+> **Co-witness cue** — a shared-encode partner's account is
+> simultaneously a completeness cue (`cowit_fac` on shared
+> fields) and a supplied-detail contaminant
+> (`cowit_src_mult` 1.2·hint_w into §6.3, growing with record
+> age); locked `cowit_free_null` — neutral discussion cannot
+> move held-field accuracy (Gabbert 2003; Paterson & Kemp
+> 2006; Paterson et al. 2009). **Place-as-era** — derived
+> `placePeakDay` per (char, place) makes place cues era-
+> weighted (`era_w` gaussian, `era_return_gain` on ≥1y
+> absence); locked `place_now_null` (TCM machinery, mapping
+> HYPOTHESIS). **Sleepless search** — `sleepHours24 < 5`
+> taxes emission quality/latency and raises confabulation +
+> supplied-feature weight (`sdret_*`); locked
+> `sdret_over_null` — retrieval leg stays below the encode
+> leg (Newbury et al. 2021 g-ratio). **Own-name retrieval** —
+> ambient own-name opens a forced bout bypassing
+> `fok_pre`/`bout_enter` (locked `ownname_gate_null`), emits
+> `name_overheard` with speaker-attribution fork; close-other
+> names at `ownname_close` (Moray; Wood & Cowan; Röer 2013).
+> **Heating-up loop** — `warmth` EMA of partial-product flux
+> extends the bout past the §77 quit threshold; locked
+> `warmth_conf_null` — persistence only, never confidence
+> (Koriat & Lieblich 1974; Schwartz 2006). Spec §§5.134–
+> 5.138, §7 +19 scalars +5 locked nulls +1 derived field,
+> §10 contract; probes P1301–P1310.
+
+> **v5.67 note (forgetting-curves XI — the shape parameters
+> are functions):** `memory/forgetting-curves.md` Part XI
+> (§§51–55) promotes six constants to functions of horizon,
+> disuse, and age. **The ridgeline** — `lag_opt_ratio` becomes
+> horizon-scaled `lag_ratio(T)` (Cepeda et al. 2008: 20–40%
+> of a week's RI, 5–10% of a year's); locked `lag_flat_null`.
+> **Fitness bump** — `fitness:true` events earn post-term
+> `fitness_gain`, half priced at consolidation (Nairne et
+> al. 2007; reducibility to arousal/self locked:
+> `fitness_redux_null`). **Disuse clock** — skill decay runs
+> on `disuseDays`, not record age; domain asymmetry
+> `skill_dom_mult` + return-fumble `vac_*` (Cooper 1996;
+> Driskell 1992); locked `skill_clock_null`. **Emotional
+> crossover** — E's arousal term is age-gated at retrieval
+> (`emo_del_gate`) plus same-day `emo_imm_tax` (Kleinsmith &
+> Kaplan 1963); locked `emo_instant_null`. **Deadline
+> scallop** — time-armed intentions self-cue on a J-ramp
+> `mon_rate(t)`; unfired past `pm_grace` convert to
+> `missed:true` records (Harris & Wilkins 1982); locked
+> `deadline_mute_null`. **Generation slope** — self-produced
+> records decay at `beta·gen_tau_mult` (Bertsch 2007);
+> locked `gen_intercept_null`. Spec §§6.323–6.328, §7 +20
+> scalars +6 locked nulls +3 fields, §10 contract; probes
+> P1291–P1300.
+
+> **v5.66 note (encoding-mechanics X — the backward-
+> looking encoder):** `memory/encoding-mechanics.md` Part X
+> (§§123–132) prices five encode-side forces the ledger had
+> one-directional or unpriced. **Retroactive reward** —
+> unexpected reward sweeps backward `post_rew_win` 45 sim-min,
+> graded by proximity (`post_rew_tau`) and gated by
+> relatedness (`post_rew_cat_w`), materializing only through
+> the sleep leg (Patil 2017; Braun 2018; Dunsmoor 2015);
+> locked `rew_inst_null` + `rew_ant_only_null`. **The blink** —
+> a high-E mint opens a `blink_win` refractory that taxes the
+> NEXT event's E, sequential and content-blind (Raymond 1992;
+> Chun & Potter 1995); locked `blink_self_null`. **PI at the
+> mint** — successive same-`categoryTag` events attenuate E
+> `(1−pi_run_k)^run_n`; a genuine tag switch earns
+> `pi_rel_gain` (Underwood 1957; Wickens 1970); locked
+> `pi_relabel_null`. **Birth vantage** — dissoc × high arousal
+> mints `perspBirth:"observer"` records with the McIsaac &
+> Eich 2004 content split (affective thin, layout thick);
+> emission bias via §5.39; locked `persp_birth_null`.
+> **Boundary reinstatement** — a minted boundary sweeps the
+> closing segment `bound_ante_gain` graded toward the cut plus
+> a `bound_bridge` seam-link rescue (Sols 2017); locked
+> `bound_ante_null` (backward only). Spec §§6.318–6.322, §7
+> +18 scalars +6 locked nulls +2 record fields, §10 contract;
+> probes P1281–P1290.
+
+> **v5.65 note (formal-model XI — the deferral algebra,
+> the version lattice, the equivalence contract):**
+> `memory/formal-model.md` Part XI (§§92–103) adds zero
+> psychology — it hardens WHEN the machine computes, how
+> snapshots survive upgrades, and what "equivalent" means.
+> **Eval-timing classes** — every op declared `AT_EVENT` /
+> `DEADLINE(Δ)` / `ON_READ` / `NEVER_SKIP`; lazy evaluation
+> legal exactly under the semigroup condition (§93);
+> `evaluatedAt` watermark; `lazy_write_null` (reads are pure).
+> **Owed-work queue** — missed `consol_deadline_h` consolidation
+> drains at next sleep at `owed_yield` 0.5 (Talamini 2008);
+> locked `owed_full_null`. **Version lattice** — `migrate`
+> composes along ancestor edges; additive-only A1, locked-null
+> monotonicity A2 (`null_unlock_null`), bookkeeping excluded
+> from `canonHash` A3 (`hash_version_null`), no silent delta
+> A4 (`migrate_silent_null`); `semchg` branches via named
+> registry. **Equivalence contract** — `=_state` / `≈_obs` /
+> `≈_mom` / `≈_d(ε)`; thin mode bounded by `ambient_err_bound`;
+> locked `equiv_claim_null`, `eval_skip_null`. Spec §16 annex
+> (deferral catalog + delta schema) + §7 params + §10 contract;
+> probes P1245–P1256.
+
+> **v5.64 note (social-memory XII — the room keeps the
+> books):** `memory/social-memory.md` Part XII (§§166–
+> 180) adds the observer layer — memory written by
+> watching, not acting. **First glance** — `firstlook`
+> sketch minted at first exposure, confidence grows but
+> content frozen (Willis & Todorov 2006); locked
+> `firstlook_mut_null`. **Familiar strangers** — `seen:`
+> co-presence accrues `familiarity` only (Milgram 1972);
+> locked `fs_identity_null`. **Status buys the slot** —
+> `actorStatus` lifts face/identity/sociospatial encode
+> (Ratcliff et al. 2011). **Watching the snub** —
+> `vic_snub` muted observer record + excluder eval leg
+> (Wesselmann 2009); locked `vic_exceed_null`.
+> **Standing by watching** — third-party witnessed acts
+> update PM at `obs_eval_gain` 0.6, ordered
+> self>witnessed>hearsay (Nowak & Sigmund 1998);
+> locked `obs_standing_null`. **Moral contagion** —
+> `moral:true` content tag adds ~1.2×/marker diffusion,
+> out-group-bounded (Brady 2017); locked
+> `moremo_acc_null`. **Synchrony** — `sync:true` writes
+> eval_tag/E only (Wiltermuth & Heath 2009); locked
+> `sync_trait_null`. **The tease's two books** —
+> mitigation loss one-way (Kowalski 2000; Kruger 2006);
+> locked `tease_benign_null`. **My line, their line** —
+> `selfsaid_gain` on speaker:self fields (Slamecka &
+> Graf 1978); locked `selfsaid_echo_null`. **Helper/
+> hinderer floor** — pre-abstraction `pm_eval_raw` leg
+> (Hamlin, Wynn & Bloom 2007); locked `hh_trait_null`.
+> Spec §§6.308–6.317 + §7 params + §10 contract; probes
+> P1231–P1244.
+
+> **v5.63 note (individual-differences X — the ear that
+> spends, the pill that borrows, the transition that
+> pauses, the decade of nights, the fever that fogs, the
+> habit that burns, the cushion that isn't, the career
+> that banked, the desk that emptied, the company that
+> isn't there, the sugar that saps, the headache that
+> passes clean, and the year after the funeral):**
+> `memory/individual-differences.md` Part X (§§125–142)
+> + spec §§6.295–6.307. **The ear spends the buffer** —
+> `hear` taxes heard-event E and source fields at
+> `hear_effort_tax`/`hear_src_tax`, social drag as a
+> leg, aid rescue partial (Lin 2011/2013; Deal 2023
+> ACHIEVE); locked `hear_gist_null`/`hear_sem_null`.
+> **The pill borrows from encoding** — `antichol`
+> burden taxes enc_base only, `antichol_yrs` steps
+> `age_eff` per decade (Caine 1981; Gray 2015; Risacher
+> 2016); locked `antichol_ret_null`. **The transition
+> pauses learning** — `menop` stages tax learning-rate
+> legs and rebound fully; symptom mediation FORBIDDEN
+> (Greendale 2009/2010); locked `menop_ret_null`/
+> `menop_sym_null`. **The decade of nights** —
+> `shift_wrk` prices ~3 age-yr at w=2, partial recovery
+> after 5 day-years (Marquié 2015); locked
+> `shift_sem_null`. **The fever fogs the door** —
+> `sick_day` acquisition tax + fever fragments, full
+> reversal (Reichenberg 2001); locked `sick_dur_null`.
+> **The habit burns the slope** — `smoker` pack-year
+> slope, quitter intermediate arm, nicotine legs =
+> withdrawal-repair attention only (Sabia 2012;
+> Heishman 2010); locked `smoke_encode_null`.
+> **The cushion that isn't a drug** — `medit` confined
+> to attention/mw legs (Chiesa 2011; Chételat 2018);
+> locked `medit_store_null`. **The career that banked**
+> — `job_cplx` feeds `reserve`-eff, persists through
+> retirement (Smart 2014; Schooler); locked
+> `jobcplx_retire_null`. **The desk that emptied** —
+> `retire` slope ×(1−`post_engagement`), PM first, no
+> cliff (Rohwedder & Willis 2010; Bonsang 2012); locked
+> `retire_step_null`. **The company that isn't there** —
+> `lonely` legs independent of `social` headcount;
+> `bonded:true` retells rescue, crowds don't (Cacioppo
+> & Hawkley 2009; Shankar 2013); locked
+> `lonely_crowd_null`. **The sugar that saps** —
+> `diab` duration-ordered age_eff slope, pspeed-first,
+> hypo fragments (Rawlings 2014); locked
+> `diab_sem_null`. **The headache that passes clean**
+> — `migr` pays `ictal` attack windows only; fifth
+> mandated null `migr_cumul_null` (Rist 2012). **The
+> year after the funeral** — `grief` staged
+> acute→slope→adaptation, intrusion cluster on the
+> lost-person records, ambivalence-moderated (Shin
+> 2018; Kang MIDUS); locked `grief_perm_null`.
+> Locked nulls: `hear_gist_null`, `hear_sem_null`,
+> `antichol_ret_null`, `menop_ret_null`,
+> `menop_sym_null`, `shift_sem_null`, `sick_dur_null`,
+> `smoke_encode_null`, `medit_store_null`,
+> `jobcplx_retire_null`, `retire_step_null`,
+> `lonely_crowd_null`, `diab_sem_null`,
+> `migr_cumul_null`, `grief_perm_null`. Probes
+> P1218–P1230.
+
+> **v5.62 note (false-memory X — the minted implication,
+> the skipped step filled, the crowd's shared wrong answer,
+> the rehearsed-armed rumor, the stress-thickened gist, the
+> plausibility gate, the listener's nod, the teller's own
+> drift, the stripped familiarity, the imagined deed, the
+> distracted ledger, and the sensitization that unrings the
+> bell):** `memory/false-memory.md` Part X (§§114–125) +
+> spec §§4.78–4.79, §§5.131–5.133, §§6.288–6.294.
+> **The implication becomes the event** — gist-implied
+> unobserved fields mint `inferred:true` at
+> `infer_mint_p`·script_strength (Brewer 1977; Chan &
+> McDermott 2006); locked `infer_verb_null`. **The script
+> mints the skipped step** — typical unwitnessed script
+> slots fill at `script_mint_p`, rising with record age
+> (Graesser et al. 1980; Bower et al. 1979); locked
+> `script_atyp_null`. **The crowd misremembers together** —
+> ambiguous fields pulled toward population-mode value by
+> `cgist_w`·sharedSchema (Prasad & Bainbridge 2022);
+> locked `cgist_personal_null`. **Recall on one foot** —
+> divided attention at retrieval cuts source-check drive
+> `da_ret_src_lax`, familiarity untouched (Skinner &
+> Fernandes 2008); locked `da_fam_null`. **The overnight
+> celebrity** — source-stripped records past `fame_lag`
+> re-date to generic-old at `fame_p` (Jacoby et al. 1989);
+> locked `fame_fresh_null`. **Stress thickens the gist** —
+> acute encode stress ↑gist-lure adoption
+> (`stress_gist_gain`) AND ↓verbatim (`stress_verb_loss`),
+> never the reverse (Payne et al. 2002/2007); locked
+> `stress_verb_null`. **The rehearsal that arms the
+> rumor** — just-recalled fields carry a `res_flag`
+> susceptibility premium ×(1+`res_boost`) for `res_hl`
+> (Chan, Thomas & Bulevich 2009 — reversed testing);
+> locked `res_nt_null`. **Plausibility is the gate** —
+> whole-event implant scales `plaus^plaus_exp`; photos and
+> kin vouching lift plausibility, never bypass the floor
+> (Pezdek et al. 1997; Lindsay et al. 2004); locked
+> `plaus_floor_null`. **The nod after the answer** —
+> confirmatory feedback inflates reported confidence and
+> quality fields, content bit-identical (Wells & Bradfield
+> 1998); locked `fb_acc_null`. **Unringing the bell** —
+> source- and false-memory-sensitization un-believe planted
+> records at `sens_src_k`/`sens_fm_k`, true records
+> untouched (Oeberst et al. 2021); locked
+> `sens_true_null`. **The slant you told** — audience-tuned
+> retells drift own record `slant_k`/bout, gist-congruent
+> only (Higgins & Rholes 1978); locked `slant_contra_null`.
+> **Imagining doing is half of doing** — imagined planned
+> acts mint "performed" claims at `act_imag_k`, intent-
+> gated (Goff & Roediger 1998); locked
+> `act_imag_intent_null`. Locked nulls: `infer_verb_null`,
+> `script_atyp_null`, `cgist_personal_null`, `da_fam_null`,
+> `fame_fresh_null`, `stress_verb_null`, `res_nt_null`,
+> `plaus_floor_null`, `fb_acc_null`, `sens_true_null`,
+> `slant_contra_null`, `act_imag_intent_null`. Probes
+> P1206–P1217.
+>
+> **v5.61 note (emotional-memory X — the news heard, the
+> gate on the gift, the named feeling, the open arc, the
+> lens, the explained mood, the rehearsed anger, the hot
+> foil, and the regulator's dent):** `memory/emotional-
+> memory.md` Part X (§§126–139) + spec §§4.74–4.77,
+> §§5.127–5.130, §§6.285–6.287. **Flashbulbs are of the
+> hearing** — `scope:"remote"` arousal ≥ `recep_thresh`
+> mints `reception:true` records whose bearer/place/activity
+> frame gets the confidence floor while remote content stays
+> hearsay (Neisser & Harsch 1992; Curci & Luminet 2006);
+> locked `recep_content_null`. **The gift needs hands** —
+> `w_emo` scales by `emo_attn_floor(age_eff)`+attention
+> (Kensinger & Corkin 2004); locked `emo_attn_blink_null`
+> (blink + conditioning exempt). **Name it at the gate** —
+> `labeled:true` events mint arousal tags cooled by
+> `label_dampen`·`emo_gran` (Lieberman 2007); locked
+> `label_som_null`. **The arc left open** — `unresolved:true`
+> records intrude (`unresolv_intrude`) until `closed:true`
+> (Martin & Tesser 1989); locked `unresolv_neutral_null`.
+> **The event that became a lens** — `central:true` records
+> bias new-event appraisal via `central_lens_w` (Berntsen &
+> Rubin 2006); locked `lens_fact_null`. **The explained
+> mood** — `attrib_disc` on `mood_bleed` when the mood's
+> source is salient and unrelated (Schwarz & Clore 1983).
+> **Motivational ecology** — discrete tags gain `motiv`
+> ∈{approach,avoid,ambivalent}: anger rehearsed, fear
+> intruded-not-told, envy the private loop (Carver &
+> Harmon-Jones 2009; Smith & Kim 2007). **Hot reads as
+> old** — `emo_foil_bias` on recognition foils, positive leg
+> age-rising (Dougal & Rotello 2007; Kapucu et al. 2008);
+> locked `foil_recall_null`. **Hot refuses to recede** —
+> `tele_emo_resist` brakes §6.282 telescoping (Van Boven et
+> al. 2010), attribution-discounted. **Two regulators, two
+> dents** — distraction suppresses draw with tag bit-
+> identical (locked `distract_tag_null`), reappraisal drifts
+> stored valence by `reapp_tag_k`; `reg_choice_knee` picks
+> (Sheppes & Gross 2011). Locked nulls: `recep_content_null`,
+> `emo_attn_blink_null`, `label_som_null`,
+> `unresolv_neutral_null`, `lens_fact_null`,
+> `foil_recall_null`, `distract_tag_null`. Probes P1196–
+> P1205.
+>
+> **v5.60 note (age-decline X — the unplayed strategy, the
+> retired watch, the discounted effort, the borrowed belief,
+> the unwritten routine, the crowded afternoon, the felt
+> calendar, the misordered reel, and the growing "told-you-
+> so"):** `memory/age-decline.md` Part X (§§139–152) + spec
+> §§4.70–4.73, §§5.124–5.126, §§6.282–6.284. **Strategy is
+> produced less, taught fine** — `strat_spont(age_eff)`
+> scales elaborative E while `strat_instruct_floor` rescues
+> on affordance (Dunlosky & Hertzog 1998); locked
+> `strat_teach_null`. **The watch retires first** —
+> `proac_mult` cuts sustained-monitoring channels (Paxton
+> et al. 2008; Braver 2012); locked `reac_null` — reactive
+> cue paths untouched. **Effort is discounted** —
+> `effort_disc` vs payoff, `relevance_rescue` exempts the
+> top band (Hess 2014; Ennis et al. 2013). **Belief taxes
+> behavior, never the trace** — `memself`·`belief_tax_max`
+> on strategy/effort only (Lineweaver & Hertzog 1998; Levy
+> 1996); locked `belief_decay_null`. **Autopilot writes
+> nothing** — `slip_p` floor-encodes routine actions +
+> `slip_check` verify intents (Einstein & McDaniel); locked
+> `slip_intent_null` (habitual PM spared). **Same-day
+> siblings interfere** — `pi_n`/`pi_w`/`pi_clear` within-day
+> PI, sleep- and boundary-cleared (Lustig et al. 2001; May
+> et al. 2005). **The calendar compresses** — `tele_gain`·
+> `age_leg`/`tele_cap` on when-emissions only (Janssen et
+> al. 2006; Crawley & Pring 2000); `pot_report` derives
+> felt duration from archive density (Friedman & Janssen
+> 2010). **Order dies between item and source** —
+> `order_hl_mult` + `order_confused` emission (Old &
+> Naveh-Benjamin 2008). **Hindsight grows** — `hind_mult`
+> on `knew_prior` inflation (Bayen et al. 2006); locked
+> `hind_recall_null` (a live prior-belief field is immune).
+> Locked nulls: `strat_teach_null`, `reac_null`,
+> `belief_decay_null`, `slip_intent_null`,
+> `hind_recall_null`. Probes P1186–P1195.
+>
+> **v5.59 note (age-development X — the accidental edges, the
+> missing binding, the nap gate, the chronotype, the blur,
+> the dying words, the bought years, the partner's cues, the
+> familiar lie, and the leak):** `memory/age-development.md`
+> Part X (§§112–125) + spec §§4.64–4.69, §§5.121–5.123,
+> §6.281. **The old mint spurious edges** — `hyperbind_p`/
+> `hyperbind_str` bind ambient co-occurrences at encode
+> (Campbell, Hasher & Thomas 2010); locked
+> `hyperbind_aware_null` — implicit-only, awareness collapses
+> it (2012 replication). **Binding is developmental** —
+> `bind_dev_mult(encodeAge)` prices item-before-binding to
+> ~10 (Sluzenski, Newcombe & Kovacs 2006). **Infant records
+> are nap-gated** — `nap_win`/`nap_min`/`nap_cap` hard gate
+> under `nap_req_age`, softening ramp to 6 (Seehagen et al.
+> 2015); locked `nap_cont_null`. **Chronotype drifts** —
+> `chron_age_shift` + `chron_ado_dip` + `sync_pen_*` encode/
+> retrieve penalties, age-amplified (May, Hasher & Stoltzfus
+> 1993). **Categories blur** — `dediff_w` coarsens simOp
+> mask granularity with age → cross-item merges (Park et al.
+> 2004); locked `dediff_item_null` (within-record fidelity
+> untouched). **Verbatim dies first** — `verb_hl_mult` on
+> the verbatim field class, child arm down to 0.25 (Brainerd
+> & Reyna FTT). **Reserve buys delay, not slope** —
+> `reserve_delay` shifts old-side `age_eff` knots,
+> `reserve_steep` compresses post-cliff (Stern 2002;
+> Zahodne 2011, DEBATED); locked `reserve_skill_null`.
+> **Dyads cross-cue** — `crosscue_w` scaled by
+> `shared_years`/15 × intimacy; `collab_inhib` shrinks with
+> `transact_years_gain` (Weldon & Bellinger 1997; Harris et
+> al. 2011) — partner loss measurably degrades shared-topic
+> recall. **Familiarity substitutes for recollection** —
+> `fam_rely_gain` R→K substitution + confidence lift +
+> attribution-error channel (Jennings & Jacoby 1997; Prull
+> et al. 2006); locked `fam_age_null` (fam strength flat to
+> 80 — reliance, not signal, is what ages). **Intended
+> forgetting leaks** — `df_old_leak` on LIST-method
+> suppression only; item-method spared (Titz & Verhaeghen
+> 2010). Locked nulls: `hyperbind_aware_null`,
+> `nap_cont_null`, `dediff_item_null`, `reserve_skill_null`,
+> `fam_age_null`. Probes P1176–P1185.
+>
 > **v5.58 note (retrieval-cues X — the voice, the body, the
 > premature answer, the poisoned hint, and the direction of
 > travel):** `memory/retrieval-cues.md` Part X (§§100–107) +
@@ -5968,6 +7257,810 @@ Generalization dividend stays emergent (§4.3 genericize feeds
 schema queries after verbatim death — P1162 asserts, no new
 params).
 
+### 4.64 The edges the old mint by accident — `hyperbind_*` (new in v5.59)
+
+AD§112; Campbell, Hasher & Thomas 2010 (*Psychol. Sci.*
+21:399 — verified: implicit paired-associate transfer of
+irrelevant target↔distractor pairs in old, none in young);
+Campbell, Hasher & Thomas 2012 (implicit-only boundary —
+awareness of the link removes the effect in old too).
+At encode, ambient co-occurring items (salience ≥ ambient
+floor, below attention floor) mint spurious edges:
+
+```
+P(ambient edge) = hyperbind_p(age_eff)
+  0.02@30 → 0.05@55 → 0.15@65 → 0.30@75 → 0.40@85
+edge: `ambient:true`, S = hyperbind_str·E (0.35)
+```
+
+Ambient edges act as weak cues AND source-leak channels.
+**Locked `hyperbind_aware_null`:** `attn:ambient` flag or
+explicit relevance instruction collapses minting to the
+young rate — suppression failure, not strategy.
+
+### 4.65 The binding the child never made — `bind_dev_mult` (new in v5.59)
+
+AD§113; Sluzenski, Newcombe & Kovacs 2006 (*J. Exp. Child
+Psychol.* 93:193 — item adult-like by ~6, bound pairs still
+lagging at 8); Ngo, Newcombe & Olson 2018 (incidental
+binding gap persists to ~10). Edge-field mint E:
+
+```
+edge_E_eff = edge_E · bind_dev_mult(encodeAge)
+  0.4@4 → 0.55@6 → 0.75@8 → 0.9@10 → 1.0@13
+```
+
+Content fields take no leg. Stacks multiplicatively with
+§4.48's `child_forget_mult` — child records are relationally
+thin AND fast-decaying. The early autobiography reads as a
+bag of snapshots, not a lattice.
+
+### 4.66 The nap the record needs — `nap_*` (new in v5.59)
+
+AD§114; Seehagen, Konrad, Herbert & Schneider 2015 (*PNAS*
+112:1625 — verified: only infants napping ≥30min within 4h
+retained at 4h and 24h; no-nap arms at chance); Friedrich
+et al. 2015 (*Nat. Commun.* — nap sleep builds semantic
+categories).
+
+```
+if record.encodeAge < nap_req_age (2y):
+  consolidation requires a sleep episode ≥ nap_min (30min)
+  beginning within nap_win (4h) of encoding; else S pinned
+  ≤ nap_cap (0.15) — same-day retrievable, dies next sleep
+nap_req_soft: hard@<1.5 → nap_win 8h@2 → 24h@4 → adult@6
+```
+
+**Locked `nap_cont_null`:** gate covers episodic/procedural
+consolidation only — semantic minting happens IN sleep, is
+not gated by it.
+
+### 4.67 The clock the profile runs on — `sync_*` (new in v5.59)
+
+AD§115; May, Hasher & Stoltzfus 1993 (*Psychol. Sci.* 4:326
+— synchrony effect, cost asymmetric old>>young); May &
+Hasher 1998; May 1999 (chronotype shifts morningward with
+age). Profiles carry `chronotype` ∈ [0,1] drifting:
+
+```
+chronotype_eff = chronotype_0 + 0.4·(age_now−20)/60
+               − 0.25·bump(age_now, 17, 6)   // adolescent dip
+sync_mis = |hour_now − peak_hour| / 12
+E_eff *= 1 − 0.10·sync_mis·(1 + max(0, age_eff−50)/35)
+drive *= 1 − 0.15·sync_mis·(same leg)
+PM: evening-scheduled intentions −sync_pm_pen (0.15) at ≥65
+```
+
+The young pay a little off-peak; the old pay double.
+
+### 4.68 The verbatim trace dies first — `verb_hl_mult` (new in v5.59)
+
+AD§117; Brainerd & Reyna 1995 (*Dev. Psychol.* 31:467 — FTT
+dual traces, verbatim faster-decaying); Brainerd, Reyna &
+Howe 2009 (child verbatim lives in days-to-weeks). The
+verbatim field class's half-life:
+
+```
+hl_verbatim_eff = hl_verbatim · verb_hl_mult(encodeAge)
+  0.25@5 → 0.4@8 → 0.6@12 → 0.8@16 → 1.0
+```
+
+Gist-class fields unchanged — the child keeps WHAT, loses
+the words, inside days.
+
+### 4.69 The slope education buys — `reserve_*` (new in v5.59)
+
+AD§118; Stern 2002 (*JINS* 8:448 — reserve framework);
+Zahodne et al. 2011 (*Neurology* — verified counter: high-
+reserve declines FASTER post-onset — DEBATED; we price the
+compressive version). Profile scalar `reserve` ∈ [0,1]
+(education/complexity proxy, minted by world-builder):
+
+```
+age_eff_enc = age_now − 6·reserve        // old-side knots only
+beyond reserve_cliff (75 + 6·reserve):
+  decline slope ×(1 + 0.4·reserve)
+```
+
+Reserve rents ~6 years, then compresses the fall. **Locked
+`reserve_skill_null`:** never enters child/adolescent legs
+or procedural/skill fields — decline-phase modulator only.
+
+### 4.70 The strategy nobody reaches for — `strat_*` (new in v5.60)
+
+AD§139; Dunlosky & Hertzog 1998 (*Psychol. Aging* 13:597 —
+production-deficiency: spontaneous strategy use ↓, instructed
+use preserved); Hertzog et al. 2002; Reese 1962. The
+elaborative/organizational components of E (`w_self`,
+`w_pred`, assoc-construction legs — NOT `w_emo`/`w_nov`):
+
+```
+E_elab_eff = E_elab · strat_spont(age_eff)
+  1.0@55 → 0.85@65 → 0.7@75 → 0.6@85
+on `study:true` affordance (instruction, "say it back"):
+  strat_spont_eff = max(strat_spont, strat_instruct_floor)
+  strat_instruct_floor 0.85
+```
+
+**Locked `strat_teach_null`:** instruction never produces
+encoding worse than the spontaneous baseline.
+
+### 4.71 Worth it or not — `effort_disc`/`relevance_rescue` (new in v5.60)
+
+AD§141; Hess 2014 (*Psychol. Aging* 29:529 — selective
+engagement); Ennis, Hess & Smith 2013 (*Psychol. Aging*
+28:931); Hess, Smith & Sharifian 2016. Effort spend (bout
+entry, `attn` top-up, search-depth requests) is discounted
+by payoff:
+
+```
+payoff = goal_value + self_rel   (record/query side)
+effort_spend_eff = effort_spend·(1 − effort_disc(age_eff)
+  ·(1 − relevance_rescue·top_band(payoff)))
+effort_disc: 0@55 → 0.1@65 → 0.25@75 → 0.4@85
+relevance_rescue 0.7 — top relevance band nearly exempt
+```
+
+### 4.72 The stereotype inside — `memself`/`belief_tax` (new in v5.60)
+
+AD§142; Lineweaver & Hertzog 1998 (PAAS); Levy 1996
+(*Psychol. Sci.* 7:332 — primed self-stereotypes ↓ recall);
+Hess, Auman, Colcombe & Rahhal 2003 (belief→strategy
+mediation). Profile trait `memself` ∈ [0,1] (internalized
+aging-belief; world-builder mints; population prior
+rises ~+0.15/20y):
+
+```
+belief_tax = memself · belief_tax_max (0.3)
+strat_spont_eff  ×= (1 − belief_tax)
+effort_spend_eff ×= (1 − belief_tax)
+```
+
+**Locked `belief_decay_null`:** `memself` may never enter
+decay rates, half-lives, or `S` — behavior only, never the
+trace. Chronic trait channel; acute `stereothreat` flag
+(§§24/88 machinery) stacks multiplicatively.
+
+### 4.73 Autopilot writes nothing — `slip_*` (new in v5.60)
+
+AD§143; Reason 1984; Einstein & McDaniel 1990 (*J. Gerontol.*
+45:P717); Einstein, McDaniel, Smith & Shaw 1998 (*Psychol.
+Sci.* 9:284 — habitual PM SPARED → the null below).
+
+```
+routine action record (script:true, attn < routine floor):
+  slip:true minted at slip_p(age_eff)
+    0.02@30 → 0.05@65 → 0.08@75 → 0.12@85
+  record encodes at att_min floor — retrievable only at
+  high cue overlap
+failed self-check on slip:true → emit `slip_check` intent
+  (slip_check_p 0.5) — world-visible verify walk-back
+```
+
+**Locked `slip_intent_null`:** `slip_p` never applies to
+`pm_focal`/habitual intentions — the Tuesday errand fires;
+it's the record of having done it that's thin.
+
+### 4.74 The news lands twice — `recep_*` (new in v5.61)
+
+EM§126; Neisser & Harsch 1992 (Challenger — reception-frame
+reports inconsistent yet confident); Curci & Luminet 2006
+(9/11, six countries — reception consistency high, event
+memory variable; rehearsal predicts the frame). When
+`hearAccount`/`observe` delivers an event with `arousal ≥
+recep_thresh` (0.8) AND `scope:"remote"`, mint a companion
+record `reception:true` whose cueVector holds the reception
+frame (bearer, place, ongoing activity, own posture/affect —
+Brown & Kulik 1977's canonical fields) at
+`E·(1+recep_frame_gain)` (0.4); the remote content stays
+`source:"hearsay"` thin. `flashbulb_conf_floor` (§5) applies
+to the reception record only. Each `discussEvent` touching
+it adds `recep_share_gain` (0.15) to frame strength —
+discussion consolidates the *hearing*, not the event.
+
+**Locked `recep_content_null`:** reception minting NEVER
+upgrades remote content to `witnessed` — "I remember where
+I was when I heard" is not "I saw it". P1196.
+
+### 4.75 The gift needs hands — `emo_attn_*` (new in v5.61)
+
+EM§127; Kensinger & Corkin 2004 (PNAS — two routes;
+divided attention abolishes the mediated advantage);
+Mather & Knight 2005 (older positivity advantage is
+resource-dependent). The `w_emo` encoding leg and the §2
+`emo_consol_gain` downstream scale by effective attention:
+
+```
+w_emo_eff = w_emo · (emo_attn_floor + (1−emo_attn_floor)·attention)
+emo_attn_floor(age_eff): 0.4@30 → 0.3@65 → 0.15@75 → 0.10@85
+```
+
+**Locked `emo_attn_blink_null`:** the §2.2 blink and §4.9
+conditioned-affect acquisition take NO attention gate —
+arousal costs neighbors and conditions cues even when the
+character half-attended. The dissociation is the finding.
+P1197.
+
+### 4.76 Name it at the gate — `label_dampen` (new in v5.61)
+
+EM§128; Lieberman et al. 2007 (affect labeling ↓ amygdala
+online); Kircanski, Lieberman & Craske 2012 (labeling in
+exposure ↓ subsequent responding). Events carrying
+`labeled:true` (feeling articulated in-scene — self-talk,
+dialogue, note; world-builder supplies) mint their
+emotional tag cooled:
+
+```
+emotional.arousal *= (1 − label_dampen·emo_gran)   // ≈0.25·gran
+```
+
+`emo_gran` (§49 granularity trait) scales it — precise
+namers cool more. **Locked `label_som_null`:** §4.9
+CondEntry acquisition unaffected — the named fear still
+conditions the cue. P1198.
+
+### 4.77 The arc left open — `unresolv_*` mint (new in v5.61)
+
+EM§129; Martin & Tesser 1989/1996 (goal-blockage rumination);
+Horowitz 1976 (completion principle). Events with `arousal ≥
+unresolv_thresh` (0.6) ending without a closure marker mint
+`unresolved:true`. The world supplies `closed:true` on the
+resolution event (apology, decisive end — sharing ≥1 core
+people/topic field). Retrieval ecology at §5.130. Distinct
+from `zeig_resist` (intention-level, encoding-mechanics
+§64) — this flag is record-level and affect-driven.
+
+**Locked `unresolv_neutral_null`:** interrupted neutral
+events take no premium via this channel. P1199.
+
+### 4.78 The implication becomes the event — `infer_*` (new in v5.62)
+
+FM§114; Brewer 1977 (*Cognitive Psychology* 9:185 —
+implied instruments remembered as stated); Alba & Hasher
+1983 (*Psychological Bulletin* 93:203); Chan & McDermott
+2006 (*JEP:LMC* 32:394 — pragmatic-inference false recall
+tracks the DRM curve). Encoding is not transcription:
+when an event's gist strongly implies a field value that
+was never observed, the implied value is minted at birth:
+
+```
+per unobserved content field f at encode:
+  if gistImplied(f) ≥ infer_thresh (≈0.5):
+    with p = infer_mint_p (≈0.25)·script_strength:
+      mint f = impliedValue; flag inferred:true;
+      strength × infer_str_mult (≈0.5); source: none
+```
+
+**Locked `infer_verb_null`:** inferred fields never carry
+verbatim confidence — gist confidence only (Brewer's
+confidence is semantic, not episodic). Otherwise they are
+ordinary weak fields: correctable, spreadable (§6.241),
+driftable. P1206.
+
+### 4.79 The script mints the skipped step — `script_*` (new in v5.62)
+
+FM§119; Graesser, Woll, Kowalski & Smith 1980 (*JEP:HLM*
+6:503 — script-pointer + tag: typical actions copied
+wholesale, atypical tagged); Bower, Black & Turner 1979
+(*Cognitive Psychology* 11:177 — typical-but-absent acts
+falsely recalled, growing with delay and script-instance
+dose). At encode AND at each reconstruction, typical
+unwitnessed acts of an instantiated script are minted:
+
+```
+per unwitnessed script-act slot:
+  p_mint = script_mint_p (≈0.3)·script_strength
+           ·(1 + script_mint_delay_k·log1p(age_days))
+           // delay_k ≈1.5 — the verbatim veto-tag fades
+           // first; fills grow with age, never shrink
+```
+
+**Locked `script_atyp_null`:** minted fills are always the
+typical script action; tagged-atypical acts are never
+back-filled or normalized away. Composes with §4.78 —
+script fills are the *slot* version of gist inference.
+P1207.
+
+### 4.80 The test frame taxes the old — `stereo_*` (new in v5.69)
+
+AD§131; Hess, Auman, Colcombe & Rahhal 2003 (*J. Gerontol.
+B* 58:P3 — verified); Chasteen et al. 2005 (*Psychol.
+Aging* 20:671); Hess & Hinson 2006 (high-constraint
+boundary). Mint or bout under context flag `eval:true`
+(explicitly framed as a test of memory) taxes profiles
+≥55:
+
+```
+eval_eff = stereo_w (0.12)·stereo_val·stereo_leg(age_now)
+stereo_val ∈ [0,1] — authored trait (how much memory
+    competence matters to this character); never sampled
+    >0.6 without a bible line
+stereo_leg: 0@<55 → 0.5@62 → 1.0@70–78 → 0.5@85
+    (dissipation — the very old stop defending the
+     threatened identity)
+E_eff ×= 1 − eval_eff            // encode leg — fewer
+                                 // edges, not thinner
+                                 // fields (strategy
+                                 // degradation)
+drive  ×= 1 − 0.7·eval_eff       // retrieval leg, only
+                                 // eval:true + deadline
+                                 // bouts
+```
+
+Locked `stereo_impl_null` (P1316): incidental/implicit
+legs exempt — the tax exists only under the evaluative
+frame.
+
+### 4.81 What relearning remembers — `savings_*` (new in v5.69)
+
+AD§132; Ebbinghaus 1885; Perris, Myers & Clifton 1990
+(*Child Dev.* 61:1477); Hartshorn 2003; Nelson 1978.
+Any record with `0 < S < recall_floor` carries
+`savings:true`. A new event matching it (simOp ≥
+re-encode threshold) mints at discount:
+
+```
+E_new = E · (1 + savings_gain(encodeAge_old)·S/S_floor)
+savings_gain: 0.5 adult; savings_inf_gain 0.8 for
+    below-wall traces (encodeAge <3)
+```
+
+Locked `savings_recall_null` (P1317): savings acts on
+RE-ENCODE only — never lifts the old trace's S, never
+surfaces it, never repairs fields.
+
+### 4.82 Faces know their own age — `ownage_*` (new in v5.69)
+
+AD§133; Anastasi & Rhodes 2005 (*Mem. Cognit.* —
+verified own-age bias across young/middle/old); Rhodes &
+Anastasi 2012 (*Psychol. Bull.* meta — contact-mediated);
+Wright & Stroud 2002. Person-record identity fields
+(face↔name↔person edges) mint with:
+
+```
+ownage_match = exp(−(Δage/ownage_sigma)²),
+    Δage = |age_self − age_target|, ownage_sigma 15
+E_identity ×= 1 + ownage_gain (0.2)·ownage_match·
+    (1 − ownage_contact (0.5)·otherAgeExposure)
+otherAgeExposure = running fraction of person-mints in
+    the target's decade (social ledger read)
+```
+
+Locked `ownage_sem_null` (P1318): semantic fields of the
+other-age person mint unbiased.
+
+### 4.83 Two tasks, one encoder — `da_enc_*` (new in v5.69)
+
+AD§134; Craik, Govoni, Naveh-Benjamin & Anderson 1996
+(*JEP:LMC* 22:165 — verified encode-side age asymmetry);
+Anderson, Craik & Naveh-Benjamin 1998 (*Psychol. Aging*
+13:405 — encode arm carries the interaction);
+Naveh-Benjamin, Guez & Marom 2003 (child arm). Mints
+under `ctx.divided:true`:
+
+```
+E_eff ×= 1 − da_enc_tax (0.25)·da_enc_age(age_now)
+da_enc_age: 1.4@5 → 1.2@8 → 1.0@15 → 1.0@45 →
+            1.3@60 → 1.7@75 → 2.0@88     // U-shaped
+```
+
+Locked `da_ret_over_null` (P1319): the encode leg must
+exceed the §5.132 retrieval leg at every age knot —
+Anderson's ordering.
+
+### 4.84 The counter that runs itself — `auto_freq_flat` (new in v5.70)
+
+AgD§153; Hasher & Zacks 1979 (*JEP:G* 108:356);
+Hasher & Zacks 1984 (*Am. Psychol.* 39:1372);
+**Naveh-Benjamin 1989** (*Dev. Neuropsychol.* 5:245 —
+partial refutation: frequency survives, space/time age).
+Field class `freq_count` mints at E_eff unscaled by any
+age encode multiplier:
+
+```
+if field.class == "freq_count": E_eff *= 1   // age-flat
+// where/when fields: normal age legs apply
+```
+
+Locked `auto_loc_null` (P1321): spatial/temporal fields
+exempt → fail; the strong automaticity claim is the dead
+one.
+
+### 4.85 The self still pays — `selfrel_keep` (new in v5.70)
+
+AgD§155; **Gutchess, Kensinger, Yoon & Schacter 2007**
+(*Psychol. Aging* 22:823 — verified self-reference
+advantage preserved at old age); Glisky & Marquine 2009;
+Leshikar, Dulas & Duarte 2015 meta.
+
+```
+w_self_eff = w_self · selfrel_keep (1.0)   // age-flat
+```
+
+This is the spared leg `effort_disc` (§4.71) leans on:
+self-relevant material still clears the effort bar.
+Locked `selfrel_third_null` (P1323): third-party
+referential encode gets no spared leg.
+
+### 4.86 The cloud lifts — `dep_*` (new in v5.70)
+
+AgD§156; **Byers & Yaffe 2011** (*Nat. Rev. Neurol.*
+7:323); Jorm 2000 (pseudodementia = effort, not
+storage); **Williams et al. 2007** (OGM in depression).
+State `depr:true`:
+
+```
+E_eff ×= 1 − dep_enc_tax (0.3)          // effortful legs only
+mint_bias += dep_ogm (0.25) toward categorical/general detail
+rehearsal sampler: neg-valence records +dep_neg_skew (0.2)
+on depr→clear: legs recover at exp(−t/dep_remit_tau(90d))
+```
+
+Locked `dep_sem_null` (P1324): semantic mints untouched —
+the cloud is episodic-effort only, and it must remit.
+
+### 4.87 The nose tells first — `odor_id_eff` (new in v5.70)
+
+AgD§157; **Wilson, Arnold, Schneider, Tang & Bennett
+2007** (*Arch. Gen. Psychiatry* 64:802 — verified odor-ID
+predicts incident MCI); Wilson et al. 2011; Devanand et
+al. 2010. Profile state `odor_id_eff` on its own knots —
+1.0@50 → 0.9@60 → 0.7@70 → 0.45@82 — leading the
+episodic legs by `odor_enc_lead` (5 sim-y). It scales
+the encode-side strength of `sense:"odor"` cues (§5.141's
+era re-aim is retrieval-side; this is intake). Locked
+`odor_sem_null` (P1325): `ecue_name_att` unchanged —
+perceptual ID erodes, the semantic label doesn't.
+
+### 4.88 The deposit was young — `idea_dens` (new in v5.70)
+
+AgD§158; **Snowdon et al. 1996** (*JAMA* 275:528 —
+verified Nun Study); Riley et al. 2005. Authored trait
+`idea_dens` ∈[0,1] deposits into `reserve`-eff at profile
+mint:
+
+```
+reserve_eff += idea_dens · idea_dens_w (0.35)   // mint-time only
+```
+
+Locked `idea_late_null` (P1326): late-life verbal
+richness never backfills — the deposit is front-loaded.
+
+### 4.89 The crystal bends last — `sem_bend_*` (new in v5.70)
+
+AgD§160; **Rönnlund, Nyberg, Bäckman & Nilsson 2005**
+(*Psychol. Aging* 20:3 — verified semantic increments to
+~55, smaller late decrements than episodic); Salthouse
+2014; Singer et al. 2003. Semantic accretion gains a
+late negative segment:
+
+```
+beta_semantic_eff = beta_semantic + sem_bend(age_eff)
+sem_bend: −0.02@55 → 0@65 → 0.05@75 → 0.10@85
+×2 under terminal|prodrome via sem_bend_k (cap ×2)
+```
+
+(negative sem_bend = continued accretion; positive =
+decay). Locked `sem_bend_healthy_null` (P1328): semantic
+decrement ≤0.4× the episodic leg at every knot, healthy
+or terminal.
+
+### 4.90 The ledger miscounts — `fin_num_*` (new in v5.70)
+
+AgD§161; **Triebel et al. 2009** (*Neurology* 73:928 —
+verified financial capacity among first instrumental
+abilities to fall); Bangma et al. 2017; Lichtenberg 2016.
+`kind:"transact"` records' numeric-detail fields decay
+at `fin_num_hl(age)` — 1.0@55 → 1.2@65 → 1.6@75 →
+2.0@85 — while declarative price facts ride §160's gentle
+slope. Report-side split at §5.146. Locked
+`fin_decl_null` (P1329): declarative price fields exempt.
+
+### 4.91 The knots are stamped at birth — `cohort_shift` (new in v5.70)
+
+AgD§162; **Rönnlund & Nilsson 2009** (*Psychol. Aging*
+24:816 — verified successive-cohort memory gains);
+Schaie 2009. Profile scalar `cohort_shift` ∈±8y,
+derived at mint from `birthYear`+education:
+
+```
+every age_eff knot lookup reads age_eff − cohort_shift
+```
+
+Locked `cohort_within_null` (P1330): within a cohort the
+age slope must still hold — the shift translates, never
+flattens.
+
+### 4.92 The spike's neighbors pay — `emo_nbr_*` (new in v5.79)
+
+FC§56.1; **Strange, Hurlemann & Dolan 2003** (*PNAS*
+100:13626 — verified): memory for an emotional item is
+enhanced AND the item immediately preceding it is
+impaired — coupled, β-adrenergic, amygdala-dependent;
+Most et al. 2005 (emotion-induced blindness) extends
+anterograde; Knight & Mather 2009 bound it under
+divided attention. When an event mints with
+`arousal ≥ emo_nbr_thresh` (0.75):
+
+```
+for each episodic record minted within emo_nbr_win
+  (0.02d ≈ 30 game-min, order ±1–2 events):
+    if nbr.arousal < 0.6:  nbr.E *= (1 − emo_nbr_tax)   // 0.20
+    if nbr minted under da_enc divided attention:
+        tax ×= 0.5                                    // Knight & Mather
+```
+
+The tax lands on E at mint — the neighbor is born thin,
+an encoding-failure forgetting, not a faster slope.
+Locked `emo_free_null` (P1431): the arousal dividend
+must arrive with the neighborhood cost.
+
+### 4.93 The hour after owes it — `post_emo_*` (new in v5.79)
+
+FC§56.2; **Nielson & Powless 2007** (*Mem. Cogn.* 35:40
+— post-encoding arousal up to ~30 min enhances delayed
+recall); McGaugh 2000; Cahill, Gorski & Le 2003. A
+record minted in `(emo_nbr_win, post_emo_win]` (0.04d ≈
+1 game-hour) *before* a high-arousal mint accrues a
+deferred credit:
+
+```
+post_emo_pending += post_emo_gain   // 0.10, posted at
+                                    // next sleep tick → S
+```
+
+Never immediate — double-pricing guard consistent with
+§51.4's `emo_del_gate`. The windows partition:
+attentional cost inside `emo_nbr_win`, consolidation
+credit outside it — one biology, two timescales.
+Locked `post_emo_instant_null` (P1433): an
+at-mint implementation fails the hour-1 leg.
+
+### 4.94 The suppression was a lease — `supp`/`supp_recover` (new in v5.79)
+
+FC§56.3; **Briggs 1954** (*JEP* 47:285); **Underwood
+1948** (*JEP* 38:29); **Postman, Stark & Fraser 1968**
+(*JVLVB* 7:672); **Wheeler 1995** (*Mem. Cogn.* 23:335
+— RIF recovers over ~24–72h). §4.2's per-hit strength
+loss splits:
+
+```
+on each interference hit:  strength *= (1 − interf_k·similarity·interf_perm_frac)   // 0.4
+                           supp     += interf_k·similarity·(1 − interf_perm_frac)
+daily tick:                supp *= (1 − supp_recover)            // 0.10/day
+RIF (§5.8) writes the same supp state, decaying at rif_recover_tau (2d)
+retrieval reads:           R_eff = R·(1 − supp)
+§4.63 relief_* unchanged — competitor archival releases the rest
+```
+
+Suppression costs retrieval, not storage — a maximal
+cue (`resurrect_thresh`, §4.4) still lands a heavily
+suppressed record: structural resurfacing. Locked
+`supp_perm_null` (P1435 — permanent-only builds fail)
+and `supp_instant_null` (P1436 — recovery in one tick
+fails the timescale leg).
+
+### 4.95 Sleep buys armor — `interf_shield_*` (new in v5.79)
+
+FC§56.4; **Ellenbogen, Hulbert, Stickgold, Dinges &
+Thompson-Schill 2006** (*Curr. Biol.* 16:1290 —
+verified): memories that crossed a sleep episode resist
+*subsequent* interference (2009 follow-up extends).
+At each sleep tick, each record crossing it gains
+`shield = interf_shield` (0.4); subsequent §4.2/§4.94
+interference accrual against it runs at `×(1 − shield)`;
+`shield *= (1 − interf_shield_decay)` (0.3/day —
+armor fades by ~day 3). Complements `consol_beta_mult`
+(decay side) untouched. Locked `sleep_fragile_null`
+(P1438): post-sleep records must accrue less new
+suppression than matched awake-epoch controls.
+
+### 4.96 The wall is a signature — `amnesia_offset` / `remnis_style` (new in v5.81)
+
+AD§141; **Bauer & Larkina 2014** (*Memory* 22:1038 —
+verified: offset is a retention-function crossing, not a
+boundary); **Fivush, Haden & Reese 2006**; Nelson &
+Fivush 2004; **Wang 2006**; **MacDonald, Uesiliana &
+Hayne 2000** (Māori ~2.5y). The childhood-amnesia era
+gate stops being a constant: traits `amnesia_offset`
+∈[2.5,4.5]y (µ3.5) and `remnis_style` ∈[0,1] set
+`offset_eff = amnesia_offset − remnis_gain(0.4)·remnis_style`.
+For `encodeAge ∈ [offset_eff−1.5, 7]`,
+`E ×= soft_ramp((encodeAge − (offset_eff−1.5))/(7 − offset_eff+1.5))`;
+below `offset_eff−1.5` the record mints `preverbal`
+(§5.155). All downstream era terms inherit the shifted
+edge unchanged.
+
+### 4.97 Order inside, silence between — `ord_betw_mult` (new in v5.81)
+
+AD§142; **Friedman 1991** (*Child Dev.* 62:139);
+Friedman & Lyon 2005; Friedman 2007. Records carry
+`ord_within` (minted at full strength from
+`encodeAge ≥ 4`) and `ord_betw` scaled by
+`ord_betw_mult(encodeAge)`: `0@<4 → 0.3@6 → 0.6@8 →
+0.9@10 → 1.0@12`. `when` emissions on records with
+`ord_betw_mult < 0.5` produce cyclic anchors only
+("it was summer"), never calendar position.
+
+### 4.98 Counting for free — `freq` (new in v5.81)
+
+AD§143; **Hasher & Zacks 1979** (*JEP:G* 108:356);
+Hasher & Zacks 1984; Zacks, Hasher & Sanft 1982.
+Series/venue records carry a `freq` accumulator:
+`freq += 1` on each instance mint/merge, decaying
+`freq_decay` (0.02/day). Frequency judgments emit
+quantized {once, few, often, always}. `freq` ignores
+`age_eff` and `attn` — locked `freq_attn_null`
+(P1458).
+
+### 4.99 The twin episodes — `patsep_mult` (new in v5.81)
+
+AD§145; **Ngo, Newcombe & Olson 2018** (*Dev. Sci.*
+e12556 — verified); Ngo, Lin, Newcombe & Olson 2019;
+**Stark et al. 2013** (*Neuropsychol. Rev.* 23:267);
+Yassa et al. 2011. When a retrieval candidate shares
+simOp ≥ `patsep_sim` (0.7) with the target,
+`P(lure emitted as true) = lure_base·(1 − patsep_mult(age_now))`
+with `patsep_mult: 0.45@4 → 0.8@7 → 1.0@16 → 1.0@55 →
+0.8@70 → 0.6@80 → 0.45@88`. Lure success emits
+`prov:"episode"`, `conf −= patsep_conf_tax` (0.15).
+~60% of the error is attributable to encode overlap —
+tune the knot so, don't put it all at emission.
+
+### 4.100 The bump mints firsts — `first` / `selfdef` (new in v5.81)
+
+AD§147; **Jansari & Parkin 1996** (*Br. J. Psychol.*
+87:455); **Rathbone, Moulin & Conway 2008**;
+Janssen et al. 2015; Berntsen & Rubin 2004. Mint
+flags: `first:true` when the event's series bucket is
+empty; `selfdef:true` when the event overlaps the
+profile's active `selfModel.goals` ≥
+`selfdef_overlap` (0.5). `bump_bonus_eff =
+bump_bonus·(1 + first_bump_mult(0.35)·first +
+selfdef_bump_mult(0.5)·selfdef)`; `selfdef` records
+hold a decay floor `selfdef_floor` (0.3) while the
+goal stays active — abandoned goals lift the floor
+(hooks §6.386 promote/demote).
+
+### 4.101 The errand taxes the hour — `pm_hold_*` (new in v5.82)
+
+AD§170; **Marsh, Hicks & Cook 2005** (*JEP:LMC*);
+**Smith & Bayen 2006** (*JEP:LMC* 32:623); Ihle et
+al. 2013 (nonfocal ≈2× focal cost, age-amplified).
+While an intention record is pending, every concurrent
+encode leg and retrieval latency is multiplied:
+`E_eff = E·(1 − pm_hold_tax(age_eff)·focality)`,
+`lat ×= (1 + pm_hold_tax·focality)` where
+`focality = 1.0` nonfocal, `0.5` focal (`pm_locus`
+set at mint, §5.156). Tax persists to fire/abandon,
+then E recovers with `pm_hold_relief` tau ≈10 sim-min.
+Locked `pm_free_null` (P1468): pending nonfocal
+intention + untaxed concurrent encode past 60 = fail.
+
+### 4.102 The retest stops paying — `practice_*` (new in v5.82)
+
+AD§172; **Duff et al. 2017** (*Neuropsychology* —
+verified: progressor β0.03 vs stable β0.14 while
+baseline equal); Gallagher/McCormick 2020 (a-MCI);
+López et al. 2023 (Aβ+ CU). Equivalent-task
+re-encounters (same `series`/`task` bucket) grant
+`practice_gain(age_eff)` — a level bonus compounding
+per prior equivalent mint (bounded `prac_cap` 0.3).
+Under `prodrome`, `prac_prod_tax` (0.5) halves the
+gain; baseline legs untouched. Harness exposes
+`slope(practice)` as a probe channel. Locked
+`prac_level_null` (P1470): attenuation must appear
+while first-visit accuracy is in healthy band —
+the derivative is the marker, not the level.
+
+### 4.103 The week erases the hour — `alf_*` (new in v5.82)
+
+AD§173; **Weston et al. 2018** (*Lancet Neurol.* 17 —
+verified presymptomatic ADAD); Elliott, Isaac &
+Muhlert 2014 (*Cortex* 54:16); 2025 JAD meta
+(g≈0.63 @ 1 week, intact early retention). State
+`alf:true` (set by `prodrome`) attaches a second
+decay leg to episodic mints:
+`R(t) = R_base(t)·exp(−max(0, t − alf_delay_thr)/alf_tau)`
+with `alf_delay_thr` 1 sim-day, `alf_tau` 5 sim-days.
+Records pass short-delay probes unchanged, then burn
+fast. Locked `alf_short_null` (P1471): ≤1h retention
+must be identical ±3% between `alf` and control arms —
+early retention intact is the defining signature.
+
+### 4.104 The craft holds its own — `expert_*` (new in v5.82)
+
+AD§174; **Morrow et al. 1994** (*Psychol. Aging*
+9:134 — verified domain-locked elimination of age
+diffs); **Morrow et al. 2003** (18:268 — mitigation
+gated on environmental support); **Hambrick & Engle
+2002**; Masunaga & Horn 2001 (smaller interaction,
+precision flag). Trait `expert_dom:[domainIds]`
+(authored). On records with `domain ∈ expert_dom`,
+all `age_eff` knot lookups use
+`age_eff − expert_shift` (≤15y); full shift only when
+the task runs with environmental support
+(`envsup:true` — tools/notes/workspace present),
+half shift without (`expert_envsup` gate). Locked
+`expert_general_null` (P1472): zero rebate permitted
+out-domain — a leaking shift is reserve (§4.69),
+a different account.
+
+### 4.105 The blind beat, then the warmth — `eib_*` / `retro_prio` (new in v5.83)
+
+EM§154; **Most, Chun, Widders & Zald 2005**
+(*Psychol. Sci.* — EIB, verified); **Sakaki, Fryer
+& Mather 2014** (*Psychol. Sci.* 25:313 — verified
+priority-split retrograde); Knight & Mather 2009;
+Mather et al. 2006 (WM binding). On mint of a
+record with `arousal ≥ hangover_arm` (0.65):
+(a) set `blind_until` — the next event minted
+takes `E0·(1 − eib_pen)` (knot:
+0.4@55,0.35@65,0.28@75,0.2@85), one-shot, cleared
+after one mint; (b) the *previous* mint gets
+`E0 += retro_prio_gain·(2·prev.priority − 1)`
+(0.3) — prioritized gains, unprioritized loses.
+§4.57 hangover then runs unchanged — three
+windows, three signs. Locked `eib_free_null`
+(P1475): the beat must cost. Locked
+`retro_flat_null` (P1476): a uniform retrograde
+leg fails.
+
+### 4.106 Social pain re-lives — `rej_relive` / `pain_relive` (new in v5.83)
+
+EM§155; **Meyer, Williams & Eisenberger 2015**
+(*PLoS ONE* — verified: social-pain relive ≈
+initial, physical-pain relive discounted);
+Williams Cyberball corpus. Records with
+`emo_tag:"rejection"` (excluded/dismissed/stood-
+up kinds, or §6.400 appraisals) relive at
+`affTag·rej_relive` (0.85) vs the default leg
+(~0.5); physical-pain records use `pain_relive`
+(0.3); rejection records take `fab_mult = 1.0` —
+exempt from the §4.5 fading-affect bias. Locked
+`rej_flat_null` (P1477): rejection relive must
+outlast physical-pain relive at matched tag.
+
+### 4.107 The ping feeds the fear — `incub_*` (new in v5.83)
+
+EM§157; **Eysenck 1968** (*Behav. Res. Ther.*
+6:309 — Napalkov phenomenon; DEBATED — Sandin &
+Chorot 1989 null, partial HR support). CondEntry
+with `|valence|·strength ≥ incub_thresh` (0.6):
+cue exposure with dwell < `ext_min_dur` (1 tick)
+adds `incub_gain·(1 − strength)` (0.04) to
+strength and accrues NO safeCount; dwell ≥
+`ext_min_dur` accrues safeCount per §4.9. Locked
+`incub_mild_null` (P1479): sub-threshold entries
+never incubate.
+
+### 4.108 Their feeling fades first — `oth_emo_*` (new in v5.83)
+
+EM§162; Rogers, Kuiper & Kirker 1977 (self-
+reference); Ickes (empathic-accuracy bounds);
+Levine (remembered-emotion rebuild). HYPOTHESIS
+on magnitude. Records minted from observed
+other-affect flag `oth_emo:true` and decay
+`β·oth_emo_mult` (1.4); if observer affect was
+co-active (§117 witness bond), re-flag self-
+relevant → normal leg. Locked `oth_free_null`
+(P1477 leg): `oth_emo` cannot persist at
+self-affect rates.
+
+### 4.109 Sleep sells the background twice — `strade_*` (new in v5.83)
+
+EM§161; **Payne, Stickgold, Swanberg &
+Kensinger 2008** (*Psychol. Sci.* 19:781 —
+verified: sleep preserves negative objects 68%
+vs 44% wake, backgrounds flat 38%/38%). During
+the sleep tick, records with
+`arousal ≥ strade_arm` (0.5) take the existing
+`emo_consol_gain` on central content AND decay
+context/peripheral fields at `sleep_ctx_mult`
+(1.3×); wake ticks keep them coupled. Locked
+`sleep_ctx_null` (P1483): backgrounds of
+emotional records show zero sleep benefit.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -8900,6 +10993,937 @@ emitted backward item costs `bwd_cycle_cost` (0.15) per
 skipped earlier item, producing Thomas's signature for free:
 slow first backward item, accelerating thereafter. The
 character replays the morning to find what came before noon.
+
+### 5.121 The partner who remembers for you — `crosscue_*` (new in v5.59)
+
+AD§119; Weldon & Bellinger 1997 (*JEP:LMC* 23:1160 —
+collaborative inhibition: nominal > collaborative dyad);
+Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Mem. Stud.*
+4:267 — long-married older couples can EXCEED nominal on
+shared-expertise topics); Wegner 1987; Barnier et al. 2008.
+
+Dyadic recall (`discussEvent`/`remind` between two
+characters):
+
+```
+partner cue weight += crosscue_w (0.3)
+  ·min(1, shared_years/15)·intimacy
+collab_inhib_eff = 0.10·(1 − 0.8·shared_years/15)  // floor 0
+```
+
+The 40-year couple's collaborative loss shrinks toward zero
+and cross-cues can net-positive; a stranger dyad keeps the
+inhibition. Partner removal degrades the survivor's shared-
+topic recall — a priced grief channel that isn't sadness.
+
+### 5.122 The familiar lie — `fam_rely_*` (new in v5.59)
+
+AD§120; Jennings & Jacoby 1997 (*Mem. Cognit.* 25:352 —
+older adults substitute familiarity); Prull, Dawes, Martin,
+Rosenberg & Light 2006 (*Psychol. Bull.* 132:539 — meta:
+recollection declines, familiarity ~flat to ~60s); Jacoby
+1999 (familiarity without recollection → false-fame class
+errors).
+
+On emit (§5.114 `epist`):
+
+```
+fam_rely = 0.4·max(0, age_eff−50)/35
+emitted "know" record with fam ≥ fam_floor (0.5):
+  confidence += fam_rely·(1−conf) — reported as if remembered
+  source-attribution error p += fam_rely·0.3
+```
+
+**Locked `fam_age_null`:** baseline familiarity strength is
+age-flat below 80 — what ages is RELIANCE, not the signal.
+Retrieval-side substrate of the old-age misinfo leg.
+
+### 5.123 The forgetting the old can't intend — `df_old_leak` (new in v5.59)
+
+AD§121; Titz & Verhaeghen 2010 (*Psychol. Aging* 25:431 —
+verified meta: item-method DF intact in old age, list-method
+impaired); Zacks, Radvansky & Hasher 1996.
+
+```
+item-method (per-record forget_intent): unchanged — intact
+list-method (class/range forget):
+  S_supp_eff = S_supp·(1 − df_old_leak·max(0, age_eff−55)/30)
+  df_old_leak 0.5 — suppressed drive leaks back; intrusive
+  re-entry rides the leak
+```
+
+Boundary: the item-method arm must stay age-flat (P1185) —
+the failure is control of a SET, not the per-record brake.
+
+### 5.124 The watch retires first — `proac_mult`/`reac_null` (new in v5.60)
+
+AD§140; Paxton, Barch, Racine & Braver 2008 (*Cerebral
+Cortex* 18:1010 — proactive control ↓, reactive preserved);
+Braver 2012 (*TiCS* dual mechanisms). Every sustained-
+monitoring channel takes the leg:
+
+```
+proac_mult(age_eff): 1.0@55 → 0.8@65 → 0.6@75 → 0.45@85
+applies to: pm_self (time-based PM), eaves_intent
+  background monitoring, §6.275 vigilance holding cost,
+  pending_cand refresh between cues
+```
+
+**Locked `reac_null`:** cue-triggered retrieval, event-based
+PM (`pm_focal`), and recognition take NO proac term —
+reactive paths are flat across the sweep.
+
+### 5.125 The crowded afternoon — `pi_*` within-day interference (new in v5.60)
+
+AD§144; Underwood 1957; Lustig, May & Hasher 2001 (*JEP:G*
+130:199 — PI builds faster in old); May, Hasher & Foong
+2005 (*Psychol. Sci.* 16:96 — PI reduced at peak time).
+
+```
+pi_n: per-character per-day counter of same-context record
+  encodings (venue+participants+topic via §6.281 mask)
+on each new same-context sibling: earlier same-day siblings
+  take interf_eff += pi_w(age_eff)
+  pi_w: 0.02@30 → 0.05@65 → 0.09@85
+pi_clear 0.7 — fraction cleared per sleep consolidation pass;
+  boundary:true event resets the context cell; sync_mis
+  (§4.67) scales pi_w ×(1+0.5·sync_mis) at ≥60
+```
+
+### 5.126 The years run faster — `pot_report`/`pot_k` (new in v5.60)
+
+AD§146; Lemlich 1975; Wittmann & Lehnhoff 2005 (*Psychol.
+Reports* 97:921); Friedman & Janssen 2010 (*Acta Psychol.*
+134:130 — felt passage tracks memory-landmark density).
+DERIVED report — no age term:
+
+```
+pot_report(interval_days):
+  density = retrievable_count(interval) / interval_days
+  felt = interval·(1 − pot_k·(1 − min(1, density/d_norm)))
+pot_k 0.3; d_norm = character's own young-adult median
+  density (snapshot field, frozen at first crossing of
+  age_now ≥ 40)
+```
+
+The thinned year weighs less because the archive is thin —
+every prior decline compounds into the report. P1193 asserts
+zero direct age term.
+
+### 5.127 The event that became a lens — `central_*` (new in v5.61)
+
+EM§130; Berntsen & Rubin 2006 (CES — a central event is a
+reference point for interpreting new experience and
+generating expectations); Berntsen & Rubin 2007 (CES
+correlates PTSD r≈.38 controlling affect measures). Records
+with `arousal·selfRelevance ≥ central_thresh` (0.68 product)
+mint `central:true`. Three consequences: (a) **lens** — when
+a new event is ambiguous (no dominant interpretation in the
+cueMatch spread), the strongest matching central record is
+injected into C as an appraisal cue at `central_lens_w`
+(0.2), pulling the new record's valence encoding toward the
+lens's; (b) **anchor** — central records feed §5.86
+landmark routing for dating/chaptering; (c) **draw** —
+voluntary-rehearsal draw += `central_draw` (0.10): they are
+retold as self-explanation. Applies to positive turning
+points too (weddings, births) — centrality is
+valence-blind.
+
+**Locked `lens_fact_null`:** the lens contributes an
+appraisal prior only — it NEVER writes content fields into
+the new record. P1200.
+
+### 5.128 The explained mood — `attrib_disc` (new in v5.61)
+
+EM§131; Schwarz & Clore 1983 (feelings-as-information —
+the mood-as-input effect vanishes when the mood's cause is
+salient and irrelevant). `cueContext` may carry
+`mood_source:true` when the character can attribute the
+current mood to a cause unrelated to the record being
+reconstructed:
+
+```
+mood_bleed_eff = mood_bleed·(1 − attrib_disc)   // ≈0.6
+// mood ABOUT the record (related source) → no discount
+```
+
+The rainy-day control, mechanized: a character who knows
+they're raw from last night tells yesterday straighter.
+Also applies to §6.287's `tele_emo_resist` (Van Boven Exp.
+5 reversal). P1202.
+
+### 5.129 Anger rehearsed, fear hidden, envy unspoken — `motiv` (new in v5.61)
+
+EM§132; Carver & Harmon-Jones 2009 (anger is
+approach-motivated despite negative valence); Smith & Kim
+2007 (envy — felt, rehearsed privately, rarely confessed).
+The §26 discrete-emotion tag gains `motiv ∈ {approach,
+avoid, ambivalent}` (defaults: anger→approach; fear/sadness/
+shame/disgust→avoid; joy/pride→approach; new member
+`envy`→ambivalent). Retrieval-draw adjustments:
+
+```
+approach:    voluntary-rehearsal draw += approach_rehearse (0.15)
+avoid:       voluntary draw ×0.6; intrusion channel untouched
+ambivalent:  voluntary draw ×0.5 (taboo — §60 logic);
+             intrusion_draw += envy_intrude (0.10)
+```
+
+Emotion enum extended: += {envy, pride}. P1203.
+
+### 5.130 The open arc intrudes — `unresolv_*` ecology (new in v5.61)
+
+EM§129's flag lands here. `unresolved:true` records get
+`intrusion_thresh − unresolv_intrude` (0.15) and rehearsal
+draw += `unresolv_draw` (0.10) until a `closed:true` event
+sharing ≥1 core field resolves them; post-closure the
+premium decays by `closure_decay` (0.3)/day — relief over
+~3 days, never a snap shut. Emergent: the half-finished
+fight resurfaces in the shower for nights, then dies within
+days of the make-up conversation. P1199.
+
+### 5.131 The crowd misremembers together — `cgist_*` (new in v5.62)
+
+FM§118; Prasad & Bainbridge 2022 (*Psychological Science*
+33:1971 — Visual Mandela Effect: consistent, shared false
+memories across people; the same wrong answer, chosen over
+veridical foils). Reconstruction of ambiguous fields is
+pulled toward the population-mode value — errors correlate
+across characters who share the schema:
+
+```
+per reconstructed field with strength < cgist_amb_thresh (≈0.4):
+  value pulled toward population-mode value with weight
+  cgist_w (≈0.15)·sharedSchema(char, mode)
+```
+
+**Locked `cgist_personal_null`:** idiosyncratic fields —
+no population mode exists — take zero pull; the mechanism
+converges characters on the SAME wrong answer, which is
+the falsifiable signature. RW: this is the channel that
+gives a neighborhood shared false lore. P1208.
+
+### 5.132 Recall on one foot — `da_ret_*` (new in v5.62)
+
+FM§120; Skinner & Fernandes 2008 (*Psychology and Aging*
+23:990 — divided attention at retrieval selectively
+impairs recollection, spares familiarity); Jacoby,
+Woloshyn & Kelley 1989 (the encode-side leg). When
+`attn_ret < da_ret_thresh` (≈0.5):
+
+```
+src_check_drive × (1 − da_ret_src_lax ≈0.2)
+  → p_adopt of familiar-but-missourced content rises;
+  the character feels just as sure while being wronger
+```
+
+**Locked `da_fam_null`:** familiarity drive is bit-
+identical under load — the effect is a criterion shift
+only. P1209.
+
+### 5.133 The overnight celebrity — `fame_*` (new in v5.62)
+
+FM§124; Jacoby, Kelley, Brown & Jasechko 1989 (*JPSP*
+56:326 — becoming famous overnight: familiarity survives,
+source tag dies, misattribution defaults to the distant
+past; delay REQUIRED); Dywan & Jacoby 1990 (larger in
+elderly). Records retrieved with source strength below
+`fame_src_floor` (≈0.25) after `fame_lag` (≈2 days) are
+re-dated:
+
+```
+with p = fame_p (≈0.12)·fame_age_leg(age_eff):
+  source → generic-old origin ("always known", "from
+  around here"); confidence intact
+```
+
+**Locked `fame_fresh_null`:** records younger than
+`fame_lag` are immune — the delay is the mechanism
+(familiarity must outlive its source tag). P1210.
+
+### 5.134 The co-witness cue — `cowit_*` (new in v5.68)
+
+RC§108; Gabbert, Memon & Allan 2003 (*Appl. Cogn. Psychol.*
+17:533 — verified ~71% partner-only detail adoption);
+Paterson & Kemp 2006 (*Appl. Cogn. Psychol.* 20:1083 —
+co-witness supply outranks leading questions and media at
+matched content); Paterson, Kemp & Forgas 2009 (neutral
+discussion accuracy-neutral vs control).
+
+When a co-encode partner utters an account of a shared event
+in the character's presence:
+
+```
+shared fields (m has field, partner asserted it):
+  cue drive += cowit_fac (0.15)         // completeness leg —
+                                        // partner's mention
+                                        // re-samples your copy
+unshared fields (partner asserted, m lacks/decayed):
+  enter C as supplied:true (§5.119) at
+  weight cowit_src_mult (1.2)·hint_w    // outranks
+                                        // document lures
+adoption path: §6.3 unchanged, with
+  p_adopt ×= (1 + cowit_lag_gain·(ageDays/365))
+                                        // source tag decays,
+                                        // partner stays
+                                        // face-coded
+```
+
+Locked `cowit_free_null` (P1303): discussion contributing
+zero novel supplied fields MUST NOT shift accuracy on
+already-encoded fields (±2% band) — the effect lives in
+completeness and the adoption gate, never in re-scoring
+held fields.
+
+### 5.135 The place cues its era — `era_*` (new in v5.68)
+
+RC§109; Howard & Kahana 2002 (*JML* 46:998 — TCM retrieved-
+context reuse); Smith & Vela 2001 (interval interaction,
+reused §1). Mechanism CONSENSUS-flavored, mapping is
+HYPOTHESIS.
+
+Per (character, place) derived state `placePeakDay` —
+visit-weighted recency of exposure (not stored as a record
+field; recomputed from the visit ledger). A place cue's
+drive on record m scales:
+
+```
+era_match = exp(−(m.encodeDay − placePeakDay)²/(2·era_sigma²))
+drive += era_w·era_match                 // era_w 0.3,
+                                        // era_sigma 180d
+if (now − lastVisit(place)) ≥ era_gap (365d):
+  drive += era_return_gain (0.2)         // the homecoming
+                                        // surge, first
+                                        // revisit only
+```
+
+Each new visit re-ages `placePeakDay` forward — the era
+fades as the place is re-learned. Locked `place_now_null`
+(P1305): uniform recent visit history yields no era
+concentration — `era_match` must distribute emitted
+encodeDays per base rates (±10%).
+
+### 5.136 The sleepless search — `sdret_*` (new in v5.68)
+
+RC§110; Newbury, Crowley, Rastle & Tamminen 2021
+(*Psychol. Bull.* 147:1215 — verified meta: SD-before-learn
+g≈0.62, SD-after-learn g≈0.28, immediate-deprived test hit
+hardest); Frenda et al. 2014 (*Psychol. Sci.* 25:1674);
+Diekelmann et al. 2008 (*Learn. Mem.* 15:960). Direction
+CONSENSUS; magnitudes carry the meta's publication-bias
+warning.
+
+Character state `sleepHours24 < sdret_thresh` (5h) at
+retrieval time applies:
+
+```
+emission quality ×= sdret_mult (0.9)
+bout latency     ×= sdret_lat  (1.2)
+§6.2 confab fill ×= sdret_confab (1.3)
+§5.119 hint_w    ×= sdret_sug  (1.25)   // supplied features
+                                        // land heavier on
+                                        // the tired searcher
+```
+
+Locked `sdret_over_null` (P1306): every retrieval-side SD
+term must remain smaller than the encode-side `sleepdep`
+E-penalty — a build where tired-search costs more than
+tired-mint inverts the meta's ordering.
+
+### 5.137 The name in the crowd — `ownname_ret_*` (new in v5.68)
+
+RC§111; Moray 1959 (*QJEP* 11:56, reused from EM§);
+Wood & Cowan 1995 (*Mem. Cognit.* 23:165 — ~33% unattended-
+channel detection); Röer, Bell & Buchner 2013 (*JEP:LMC*
+39:925 — capture resists suppression; close-other names
+capture partially).
+
+`ownname` matching the character's name in the ambient
+speech field opens an involuntary bout at `ownname_ret_p`
+(0.35) that **bypasses `fok_pre`/`bout_enter`** (locked
+`ownname_gate_null`, P1308 — the forced bout cannot be
+pre-gated by cue familiarity). The bout scans self-schema
++ recent self-tagged records and emits `name_overheard`;
+with `ownname_attribut_p` (0.6) it forks a speaker-
+identification sub-search (§5.10 cascade, may fail open —
+"someone said my name" without a who). Names with `rel`
+bond >0.5 fire at `ownname_close` (0.4)×; stranger names
+at base rates. Main-cast only — ambient NPCs carry no
+self-schema to search.
+
+### 5.138 The heating-up loop — `warmth_*` (new in v5.68)
+
+RC§112; Koriat & Lieblich 1974 (*J. Verb. Learn. Verb.
+Behav.* 13:370 — partial-product accumulation predicts TOT
+resolution); Metcalfe, Schwartz & Joaquim 1993 (reused
+§5.118); Schwartz 2006 (*Metacognition & Learning* 1:9 —
+TOT as metacognitive signal prolonging search). Direction
+CONSENSUS; continuous flux formulation is ours.
+
+The bout maintains `warmth` — an EMA of partial-feature
+accumulation (fragments emitted, near-miss candidates,
+TOT partials) over the last `warmth_win` (3) bout ticks:
+
+```
+warmth ← warmth + warmth_k·(partialFlux − warmth)   // 0.5
+quit (§77) requires: FOK below threshold AND
+                     warmth < warmth_floor (0.1)
+while warmth > 0: each tick extends the bout at cost
+                     warmth_ext (0.4)
+```
+
+Unresolved bouts leave their partials as residue feeding
+the §96 latent-query arm. Locked `warmth_conf_null`
+(P1310): `warmth` modulates persistence only — it must
+never enter emitted-field confidence (feeling close is not
+being right).
+
+### 5.139 The name that won't come — `tot_*` (new in v5.69)
+
+AD§126; Burke, MacKay, Worthley & Wade 1991 (*JML*
+30:542 — verified age rise); Cohen & Faulkner 1986
+(*Br. J. Dev. Psychol.* 4:187 — proper names worst,
+elderly "empty gap"); Brown & McNeill 1966 (partials);
+Maylor 1990. A failed emit on a `proper_noun`/`person`
+name field can terminate in `tot:true` instead of clean
+miss:
+
+```
+P(tot | failed emit, name field) =
+    tot_p_base (0.05)·tot_name_mult (2.0)·tot_age
+tot_age(age_now): 1.0@30 → 1.3@55 → 1.8@70 → 2.2@85
+partials: P(first-letter/syllable partial in the block) =
+    tot_partial(age): 0.7@30 → 0.6@60 → 0.35@75 → 0.25@85
+resolution: tot_resolved emitted at tot_resolve_p 0.15/day
+    (spontaneous pop-up)
+```
+
+Locked `tot_sem_null` (P1311): the block freezes the
+name/phonology field only — the person's semantic record
+stays fully retrievable.
+
+### 5.140 The story told twice — `dest_*` (new in v5.69)
+
+AD§127; Gopie & MacLeod 2009 (*Psychol. Sci.* 20:1492 —
+verified: destination < source, self-focus mechanism);
+Gopie, Craik & Hasher 2010 (*Psychol. Aging* 25:922 —
+verified: old disproportionately impaired; confident
+misses → repeat-telling; source arm age-flat). Retell
+emissions mint `told_to:{charId}` edges:
+
+```
+dest_E = E_retell·dest_mult(age_now)·(1 −
+         dest_selffocus (0.15)·selfFocus)
+dest_mult: 1.0@40 → 0.85@55 → 0.6@70 → 0.4@85
+novelty check reads told_to; on a miss, old profiles add
+    dest_miss_conf (0.3) to the "never told" judgment —
+    the repeat is endorsed, not merely unchecked
+```
+
+Locked `dest_src_null` (P1312): the deficit is
+direction-locked — `heard_from` edges ride normal source
+machinery; symmetric degradation fails the probe.
+
+### 5.141 The smell picks the decade — `ecue_*` (new in v5.69)
+
+AD§128; Willander & Larsson 2006 (*Psychon. Bull. Rev.*
+13:240 — verified: odor cues peak <10y, word/picture at
+11–20; more reliving, less rehearsed); Chu & Downes 2000
+(*Cognition* 75:B41); Willander & Larsson 2007 (naming
+attenuates the shift); Janata, Tomic & Rakowski 2007.
+Cue `sense` tag re-aims era weighting:
+
+```
+sense:"odor"  → era gaussian on encodeAge:
+    mu ecue_odor_mu 6, sigma ecue_odor_sigma 4,
+    weight ecue_odor_w 0.35
+sense:"music" → mu ecue_music_mu 20, weight
+    ecue_music_w 0.25            // the bump era
+absent/other  → standard bump weighting (§3)
+odor-cued emits: +ecue_reliving (0.2) reliving mass,
+    −ecue_unrehearsed (0.3) prior-rehearsal mass
+```
+
+Locked `ecue_name_null` (P1313): `odor_named:true`
+attenuates the era shift by `ecue_name_att` (0.5) —
+verbalizing the smell routes retrieval through concept.
+
+### 5.142 The inhibitor arrives late — `rif_*` (new in v5.69)
+
+AD§129; Aslan & Bäuml 2010 (*Psychon. Bull. Rev.* 17:704
+— verified: deficient in kindergarteners, intact in
+schoolchildren); Zellner & Bäuml 2005 (*Mem. Cognit.*
+33:396); Aslan, Bäuml & Pastötter 2007 (*Psychol. Sci.*
+18:72 — young-old intact); Aslan & Bäuml 2013
+(*Psychol. Aging* — verified: declines >75). Selective
+successful retrieval of m suppresses same-category
+competitors sharing the cue:
+
+```
+drive_i ×= 1 − rif_w (0.25)·rif_amp(age_eff)·
+    overlap(m, m_i)        // overlap = simOp on shared
+                           // cue mask
+rif_amp: 0@<5 → 0.3@6 → 0.7@8 → 1.0@10 → 1.0@75 →
+         0.7@80 → 0.4@88
+```
+
+Locked `rif_item_null` (P1314): suppression hits only
+unpracticed competitors sharing the retrieval cue — never
+the retrieved item, never cross-category neighbors.
+
+### 5.143 Half the cues hurt — `partcue_*` (new in v5.69)
+
+AD§130; Slamecka 1968; Zellner & Bäuml 2005 (inhibition-
+mediated); Basden & Basden 1995. When a cue supplies k
+of n fields/items, the UNSUPPLIED remainder is taxed by
+the §5.142 inhibitor:
+
+```
+P(unsupplied recalled) ×= 1 − partcue_w (0.3)·
+    rif_amp(age_eff)
+```
+
+The `rif_amp` gate is the mechanism: profiles <6 are
+immune (cues neutral, not harmful); >75 harm drains.
+Locked `partcue_free_null` (P1315): supplied fields'
+recall unchanged.
+
+### 5.144 "I know that I know" — loosening at both ends — `fok_old_*` (new in v5.69)
+
+AD§135; Souchay, Moulin, Clarys, Taconnat & Isingrini
+2007 (*Neuropsychology* 21:491 — verified: episodic FOK
+accuracy declines with age); Souchay & Isingrini 2004;
+Hertzog, Sinclair & Dunlosky 2010. The `fok_pre` gate's
+signal gains an old arm — noise, not bias:
+
+```
+fok_noise += fok_old_k (0.3)·max(0, age_now−60)/30
+// mean-shift zero: draws err both ways — early quits
+// on recoverable traces AND dead-bout persistence
+```
+
+Children carry the §18 high-BIAS arm; elders carry
+variance. Locked `fok_store_null` (P1320): monitoring
+noise only — stored S is never touched.
+
+### 5.145 The complaint goes quiet — `aware_*` (new in v5.70)
+
+AgD§159; **Wilson et al. 2015** (*Neurology* 85 —
+verified: awareness declines sharply ~2.6y before
+dementia onset, −0.32/yr); Jessen et al. 2014 (SCD hump,
+§98); Vannini et al. 2017. Report confidence rides an
+inverted-U monitoring scalar:
+
+```
+aware_eff = 1 + aware_scd_h(age)·hump − aware_invert_k(0.4)·prodrome_prog
+hump knots: +0.10@55 → +0.25@65 → +0.20@75 → +0.05@85
+// complaint first, silence later — the monitoring layer lies
+```
+
+Applies to emitted confidence/hedge behavior only.
+Locked `aware_perf_null` (P1327): objective S/R slopes
+unchanged — a build that adds real decline through this
+leg fails.
+
+### 5.146 Confident and underpaid — `fin_conf_keep` (new in v5.70)
+
+AgD§161 report side; Lichtenberg 2016 (exploitation
+surface = intact confidence over fallen accuracy).
+On `kind:"transact"` reports at age≥65:
+
+```
+emitted_conf = max(emitted_conf, fin_conf_keep (0.95) · base_conf)
+// accuracy already fell via §4.90 fin_num_hl — the gap is the vulnerability
+```
+
+No null of its own — paired with `fin_decl_null`
+(P1329) which pins the accuracy side to applied-numeric
+fields only.
+
+### 5.147 The same chair tells it worse — `ctx_var_*` (new in v5.79)
+
+FC§56.5; **Glenberg 1979** (*Mem. Cogn.* 7:95 —
+component-levels: spacing's benefit is contextual
+differentiation). Records carry `lastAccessCtx`
+(compressed cue vector of the previous access context,
+written on every successful recall/retell). A
+rehearsal's §4.11/§5.9 S-growth multiplies by
+
+```
+ctx_var  = 1 − overlap(C_now, lastAccessCtx)
+gain_eff = gain · (ctx_var_floor + (1−ctx_var_floor)·ctx_var)   // floor 0.3
+```
+
+A bit-identical retell still refreshes `lastAccessDay`
+and runs §6.1 drift — it just earns the floor share.
+`lag_mult` prices *when*; this prices *where/with whom*.
+Locked `ctx_same_null` (P1440): matched-context retells
+must earn ≤ floor share regardless of gap.
+
+### 5.148 Rote is not rehearsal — `rote_*` (new in v5.79)
+
+FC§56.6; **Craik & Watkins 1973** (*JVLVB* 12:599 —
+maintenance rehearsal adds nothing to LTM);
+**Karpicke & Roediger 2007** (*JEP:LMC* 33:704 —
+verified; the operative factor is a delayed, effortful
+first retrieval). A retell event mints `rote:true`
+when ALL hold:
+
+```
+overlap(C_now, lastAccessCtx) > rote_ctx (0.8)
+AND gap < rote_gap (0.25d)
+AND §5.9 effort term (1 − R_pre) < rote_effort (0.2)
+```
+
+`rote:true` retells earn S-growth ×`rote_mult` (0.2),
+NO `lag_mult` credit, and do not update `prevGapDays`
+— a repetition that wasn't a retrieval can't ride the
+ridgeline. Locked `rote_free_null` (P1441): a build
+where cramming behaves like retrieval fails.
+
+### 5.149 The expert's address — `tx_*` (new in v5.80)
+
+RC§116; **Wegner 1987/1995** (transactive directory);
+**Sparrow, Liu & Wegner 2011** (*Science* 333:776 —
+verified: expected access lowers content recall,
+raises where-recall 0.49 vs 0.23). Records minted
+under expectation-of-access carry `holder` (pointer +
+conf to a character/artifact believed to retain the
+fact). At retrieval, before `bout_enter`:
+
+```
+if holder live & reachable:
+    p = tx_dir_p (0.6) → emit holder pointer + ask-social plan
+    else own-bout effort_eff = effort · tx_lazy_mult (0.5)
+holder field decay weight = tx_where_w (2.0)  // the address outlives the fact
+```
+
+Locked `tx_mem_null` (P1444): a directory hit emits
+`holder` only — never mints content fields.
+
+### 5.150 The shelf switch frees it — `piq_*` (new in v5.80)
+
+RC§117; **Wickens, Born & Allen 1963** (*JVLVB* 2:440);
+**Wickens 1970** (*Psychol. Rev.* 77:1 — release from
+PI, keyed to lowest shared encoding feature).
+Per-session accumulator on the cue's dominant
+feature-class:
+
+```
+piq_state[fc] += piq_build (0.12) per same-class bout
+R_eff -= min(piq_state[fc], piq_cap (0.35))
+foreign-class cue → piq_state reset (release is FULL)
+```
+
+Locked `piq_none_null` (P1446): a category switch
+must restore success to within 10% of session-first.
+
+### 5.151 The hour agrees — `circ_*` (new in v5.80)
+
+RC§118; **May, Hasher & Stoltzfus 1993** (*Psychol.
+Sci.* 4:326 — verified: age gap in memory is
+synchrony-bound; elders morning-peak, young evening).
+Authored trait `circ_peak_hr` (bands: ≥60y → 9–11h;
+≤30y → 16–20h; else 12–15h).
+
+```
+circ_m   = exp(−(hour_now − circ_peak_hr)² / (2·circ_sigma²))   // σ 3
+bout_eff = bout_eff·(1 − circ_gain (0.2)·(1−circ_m)·circ_age_w)
+circ_age_w = 1 + circ_age_k (0.5)·max(0, age_now−60)/20
+```
+
+Locked `circ_flat_null` (P1448): a `circ_gain`=0
+build must lose the age×hour interaction.
+
+### 5.152 It was always on the tip — `retro_*` (new in v5.80)
+
+RC§119; **Christensen-Szalanski & Willham 1991**
+(*OBHDP* 48:147 — verified meta, 122 studies, r=.17,
+cognitive mechanism). On bout resolution:
+
+```
+fok_bias[m] += retro_fok_inf (0.25)·emitted_success
+decay: fok_bias·= exp(−Δt/retro_inf_tau)            // τ 7d
+scope: fok_pre + reported confidence ONLY
+```
+
+Locked `retro_acc_null` (P1450): `fok_bias` never
+touches S, emitted-field accuracy, or correction
+channels.
+
+### 5.153 The room bends the telling — `tune_*` (new in v5.80)
+
+RC§120; **Higgins & Rholes 1978** (*JESP* 14:363 —
+saying is believing); **Echterhoff, Higgins & Groll
+2005** (*JPSP* 89:257 — verified: bias only under
+shared reality — in-group audience + identification
+uptake); **Echterhoff et al. 2013** (wrong-room
+elimination). Retell events carry `audience`
+(character + attitudePrior) and `uptake`:
+
+```
+emitted valence += tune_msg (0.3)·audience.prior   // message tunes for any room
+tune_gate = ingroup(audience)·uptake
+record writeback += tune_believe (0.6)·tune_shift (0.15)·prior·tune_gate
+```
+
+Locked `tune_free_null` (P1453): out-group or
+failed-uptake retells produce zero record shift.
+Tuned emissions mark INFERRED-motive for the
+observation UI; the writeback is private.
+
+### 5.154 The moved chair — `schemis_*` (new in v5.80)
+
+RC§121; **Brewer & Treyens 1981** (*Cogn. Psychol.*
+13:207 — verified: schema-inferred intrusions);
+**Pezdek et al. 1989** (*JEP:LMC* 15:587 — verified:
+inconsistent objects better recalled + change-
+detected, 1-day delay). Venue records carry `schema`
+(expectation vector). On scene entry:
+
+```
+if mismatch(observed, schema) > schemis_thresh (0.4):
+    involuntary bout on lastVerified venue record, drive schemis_fac (0.35)
+consistent-unverified elements: schema-fill at schemis_intr (0.1),
+    prov:"schema" — INFERRED tier, never OBSERVED
+```
+
+Locked `schema_free_null` (P1454): a fully
+consistent scene mints no episodic recall beyond
+base.
+
+### 5.155 The wordless file — `pv_*` (new in v5.81)
+
+AD§140; **Simcock & Hayne 2002** (*Psychol. Sci.*
+13:225 — verified: nonverbal retention intact, zero
+verbal translation after vocabulary acquisition);
+Simcock & Hayne 2003; Josselyn & Frankland 2018.
+On `preverbal:true` records: verbal/narrative cue
+classes match at `×pv_verbal_block` (0.0); sensory
+cues `×pv_sense_gain` (1.6); enactive cues (re-
+performing the action/posture) `×pv_enact_gain`
+(1.8). Successful retrieval emits valence/behavioral
+lean only — `prov:"enactive"`, display_tier INFERRED,
+no `what`/`who`/`when` fields. Locked `pv_talk_null`
+(P1455): verbal cues retrieve exactly nothing.
+
+### 5.156 The lab lies about the old — `pm_locus` (new in v5.81)
+
+AD§144; **Rendell & Craik 2000** (*Appl. Cogn.
+Psychol.* 14:S43 — verified: Virtual Week old worse,
+Actual Week old better); Rendell & Thomson 1999;
+Einstein & McDaniel 2005; Aberle et al. 2010.
+PM intentions resolve `pm_locus` at mint on cue
+structure: `environmental` (place/person/recurring
+slot) vs `selfinitiated` (unprompted check/
+deadline). `pm_eff ×= pm_nat_boost(age)` for
+environmental (`1.0@40 → 1.1@60 → 1.25@80`) and
+`×pm_evt_pen(age)` for self-initiated (`1.0@40 →
+0.85@60 → 0.65@80`). Locked `pm_flat_null`
+(P1459): a single PM age slope fails the crossover.
+
+### 5.157 Chains in time, islands in meaning — `clust_*` (new in v5.81)
+
+AD§146; **Kahana, Howard, Zaromb & Wingfield 2002**
+(*Psychol. Aging* 17:125 — recency intact, lag-
+recency reduced); Bjorklund & Jacobs 1985; Schneider
+& Pressley 1997. Free-recall emission order walks
+two attractor fields:
+`next ∝ clust_temp_w·temporal_neighbor +
+clust_sem_w(age)·semantic_neighbor` with
+`clust_temp_w: 1.0 → 0.85@70 → 0.7@85` and
+`clust_sem_w: 0.2@5 → 0.6@9 → 1.0@14 → 1.0@75 →
+0.9@85`. Children narrate sequences; adults emit
+thematic clusters; the old keep clusters while the
+chain loosens.
+
+### 5.158 The child predicts glory — `jol_child_bias` (new in v5.81)
+
+AD§148; **Flavell, Friedrichs & Hoyt 1970** (*Cogn.
+Psychol.* 1:324); Schneider & Pressley 1997;
+Schneider, Visé, Lockl & Nelson 2000. Prospective
+memory estimates carry `jol_pred = E_est·(1 +
+jol_child_bias(age_now))` with `1.0@5 → 0.7@7 →
+0.35@10 → 0.15@13 → 0` adult. The bias inflates the
+PREDICTION only — encoding E and report-side
+confidence are untouched; the child under-prepares
+because she over-promises.
+
+### 5.159 The channel that never ages — `prime` (new in v5.81)
+
+AD§149; **Fleischman & Gabrieli 1998**
+(*Neuropsychology* 12:630); Mitchell 1989; Light &
+Singh 1987. Exposure to a stimulus similar to a
+live record adds `prime += prime_gain` (0.1), no
+bout, no emit; `prime` decays `prime_tau` (≈3 days)
+and adds `prime_bias` (0.1·prime) to fluency-driven
+output choices. Ignores `age_eff` — locked
+`prime_age_null` (P1464); emission `prov:"primed"`,
+INFERRED tier, never tellable as memory.
+
+### 5.160 The mouth wanders — `offtarg_*` (new in v5.82)
+
+AD§167; **Arbuckle & Gold 1993** (*J. Gerontol.*
+48:P225 — verified inhibition-carried); **Trunk &
+Abrams 2009** (*Psychol. Aging* 24:324 — verified
+procedural > episodic drift); James et al. 1998.
+Retell bouts roll `offtarg_p(age_eff)` per emitted
+clause; on fire the next unit is drawn from the
+target's hyper-binding neighbor set (§6.x `assoc`
+links) and emitted `offtarg:true` at the neighbor's
+own R/conf. `offtarg_len` scales clause count;
+`offtarg_goalw` weights the roll by topic class
+(procedural 1.5×, episodic 1.0×). Locked
+`offtarg_content_null` (P1465): off-target units
+must be real records at their own strength — length
+and neighbors, never new accurate content.
+
+### 5.161 The dyad edits — `collab_*` (new in v5.82)
+
+AD§169; **Ross, Spencer, Blatz & Restorick 2008**
+(*Psychol. Aging* 23:85 — verified: inhibition
+age-invariant, error correction elder-asymmetric);
+Ross et al. 2004; Basden et al. 1997; Meade &
+Roediger 2002. `collab:true` bout: partner recall
+queues share an event index — an emission whose
+partner-side record is stronger is dropped with
+prob `collab_inhib` (0.25, age-flat); each emitted
+claim rolls partner challenge `collab_errfix` (0.35)
+→ contested rather than emitted; `collab_oldfix`
+(+0.15) adds an elder-only production-inhibition
+pass. Contagion: partner-emitted false items mint
+into self's store at `collab_adopt` (0.1 young /
+0.18 elder) with `prov:"collab"` INFERRED. Locked
+`collab_sum_null` (P1467): collaborative hits <
+nominal pooled hits at every knot.
+
+### 5.162 The plan binds the cue — `if_then` (new in v5.82)
+
+AD§171; **Liu & Park 2004** (*Psychol. Aging* 19:318 —
+verified ~50% adherence gain); Chasteen et al. 2001;
+Schnitzspahn & Kliegel 2009; **Zimmermann & Meier
+2010** (*Eur. J. Ageing* — verified young-old benefit,
+old-old null/backfire). Intention mint accepts
+`if_then:{cue, action}`: firing reroutes through the
+focal channel, `pm_evt_pen` cut by `ifthen_boost`
+(knots; crosses zero at `ifthen_agecap` ≈78y, small
+negative beyond — Zimmermann & Meier). Time-based
+intentions ineligible — locked `ifthen_free_null`
+(P1469): cueless triggers gain ≤5% at any age.
+
+### 5.163 The reason for retelling — `remfn_*` (new in v5.82)
+
+AD§175; **Wong & Watt 1991** (*Psychol. Aging* 6:272);
+**Webster 1993** (*J. Gerontol.* 48:P256 — RFS
+7-factor, verified); Butler 1963. Each retell bout
+mints `remfn ∈ {identity, problem, teach, intimacy,
+boredom, bitterness, deprep}` drawn from trait vector
+`remfn_w`; the sampler overdraws matching records:
+`teach` → `first`/`selfdef` toward younger listeners,
+`intimacy` → `shared:true` with the listener,
+`bitterness` → unresolved-loss records, `deprep`
+(under `terminal`, weight `remfn_deprep` 0.3) →
+integrative life-narrative passes over bump records.
+Locked `remfn_random_null` (P1473): motive must
+change WHICH records rehearse, not just how often.
+
+### 5.164 The belief starves the muscle — `mse_*` (new in v5.82)
+
+AD§176; **Berry, West & Dennehey 1989** (*Dev.
+Psychol.* 25:701); Hertzog, Dixon & Hultsch 1990;
+**Lachman et al. 1987, 1992**; Reese, Cherry &
+Norris 1999. State `mse` ∈[0,1] per domain (authored
+seed, running update): observed encode/retrieve
+failures decrement `mse_learn` (0.08), successes
+increment at half rate (0.04). `mse` scales the
+willingness leg of `effort_disc` (§4.71) and
+strategy-adoption probability at encode — low `mse`
+reproduces production deficiency (AD§139) with
+intact capacity. Locked `mse_perf_null` (P1474):
+`mse`=0 cannot move base S/R legs >±2% — a
+thermostat on effort, never on capacity.
+
+### 5.165 The camera move sticks — `persp_*` plasticity (new in v5.83)
+
+EM§158; **Sekiguchi & Nonaka 2014** (*Emotion*
+24:375 — verified: field→observer shift cuts
+intensity, persists ≥4wk, one-way); Nigro &
+Neisser 1983; extends §5.39 `persp`. The
+`persp_shift` op (deliberate or requested
+observer retell) writes `persp_persist:"observer"`
+— subsequent emissions run observer at
+`persp_stick` (0.7) — and applies
+`affTag relive *= (1 − persp_cool)` (0.35) once,
+never refunded. Observer→field emits at current
+intensity. Locked `persp_reheat_null` (P1480):
+reverse shifts restore ≤20% of cooled intensity.
+
+### 5.166 Boredom reaches backward — `bored_*` (new in v5.83)
+
+EM§160; **van Tilburg & Igou 2013** (*Emotion*
+13:450 — verified, six studies, meaning-search
+mediator). State `bored:true` (no engaged event
+for `bored_win` 45 sim-min) adds retrieval weight
+`bored_nost` (knot 0.15@55,0.22@70,0.3@85) on
+§34-qualifying nostalgic records
+(`valence>0.3 ∧ selfRelevance≥0.6 ∧ era-match`).
+Locked `nost_rand_null` (P1482): the draw must
+concentrate on bond/meaning records, not
+arbitrary positives.
+
+### 5.167 Warm but faint — `calm_*` (new in v5.83)
+
+EM§159; **Kensinger 2004** (enhancement tracks
+arousal, not valence — CONSENSUS); SST/positivity
+side HYPOTHESIS. Mints with `valence>0.3 ∧
+arousal < calm_arm` (0.35) flag `calm:true` — no
+arousal leg at encode, full eligibility for
+`pos_spare` and positivity-effect overdraw at
+`calm_pos_spare` (1.0). Locked `calm_boost_null`
+(P1481): calm-positive must not out-retain
+neutral at matched delay — warmth is
+retrieval-side only.
+
+### 5.168 The forecast draws the reachable — `fc_*` (new in v5.83)
+
+EM§163; **Morewedge, Gilbert & Wilson 2005**
+(*PSPB* — remembered instances unrepresentative);
+extends §50 impact bias. The `forecast` op draws
+`fc_sample_n` (3) records via the ordinary
+R·cue-weighted sampler and predicts intensity off
+the sample **max** (§13 peak rule), never the
+domain mean. Locked `fc_mean_null` (P1484): with
+an atypical top-R record, forecast error vs the
+mean must exceed `fc_dev` (0.2) — mean-prediction
+is the failure mode.
+
+### 5.169 The verbatim veto — `rtr_*` recollection rejection (new in v5.84)
+
+FM§67; **Brainerd, Reyna, Wright & Mojardin
+2003** (*J. Memory Lang.* 48:762 — verified);
+**Rotello & Heit 2000** (*J. Memory Lang.*
+43:359). At emission, after the candidate
+sample is drawn but before commit: for each
+drawn candidate V on field f, if a
+`verbatim:true` survivor W (strength ≥
+`rtr_min_str` 0.35) contradicts V on the same
+slot, suppress V at
+`rtr_p` (0.7)·W.strength/(W.strength +
+V.candStrength). Suppressed V isn't deleted —
+it loses the round and gains `veto_scar`;
+each scar halves its next veto threshold.
+Applies only to non-verbatim candidates
+(told_by/phantom/inferred/schema) — verbatim
+can veto the lie, never another verbatim;
+verbatim-vs-verbatim resolves by strength as
+before. Age comes free via the `k_verbatim`
+survival leg — children veto suggested lures
+better (verbatim-bound), old profiles lose the
+veto with the trace (stacks with §6.109).
+Locked `rtr_free_null` (P1487): a false
+candidate facing a surviving verbatim
+contradictor must emit below the no-veto
+baseline; removing the veto fails.
 
 ---
 
@@ -14304,6 +17328,2666 @@ memorability (`memorab`), and interest (`value_select`) already
 carry its variance. P1154 asserts absence at |d| ≤ 0.1. Seventh
 negative anchor.
 
+### 6.281 The categories that blur — `dediff_*` (new in v5.59)
+
+AD§116; Park, Polk, Park, Minear, Savage & Smith 2004
+(*Psychol. Aging* 19:100 — ventral visual category
+selectivity declines with age); Koen & Rugg 2019 (*TiCS*
+22:545 — neural dedifferentiation tracks memory aging);
+Baltes & Lindenberger 1997 (common-cause).
+
+simOp's field masks coarsen with age — between-record
+similarity rises for same-category/different-item pairs:
+
+```
+mask granularity g(age_eff): 1.0@40 → 0.9@60 → 0.8@75 → 0.7@90
+cross-category sim floor += dediff_w·(1 − g)   // dediff_w 0.15
+```
+
+Consequences ride existing operators: `merge_thresh` is met
+sooner by same-category wrong-item pairs (the 80yo merges
+two different dentists' visits); §6.3 gist-lure acceptance
+rises for semantic neighbors. The records keep their fields;
+the SPACE between them compresses. **Locked
+`dediff_item_null`:** dedifferentiation never lowers
+within-record field fidelity — between-record similarity
+only; a record's own content decays on its own clocks.
+
+### 6.282 It can't be that long — `tele_*` forward telescoping (new in v5.60)
+
+AD§145; Thompson, Skowronski & Lee 1988 (*Mem. Cognit.*
+16:461); Janssen, Chessa & Murre 2006 (*Mem. Cognit.*
+34:138); Crawley & Pring 2000 (*Memory* 8:49 — amplified in
+old). Emission-level report distortion on `when` fields:
+
+```
+est_elapsed = elapsed^(1 − tele_gain·age_leg)
+tele_gain 0.05
+age_leg(age_eff): 0@55 → 0.3@65 → 0.6@75 → 1.0@85
+tele_cap 0.25 — reported elapsed ≥ 75% of true
+emits `tele_shift` on dated recalls
+```
+
+Stored timestamp fields are bit-identical before/after —
+P1192's report-distortion invariant; the ledger arbitrates
+truth, the mouth compresses it.
+
+### 6.283 Which came first — `order_*` (new in v5.60)
+
+AD§147; Old & Naveh-Benjamin 2008 (*Psychol. Bull.* 134:21
+— meta: associative/order fields age worse than items);
+Parkin, Walter & Hunkin 1995. The order/sequence-link field
+class (arrival index, before/after links):
+
+```
+order_hl_mult(age_eff): 1.0@55 → 0.85@65 → 0.7@75 → 0.55@85
+ordering mandatory: source < order < item on half-life loss
+order retrieval failure with intact items →
+  `order_confused:true` emission → swapped-sequence retell
+```
+
+Composes with §6.282 — compressed AND misordered; neither
+rewrites stored fields.
+
+### 6.284 The growing told-you-so — `hind_mult` (new in v5.60)
+
+AD§148; Bayen, Erdfelder, Bearden & Lozito 2006 (*Psychol.
+Aging* 21:41 — hindsight bias ↑ with age, recollection-
+mediated); Bayen, Pohl, Erdfelder & Auer 2007. When an
+outcome is known and the prior-belief field is below
+`theta`:
+
+```
+knew_prior inflation ×= hind_mult(age_eff)
+  1.0@55 → 1.2@65 → 1.4@75 → 1.6@85
+```
+
+**Locked `hind_recall_null`:** a prior-belief field that
+retrieves is immune at every age — hindsight forges missing
+records, never overwrites live ones. Distinct from §73's
+monitoring confidence — that overclaims retrieval; this
+overclaims prophecy.
+
+### 6.285 Hot reads as old — `emo_foil_bias` (new in v5.61)
+
+EM§134; Dougal & Rotello 2007 (*PBR* 14:423 — emotional
+"remember" judgments are response bias, not recollection);
+Kapucu, Rotello, Ready & Seidl 2008 (*JEP:LMC* 34:703 —
+young biased mainly to negative foils, old to BOTH valences).
+In `mode:"recognition"` (§5.6), foils carrying emotional
+content get a criterion shift:
+
+```
+P(false-alarm | foil) += emo_foil_bias·arousal_foil   // ≈0.15
+  negative foils: full weight at all ages
+  positive foils: ×emo_foil_pos_leg(age_eff)
+                  0.3@30 → 0.5@55 → 0.8@75   (Kapucu shape)
+```
+
+**Locked `foil_recall_null`:** recall mode has no foil
+criterion — a recognition-mode bias only. P1201.
+
+### 6.286 Two regulators, two dents — `distract_*`/`reapp_*` (new in v5.61)
+
+EM§135; Sheppes & Gross 2011 (early- vs late-selection
+regulation); Sheppes, Scheibe, Suri & Gross 2011 (high
+intensity → distraction chosen, low → reappraisal). Splits
+the v1.7 `regulate_style` scalar into trace-level operators:
+
+```
+choice:      arousal ≥ reg_choice_knee (0.7) → distraction;
+             else reappraisal. Knee shifts left with age
+             (reg_knee_age −0.15@75 — attentional deployment
+             cheaper when control thins; DEBATED knot)
+distraction: draw probability ×(1−distract_drive_k 0.4) for
+             distract_dur (≈2h, bout-scoped); the stored
+             emotional tag is BIT-IDENTICAL —
+             locked distract_tag_null
+reappraisal: at reconsolidation, emotional.valence drifts
+             toward the reinterpreted frame by reapp_tag_k
+             (0.10)/bout — permanent tag cooling, the
+             trace-level complement of §16's retell leg
+```
+
+P1205 locks the asymmetry: one channel hides the record,
+the other cools it.
+
+### 6.287 The hot event refuses to recede — `tele_emo_resist` (new in v5.61)
+
+EM§133; Van Boven, Kane, McGraw & Dale 2010 (*JPSP* 98:872 —
+emotional intensity reduces perceived psychological
+distance; mediated by felt intensity; reversed by an
+alternative attribution). §6.282's `tele_shift` is
+attenuated by record arousal:
+
+```
+tele_shift_eff = tele_shift · (1 − tele_emo_resist·arousal)
+                 // tele_emo_resist ≈ 0.6; ×(1−attrib_disc)
+                 // when mood_source attributed (Exp. 5)
+```
+
+Report-side only — the P1192 stored-timestamp invariant
+holds (P1204 inherits it).
+
+### 6.288 Stress thickens the gist — `stress_gist_*` (new in v5.62)
+
+FM§115; Payne, Nadel, Allen, Thomas & Jacobs 2002
+(*Stress* 5:227 — acute stress ↑DRM false recognition);
+Payne et al. 2006 (*Behavioral Neuroscience* 120:697) and
+2007 (*Neurobiology of Learning and Memory* 87:305 —
+glucocorticoid dose-response; verbatim/consolidation hit,
+gist lure passes the lost veto). Split-sign op — NOT a
+"stress is bad" scalar:
+
+```
+if stress_at_encode ≥ stress_gist_thresh (≈0.6):
+  verbatim-field decay β × (1 + stress_verb_loss ≈0.15)
+  gist-lure p_adopt × (1 + stress_gist_gain ≈0.35)
+```
+
+**Locked `stress_verb_null`:** the verbatim leg is a loss,
+never a gain — acute stress never improves item detail.
+Distinct from §4.x emotional-core consolidation (different
+mechanism, different sign). P1211.
+
+### 6.289 The rehearsal that arms the rumor — `res_*` (new in v5.62)
+
+FM§116; Chan, Thomas & Bulevich 2009 (*Psychological
+Science* 20:66 — immediate recall ~doubles later
+misinformation adoption; reversed testing effect); Chan &
+Langley 2011 (*JEP:LMC* 37:917 — survives 1-week delay;
+dual mechanism: enhanced misinfo learning + reactivated-
+trace lability); Thomas, Bulevich & Chan 2010 (*JML*
+63:149 — warning restores protection). Deepens §31's
+reactivation window: *just-retrieved* fields carry the
+premium:
+
+```
+on successful recall of field f:
+  arm res_flag(f) for res_hl ≈ 1.0 day
+  within window: p_adopt(f) × (1 + res_boost ≈0.6
+                 ·res_age_leg(age_eff))
+                 // res_age_leg: ×1.0@30 → ×1.3@75
+  warn_pre (§6.243) still applies multiplicatively
+```
+
+**Locked `res_nt_null`:** fields NOT recalled before the
+misinformation show no premium — retrieval-gated, not
+event-gated. RW: a character who just told a story is
+most corruptible about it right after. P1212.
+
+### 6.290 Plausibility is the gate — `plaus_*`/`vouch_mult`/`photo_plaus_mult` (new in v5.62)
+
+FM§117; Pezdek, Finger & Hodge 1997 (*Psychological
+Science* 8:437 — plausible ~25% vs implausible ~3%
+implantation); Pezdek & Hodge 1999; Scoboria et al. 2017
+(*Memory* 25:146 — mega-analysis ~30% full false memory,
+plausible autobiography only). Gate, not bias:
+
+```
+whole-event implant/adopt:
+  p_mint_eff = p_mint·plaus^plaus_exp (exp ≈1.5)
+  photo medium: plaus_eff = min(1, plaus·photo_plaus_mult
+    ≈1.8)   // Lindsay, Hagen, Read, Wade & Garry 2004 —
+            // real photo ~doubles vs narrative alone
+  trusted-voucher source: ×vouch_mult ≈1.4
+            // Hyman, Husband & Billings 1995
+```
+
+**Locked `plaus_floor_null`:** below `plaus_floor` (≈0.15)
+NO medium or voucher mints — Pezdek's ~3% is a floor, not
+a mode. §6.236 doctored-evidence composes THROUGH this
+gate, never around it. `plaus` is world-supplied (does
+this event fit this character's biography?). P1213.
+
+### 6.291 The nod after the answer — `fb_*` (new in v5.62)
+
+FM§121; Wells & Bradfield 1998 (*Psychological Science*
+9:215 — confirming feedback inflates confidence AND
+retrospective encoding-quality reports); Douglass &
+Steblay 2006 (*Applied Cognitive Psychology* 20:859 —
+meta, 15 studies; no immediacy required). Feedback
+reaches backward:
+
+```
+on emitted recall receiving feedback:
+  "confirm":    reported confidence += fb_conf_gain (≈0.12)
+                encoding-quality fields (view, attention)
+                reconstruct upward ≈ half-gain
+  "disconfirm": confidence −= fb_disc_gain (≈0.06)
+                // ~2:1 asymmetry — praise inflates more
+                // than doubt deflates
+```
+
+**Locked `fb_acc_null`:** stored content and accuracy are
+untouched — confidence and quality self-report only. A
+nod can't fix a wrong memory. P1214.
+
+### 6.292 Unringing the bell — `sens_*` reversals (new in v5.62)
+
+FM§122; Oeberst, Wachendörfer, Imhoff & Blank 2021
+(*PNAS* 118:e2026447118 — implanted rich false memories
+reversed to baseline by source sensitization and by
+false-memory sensitization from a NEW interviewer; true
+memories unaffected; ~5% at 1-y follow-up). The removal
+op the spec lacked — correction of *self* memories by
+relocating source, distinct from §2 continued-influence
+(fact corrections don't erase):
+
+```
+targeting minted/suggested records only:
+  source-sensitization delivery: P(un-believe) =
+    sens_src_k ≈0.5 per delivery
+  fm-sensitization (speaker ≠ planter): sens_fm_k ≈0.35
+```
+
+**Locked `sens_true_null`:** the same delivery to a
+veridically-encoded record leaves endorsement statistically
+untouched — the specificity is the finding; if it ever
+erodes true records it is a generic doubt ray and the
+channel should be cut. P1215.
+
+### 6.293 The slant you told becomes the event — `slant_*` (new in v5.62)
+
+FM§123; Higgins & Rholes 1978 (*JPSP* 36:363 — "saying is
+believing": audience-tuned descriptions reshape own later
+memory toward the message); complements §6.235 self-
+generation — no fabrication needed, selection and spin
+suffice:
+
+```
+on biased retell (audience-tuned/valence-shifted):
+  own record fields drift toward emitted variant by
+  slant_k ≈0.10/bout at reconsolidation — gist-congruent
+  variants only
+```
+
+**Locked `slant_contra_null`:** slants incongruent with
+the record's own gist produce zero drift. RW: the
+character who spins a story for a partisan listener
+slowly remembers the spin. P1216.
+
+### 6.294 Imagining doing is half of doing — `act_imag_*` (new in v5.62)
+
+FM§125; Goff & Roediger 1998 (*Psychological Science*
+9:20 — imagined actions later claimed as performed);
+Thomas & Loftus 2002 (*Memory* 10:297 — extends to
+bizarre acts). §5's imagination inflation in the motor
+domain:
+
+```
+per imagining/planning bout for action a
+(REQUIRES existing plan/intent/imagined record):
+  p += act_imag_k (≈0.08) toward minting "performed"
+  variant; cap act_imag_cap ≈0.4
+  §6.290 plausibility gate applies
+```
+
+**Locked `act_imag_intent_null`:** no intent/imagination
+record → channel dead; the mechanism inflates imagined
+acts, never invents acts ex nihilo. P1217.
+
+### 6.295 The ear spends the buffer — `hear_*` (new in v5.63)
+
+ID§125; Lin et al. 2011 (*Arch. Neurol.* 68:214 — HR
+1.27/10dB log-linear, 1.89/3.00/4.94 by severity); Lin et
+al. 2013 (*JAMA Intern. Med.* 173:293); Deal et al. 2023
+(*Lancet* 402:786 — ACHIEVE RCT, ~48% slope rescue in
+at-risk arm); Pichora-Fuller et al. 2016.
+
+`hear` ∈ [0,2] trait (age-correlated sampling). On
+`channel:"heard"` events: E ×(1 − `hear_effort_tax`·h)
+(0.2, landing on wmc-loadings — source/peripheral fields
+starve first); source-field/`w_people` completeness
+×(1 − `hear_src_tax`·h) (0.15). Withdrawal mediator:
+`social`_eff -= `hear_social_drag`·h (0.3 — feeds
+existing rehearsal legs). `hear_aided:true` rescues
+`hear_aid_rescue` (0.4) of the two encoding legs only.
+Sustained h ≥ 1 over ≥5y: `age_eff` +=
+`hear_decline_k`·h·yrs (0.1 age-yr/yr). **Locked
+`hear_gist_null`/`hear_sem_null`:** gist fields,
+semantic store, and existing records untouched — the
+ear spends at the door, not in the vault.
+
+### 6.296 The pill that borrows from encoding — `antichol_*` (new in v5.63)
+
+ID§126; Caine et al. 1981 (scopolamine → encoding-
+selective deficit); Gray et al. 2015 (*JAMA Intern.
+Med.* 175:401 — 10-yr cumulative dose-response, top
+tertile HR~1.54); Risacher et al. 2016 (*JAMA Neurol.*
+73:572).
+
+`antichol` ∈ [0,2] state (world mints from med list) +
+substrate-integrated `antichol_yrs` tally. Legs:
+`enc_base`/attention-gated fields ×(1 −
+`antichol_enc_tax`·a) (0.25); `iiv_sigma` +=
+`antichol_iiv`·a (0.02); cumulative `age_eff` +=
+`antichol_decline`·(a·antichol_yrs/10) (0.5 age-yr/
+decade — permanent, same ledger as `delir_step`).
+**Locked `antichol_ret_null`:** retrieval, decay,
+semantic store flat — encoding-selective by mechanism.
+
+### 6.297 The transition that pauses learning — `menop_*` (new in v5.63)
+
+ID§127; Greendale et al. 2009 (*Neurology* 72:2050 —
+SWAN: late-perimenopause learning rates 28%/7% of
+premenopause, full rebound post); Greendale et al. 2010
+(symptoms do NOT mediate the dip); Weber, Maki &
+McDermott 2014.
+
+`menop` ∈ {0,1,2} stage state (~4y window). New-
+learning legs ×(1 − `menop_learn_tax`·stage/2) (0.25
+at stage 2); `pspeed` ×(1 − `menop_pspeed_tax`·s/2)
+(0.15); complaint ×`menop_complaint` (1.5). Post
+transition: all legs rebound over `menop_rebound_d`
+(180d). **Locked `menop_ret_null`:** retention/θ/
+stored records untouched; full reversibility is the
+finding. **Locked `menop_sym_null`:** legs stage-gated,
+never scaled by concurrent depr/sleep/vasomotor states.
+
+### 6.298 The decade of nights — `shift_*` (new in v5.63)
+
+ID§128; Marquié et al. 2015 (*Occup. Environ. Med.*
+72:258 — ≥10y rotating shifts ≈ 6.5 age-yr equivalent;
+partial recovery after ≥5y off); Rouch 2005; Folkard.
+
+`shift_wrk` ∈ [0,2] trait (lifetime exposure,
+bible-set from career history). `age_eff` +=
+`shift_age_equiv`·w (3.0y at w=2 — conservative
+half-price of Marquié's estimate); recovery toward
+`shift_recovery` (0.6 asymptote) over `day_shift_yrs`
+≥5. Acute `post_night:true` ctx = synchrony antipeak
+through §2.12 (Δh≈8 — no new mechanism). **Locked
+`shift_sem_null`:** semantic/procedural stores flat.
+
+### 6.299 The fever fogs the door — `sick_*` (new in v5.63)
+
+ID§129; Reichenberg et al. 2001 (*Arch. Gen. Psychiatry*
+58:445 — endotoxin: acquisition deficit at 1–3h, full
+reversal ~10h); Harrison et al. 2009/2014; Dantzer 2008.
+
+`sick_day` ∈ [0,1] state. `enc_base` ×(1 −
+`sick_enc_tax`·s) (0.3); wmc-loadings ×(1 −
+`sick_wmc_tax`·s) (0.2); at s ≥ 0.6 `fuzzy:true`
+fragments mint at `sick_dream_p`·s (0.1 — a tenth of
+`delir_dream_p`); θ += `sick_theta`·s (0.05).
+**Locked `sick_dur_null`:** all legs vanish at s→0 —
+no residue, no step. Contrast `delir_*` (§6.248):
+duration and severity are not the same ledger.
+
+### 6.300 The habit that burns the slope — `smoke_*`/`nic_*` (new in v5.63)
+
+ID§130; Anstey et al. 2007 (*Arch. Gen. Psychiatry*
+64:84 meta); Sabia et al. 2012 (*Arch. Gen. Psychiatry*
+69:627 — Whitehall II: current > recent-quit >
+long-term-ex > never); Heishman et al. 2010 meta
+(acute nicotine ≈ withdrawal reversal).
+
+`smoker` ∈ {0,1,2} + `pack_yrs` + `quit_yrs`.
+Chronic: `age_eff` += `smoke_decline_k`·(pack_yrs/20)
+(1.0 age-yr/20py); ex-smokers ×`smoke_quit_rescue`
+(0.5 at quit_yrs ≥ 5). Acute: `nicotine_sated:true`
+ctx + `withdrawal_h` > 2 → attention legs ×(1 +
+`nic_acute_gain`) (0.08); `withdrawal_h` > 4 → wmc
+×(1 − `nic_withdraw_tax`) (0.1) + iiv bump.
+**Locked `smoke_encode_null`:** no direct E bonus —
+nicotine is withdrawal-repair attention, not an
+encoding enhancer.
+
+### 6.301 The cushion that isn't a drug — `medit_*` (new in v5.63)
+
+ID§131; Chiesa, Calati & Serretti 2011 meta; Tang,
+Hölzel & Posner 2015; Chételat et al. 2018 (*JAMA
+Neurol.* — Medit-Ageing primary-endpoint null).
+
+`medit` N(0,1). Attention-layer legs only: `att`
+sampling noise −`medit_att_buf`·m (0.05); `mw`
+capture rate ×(1 − `medit_mw_buf`·m) (0.15, combined
+floor `mw_rate`·0.4 vs §6.254 — no double-count);
+complaint surface improves `medit_conf_gain` (0.1).
+**Locked `medit_store_null`:** zero loadings on β/θ/
+semantic/procedural — attention is trained; the vault
+is the same vault.
+
+### 6.302 The career that banked a buffer — `jobcplx_*` (new in v5.63)
+
+ID§132; Schooler, Mulatu & Oates 1999/2004; Smart, Gow
+& Deary 2014 (*JINS* — complexity with people/data →
+late-life cognition past childhood IQ); Finkel et al.
+2009; Andel 2005.
+
+`job_cplx` N(0,1), era/sex-aware sampling. `reserve`-
+eff += `jobcplx_reserve_feed`·j (0.3 — deposits into
+the existing buffer, never a parallel one);
+`search_breadth`/`w_topic` +`jobcplx_breadth`·j
+(0.05). No `enc_base` level leg — the literature is
+slope/buffer. **Locked `jobcplx_retire_null`:** legs
+do not decay at `retire` — the deposit stays banked;
+what stops is the depositing.
+
+### 6.303 The desk that emptied — `retire_*` (new in v5.63)
+
+ID§133; Rohwedder & Willis 2010 (*JEP* 24:118 —
+"mental retirement"); Bonsang, Adam & Perelman 2012
+(*J. Health Econ.* 31:490); Mazzonna & Peracchi 2017.
+Causality debated (selection/reverse) — priced small
+and moderated.
+
+`retire` ∈ {0,1} + `post_engagement` [0,1] +
+`retire_voluntary:true` (world-supplied). While
+retired AND post_engagement < 0.5: `beta_episodic`/
+wmc-loadings ×(1 + `retire_slope_tax`·(1−engage))
+(0.05); PM self-initiation −`retire_pm_tax` (0.1 —
+the calendar stops carrying intentions). Engagement
+≥ 0.5 → legs → 0. **Locked `retire_step_null`:** no
+step at the event — slope, never cliff; involuntary-
+retirement confound routes through `depr`.
+
+### 6.304 The company that isn't there — `lonely_*` (new in v5.63)
+
+ID§134; Cacioppo & Hawkley 2009 (*Perspect. Psychol.
+Sci.* — perception ≠ headcount); Shankar et al. 2013
+(*Psychosom. Med.* 75:610 — HR~1.65 net of isolation);
+Wilson et al. 2007; Tilvis 2004; Boss, Kang & Branson
+2015 meta.
+
+`lonely` N(0,1) — never derived from `social` (R −0.35
+only). Legs: `w_state` += `lonely_vigil`·l (0.1 —
+threat-monitoring tax in group contexts); rehearsal
+pool weight ×(1 − `lonely_rehearse_tax`·l) (0.15);
+sustained l > 1 → `age_eff` += `lonely_decline`·l
+(0.15 age-yr/yr at l=2); negative-social records get
+retrieval advantage `lonely_neg_bias`·l (0.1). Rescue
+channel: `bonded:true` retells (world flag) restore
+the rehearsal leg. **Locked `lonely_crowd_null`:**
+`social` exposure never rescues — the finding is the
+perception gap.
+
+### 6.305 The sugar that saps the slope — `diab_*` (new in v5.63)
+
+ID§135; Rawlings et al. 2014 (*Ann. Intern. Med.*
+161:785 — ARIC: midlife diabetes → 19% greater 20-yr
+decline); Biessels & Despa 2018 (*Nat. Rev.
+Endocrinol.*); Palta 2014 (duration-ordered).
+
+`diab` ∈ {0,1,2} + `diab_yrs` tally. `age_eff` +=
+`diab_decline_k`·(d/2)·(diab_yrs/10) (0.4 age-yr per
+decade at d=2); `pspeed`/`ret_lat_mult` ×(1 +
+`diab_pspeed_tax`·d/2) (0.1 — speed-first domain
+shape); `hypo_episode:true` events mint `frag:true`
+at `diab_hypo_frag` (0.3 — severe-hypo amnesia
+windows). Vascular stack shares `vasc_stack_cap`
+(2.0×) with `smoker`/`hear`. **Locked
+`diab_sem_null`:** semantic store flat — slope of
+efficiency, never knowledge loss.
+
+### 6.306 The headache that passes clean — `migr_*` (new in v5.63)
+
+ID§136; Rist et al. 2012 (*BMJ* 345 — N=6349:
+migraineurs show LESS decline, not more); Gaist 2005
+twins; Gil-Gouveia & Martins 2019 (complaints real,
+interictal deficit ~null); Meyer et al. 2000 (ictal
+cognitive symptoms); Vurallı 2018.
+
+`migr` ∈ [0,2] trait (female-skewed R-corr +0.3).
+World supplies `ictal:true` windows. Attack legs:
+`enc_base`/wmc ×(1 − `migr_ictal_tax`·severity)
+(0.3); `w_sensory` cue-weight +`migr_sens_gain`
+(0.2 — the aura writes strong inside a thin record).
+Interictal: complaint surface +`migr_complaint` (0.2)
+only. **Locked `migr_cumul_null`:** no `age_eff` leg,
+no cumulative tally — attack count changes nothing
+long-term. Fifth mandated null (joins `birth_order`,
+`learn_style`, `braintrain`, `microdose`).
+
+### 6.307 The year after the funeral — `grief_*` (new in v5.63)
+
+ID§137; Shin, Kim & Park 2018 (*Am. J. Geriatr.
+Psychiatry* 26:778 — HRS: widowhood accelerates
+decline); Ifcher & Zaveri 2021 (contemporaneous dip +
+partial adaptation); Kang et al. MIDUS (worse for men,
+worse in ambivalent marriages); Aartsen 2005; Boelen
+(complicated grief intrusions).
+
+`grief` ∈ [0,1] state, world supplies `{onset,
+kin_type, ambivalence}`; `kin_type` doses (spouse 1.0,
+child/friend 0.9, parent 0.7, relative 0.4). Stages:
+acute `grief_acute_d` (90d) wmc ×(1 −
+`grief_acute_tax`·g·kin) (0.25); months 3–24 `age_eff`
++= `grief_slope`·g·kin (0.2 age-yr/yr, halving at 12m,
+zero ~24m); intrusions on lost-person record cluster
+×(1 + `grief_intr`·g·kin·(1−ambivalence)) (0.8);
+feeds `rumin_k` on that cluster only. Stacks with
+`depr`/`lonely` under `grief_stack_cap` (1.5×).
+**Locked `grief_perm_null`:** at g→0 all legs return
+— bereavement is a wound, not a lesion; permanent
+residue only via world-decided `depr`/`trauma`
+conversion.
+
+### 6.308 First glance — `firstlook_*` (new in v5.64)
+
+SM§166; Willis & Todorov 2006 (*Psych. Sci.* 17:592 —
+100 ms suffices; more exposure buys confidence, not
+revision); Olivola et al. 2014 review (impressions
+predict outcomes, not character).
+
+On first `met`/`seen` with a new personId, prob
+`firstlook_p` (0.85): mint `PersonModel.firstlook =
+{sketch, conf}` — low-magnitude trait sketch from the
+event's `face_trait` proxy fields only (world-supplied;
+absent → no sketch). Per further exposure in-encounter:
+`conf += firstlook_conf_gain` (0.1, cap 0.9); sketch
+values frozen. The sketch seeds `eval_tag`/`imp_anchor`
+priors; behavioral evidence updates `traits{}`/`eval_tag`
+normally. **Locked `firstlook_mut_null`:** exposure
+without behavior mutates confidence only, never sketch
+content.
+
+### 6.309 The regular nobody knows — `fs_*` (new in v5.64)
+
+SM§167; Milgram 1972/1977 (89% recognize ≥1 familiar
+stranger, mean 4.0 vs 1.5 spoken-to; observation +
+repetition + no interaction; off-turf meeting raises
+introduction).
+
+New op class `seen:` (co-presence, no interaction):
+`familiarity += fs_gain` (0.15) per occurrence, cap
+`fs_cap` (0.85); bypasses `face_ceiling` as a repeat-
+encounter path. `identityStrength`/`nameStrength`/
+`traits{}` unreachable by `seen:`. A `met` event with
+`familiarity > 0.5` and zero prior `met` gets
+`fs_intro_gain` (0.2) identity-encode bonus; emits
+`fs_met`. **Locked `fs_identity_null`:** co-presence
+alone mints no identity/name/trait fields and no event
+records.
+
+### 6.310 Status buys the face slot — `status_face_*` (new in v5.64)
+
+SM§168; Ratcliff, Hugenberg, Shriver & Bernstein 2011
+(*PSPB* 37:1003 — high-status faces better recognized,
+attended, identity–location bound, holistic); Dalmaso
+2012 (gaze); Ratcliff 2012 (anger persists on high-
+status faces).
+
+Event field `actorStatus` ∈[0,1] (world-supplied):
+`familiarity`/`identityStrength` accrual and `who`→
+`where` binding ×(1 + `status_face_gain`·status) (0.4);
+angry-expression records' `arousal_tag` ×(1 +
+`status_anger_gain`·status) (0.3). Child scaling
+`min(1, age/16)`.
+
+### 6.311 Watching the snub — `vic_snub_*` (new in v5.64)
+
+SM§169; Wesselmann, Bagg & Williams 2009 (*JESP*
+45:1308); Masten et al. 2013 review (9 studies; stronger
+under perspective-taking, trait empathy, closeness);
+Wesselmann 2017 (observers compensate target, penalize
+sources — impression-of-sources is the stronger
+mediator).
+
+Co-present non-target at `exclusion:true`: writes muted
+self-record `vic_snub:true`, need-threat valence
+×`vic_snub_k` (0.4), scaled ×(1+0.4·emp), ×`vic_snub_close`
+(1.5) for relationship-tier targets; excluder PMs take a
+`diag_moral_neg`-class eval write at `obs_eval_gain`
+(§6.312). Source-invariant per `snub_source_null`.
+**Locked `vic_exceed_null`:** observer write strictly
+below what the same event writes on the target, all
+trait settings.
+
+### 6.312 Standing by watching — `obs_*` (new in v5.64)
+
+SM§170; Nowak & Sigmund 1998 (*Nature* 393:573 — image
+scoring); Wedekind & Milinski 2000 (*Science* 288:850);
+Milinski, Semmann & Krambeck 2002 (*Nature* 415:424 —
+gossip resolves ambiguity); Fehr & Fischbacher 2003.
+
+Events with `agent ≠ self` AND `target ≠ self` run the
+§2.1 STI/diag write to the agent's PM at `obs_eval_gain`
+(0.6); provenance `via:"witnessed"`. Ordering contract:
+self-target 1.0 > witnessed 0.6 > hearsay `hpm_gain` 0.4.
+`eval_tag` moves at `obs_eval_gain`·`imp_impl_slow`.
+**Locked `obs_standing_null`:** third-party observation
+updates PM eval/traits only — no canonical-ledger
+writes, no `beliefStatus` upgrades.
+
+### 6.313 Moral emotion is the payload — `moremo_*` (new in v5.64)
+
+SM§171; Brady, Wills, Jost, Tucker & Van Bavel 2017
+(*PNAS* 114:7313 — N=563k, ~+20% diffusion per moral-
+emotional word, group-bounded); Berger & Milkman 2012.
+
+Retell/hop survival: content tagged `moral:true` ×
+`moremo_gain` (1.2/marker); cross-group audiences
+×`moremo_outgroup_pen` (0.6). Shares one ceiling with
+`etrans_*` legs: combined transmission multiplier ≤
+`trans_cap` (1.6). **Locked `moremo_acc_null`:**
+moral-emotional tagging moves reach only — credence,
+accuracy, plausibility gates untouched.
+
+### 6.314 Moving together — `sync_*` (new in v5.64)
+
+SM§172; Wiltermuth & Heath 2009 (*Psych. Sci.* 20:1 —
+synchrony → cooperation at personal cost); Valdesolo
+2010; Hove & Risen 2009. Mechanism debated; memory legs
+RW hypothesis.
+
+Event flag `sync:true` (co-timed shared activity): each
+co-participant PM `eval_tag += sync_aff_gain` (0.08, once
+per event, per-pair cap `sync_aff_cap` 0.4); event record
+E += `sync_enc` (0.1) on co-participant fields.
+**Locked `sync_trait_null`:** synchrony writes eval_tag
+and E only — never `traits{}`, never content.
+
+### 6.315 The tease's two books — `tease_*` (new in v5.64)
+
+SM§173; Kowalski 2000 (*PSPB* 26:231 — perpetrator:
+funnier, less damaging, guiltier); Kruger, Gordon &
+Kuban 2006 (*JPSP* 90:412 — mitigation fails to reach
+the target).
+
+`tease:true` events: target-side encodes literal content
+at full `w_emo_neg`; mitigation fields drop at
+`tease_mitigate_loss` (0.5 at encode — scaled ×(1+0.4·
+shame-adjacent traits)). Perpetrator-side record:
+valence ×`tease_perp_damp` (0.5) + small guilt leg.
+Target retells carry unmitigated content (§5 tuning
+composes). Emits `tease_gap` (per-role valence
+divergence). **Locked `tease_benign_null`:** benign
+intent is one-way-lost at encode — no later inference
+restores it into the target's record.
+
+### 6.316 My line, their line — `selfsaid_*` (new in v5.64)
+
+SM§174; Slamecka & Graf 1978 (*JEP:HLM* 4:592 —
+generation effect); Fischer et al. 2015 (own
+contributions kept in conversation); largely preserved
+in healthy aging (0.8× at 65+).
+
+Dialogue records: verbatim fields `speaker:self` encode
+at E ×(1 + `selfsaid_gain`) (0.25); `speaker:other`
+baseline. Produces per-participant transcript asymmetry.
+**Locked `selfsaid_echo_null`:** retention-only — no
+credence, no beliefStatus upgrade from remembering your
+own words.
+
+### 6.317 Helper and hinderer — `pm_eval_raw` (new in v5.64)
+
+SM§175; Hamlin, Wynn & Bloom 2007 (*Nature* 450:557 —
+6–10-mo infants choose helper over hinderer); Hamlin
+2013 review (relational from the start).
+
+For `age < soc_abstract_age` (≈7): §2.1 STI is replaced
+by `pm_eval_raw` writes on the eval_tag leg only
+(helper +, hinderer −, `hh_gain` 0.5); `traits{}` stays
+empty. At `soc_abstract_age` the trait ledger opens,
+seeded by accumulated eval_tag. **Locked
+`hh_trait_null`:** pre-abstraction eval writes never
+mint `traits{}` fields.
+
+### 6.318 The retroactive purse — `post_rew_*` (new in v5.66)
+
+EM§123; Patil, Murty, Dunsmoor, Phelps & Davachi 2017
+(*Learn. Mem.* 24:65 — verified: retroactive reward benefit
+for related pre-reward items at 24h, NOT immediate test);
+Braun, Wimmer et al. 2018 (*Nat. Commun.* 9:4886 —
+verified: graded proximity, rest-interval interaction);
+Dunsmoor et al. 2015 (*Nature* 523:345 — aversive arm).
+
+On an event with reward `r ≥ rew_thresh` (0.4) and positive
+prediction error (§98): sweep live records minted within
+`post_rew_win` (45 sim-min) BEFORE the event; each takes
+`strength *= 1 + post_rew_gain·(post_rew_cat_w·rel +
+(1−post_rew_cat_w))·exp(−Δt/post_rew_tau)` and
+`rew_tagged:true`. The benefit lands at the next
+consolidation leg — **never same-day**. Locked
+`rew_inst_null` (P1282) and `rew_ant_only_null` — the sweep
+is backward-only; forward reward is §99's anticipatory
+window (P1283).
+
+### 6.319 The blink at the mint — `blink_*` (new in v5.66)
+
+EM§124; Raymond, Shapiro & Arnell 1992 (*JEP:HPP* 18:849);
+Chun & Potter 1995 (*JEP:HPP* 21:109 — two-stage); Martens
+& Wyble 2010.
+
+A mint with `E ≥ blink_trigger` (0.65) opens a refractory
+`blink_win` (2 sim-min, 0.5–4): events minted inside take
+`E *= (1 − blink_loss·(1 − Δt/blink_win))` — linear
+recovery, `blink_loss` 0.35. Sequential and content-blind —
+distinct from the v0.5 `emo_blink` halo (which suppresses
+cue-UNRELATED records around an arousal spike). Locked
+`blink_self_null`: the trigger is byte-identical with the
+machinery off (P1285). Sim-scale mapping flagged
+HYPOTHESIS (lab window ~400 ms).
+
+### 6.320 Same-kind runs — `pi_run_*` (new in v5.66)
+
+EM§125; Underwood 1957 (*Psychol. Rev.* 64:49); Keppel &
+Underwood 1962 (*JVLVB* 1:153 — PI builds over successive
+same-class trials); Wickens 1970 (*JVLVB* 9 — release on
+category shift); Gardiner, Craik & Birtwistle 1972
+(*JVLVB* 11 — release needs semantic change).
+
+Per-char run state `{lastMintTag, run_n}`: on a mint with
+`categoryTag == lastMintTag`, `run_n += 1` and
+`E *= (1 − pi_run_k)^min(run_n, run_cap)` (0.05, cap 6);
+on a genuine tag change `run_n` resets and the next mint
+takes `E *= (1 + pi_rel_gain)` (0.08 — the Wickens
+release). Orthogonal to retention-side PI pools and to
+§38 varied-context cue minting. Locked `pi_relabel_null`:
+cosmetic retitling earns no release (P1287).
+
+### 6.321 Birth vantage — `perspBirth` (new in v5.66)
+
+EM§126; McIsaac & Eich 2004 (*Psychol. Sci.* 15:248 —
+verified content split: observer memories carry more
+self-visible/layout, less affective/somatic content and
+read as less emotional); McIsaac & Eich 2002; Berntsen,
+Willert & Rubin 2003; Nigro & Neisser 1983 (§5.39 anchor).
+
+At mint, if `arousal ≥ persp_obs_arousal` (0.75) and
+(trait `dissoc ≥ 0.5` or `ctx.persp == "observer"`):
+`record.perspBirth = "observer"`; somatic/affective field
+write_p `×(1 − persp_obs_field_loss)` (0.30);
+spatial/self-visible write_p `×(1 + persp_obs_layout_gain)`
+(0.20). §5.39 emission gains `+persp_birth_bias` (0.35)
+toward observer when the record carries the tag. Locked
+`persp_birth_null`: mint-fixed, no write path (P1289).
+Birth-tag itself flagged HYPOTHESIS — source lit is
+recall-side (P1288 tests the signature, not the tag).
+
+### 6.322 The boundary looks back — `bound_ante_*` (new in v5.66)
+
+EM§127; Sols, DuBrow, Davachi & Fuentemilla 2017 (*Curr.
+Biol.* 27:3499 — verified: boundary onset reinstates the
+just-encoded sequence within ~200–800 ms; reinstatement
+predicts cross-event linking); Gold, Zacks & Flores 2017;
+Radvansky & Zacks 2017 (review).
+
+On any boundary mint (§110 derived or flagged): the just-
+closed segment's records (≤ `bound_ante_n` 5) take
+`strength *= 1 + bound_ante_gain·(1 − i/len)` graded toward
+the cut (0.08 max); the seam link
+`link_p(seg.last, seg'.first) ×= bound_bridge` (0.6) —
+partial rescue against `boundary_order_loss`, the Sols
+linking function. Locked `bound_ante_null`: backward only —
+the incoming segment's first records get zero ante gain
+(P1290).
+
+### 6.323 The ridgeline is sloped — `lag_ratio(T)` (new in v5.67)
+
+FC§51.1; Cepeda, Vul, Rohrer, Wixted & Pashler 2008
+(*Psychol. Sci.* 19:1095 — verified: n=1354, ISI≤105d,
+RI≤350d; optimal gap ~20–40% of week-scale RI, ~5–10% of
+year-scale RI).
+
+The §4.11 `lag_mult` re-targets from `recordAge` to the
+record's forward horizon `T_hor = min(τ_eff, 1/needRate)`
+(class-τ fallback; `lag_opt_ratio` retained for unknown
+horizons):
+
+```
+lag_ratio(T) = clip(0.30·(T/7)^−0.33, 0.05, 0.40)
+lag_mult = exp(−(ln(gap/(lag_ratio(T_hor)·T_hor)))²/(2·lag_width²))
+```
+
+Locked `lag_flat_null` (P1292): a horizon-constant build
+fails the two-horizon optimum test (P1291). Substrate-side
+only — retell policy stays cue-driven (spacing_opt_null
+unaffected).
+
+### 6.324 The fitness bump — `fitness_gain` (new in v5.67)
+
+FC§51.2; Nairne, Thompson & Pandeirada 2007 (*Psychol. Sci.*
+18:263 — verified); Nairne & Pandeirada 2008; Scofield,
+Buchanan & Kostic 2018 (meta; mechanism DEBATED —
+Kroneisen & Erdfelder 2011; Klein 2012).
+
+Events flagged `fitness:true` (world-side appraisal of
+threat/food/shelter/illness/status-loss relevance) take
+`E *= (1 + fitness_gain)` (0.12) AFTER w_emo/w_self/w_nov.
+Immediate share `fitness_imm` (0.5) prices the E leg; the
+residual accrues at consolidation legs (HYPOTHESIS split).
+Locked `fitness_redux_null`: matched-arousal controls must
+still separate (P1293); delay-selectivity probed at P1294.
+
+### 6.325 The disuse clock — `disuseDays`, `gap_load`, `vac_*` (new in v5.67)
+
+FC§51.3; Cooper, Nye, Charlton, Lindsay & Greathouse 1996
+(*Rev. Educ. Res.* 66:227 — verified: ~1mo grade-equiv
+loss, math/spelling > reading); Driskell, Willis & Copper
+1992 (*J. Appl. Psychol.* 77:615); Arthur et al. 1998
+(§22.5 base).
+
+Skill records carry `disuseDays` (reset on successful use /
+enacted recall): `beta_skill_eff = beta_proc·(1 + gap_load)`,
+`gap_load = min(gap_load_k·ln(1+disuseDays), gap_load_cap)`
+(0.15/0.5). Domain asymmetry `skill_dom_mult` 0.3 on the
+verbal/recognition subskill share (procedures full-rate).
+First enactment after `disuseDays ≥ vac_gap_d` (14) rolls
+`vac_fail_base` (0.15), attenuating per successful re-use.
+Locked `skill_clock_null`: clock-age decay builds fail
+P1295.
+
+### 6.326 The emotional crossover — `emo_del_gate`, `emo_imm_tax` (new in v5.67)
+
+FC§51.4; Kleinsmith & Kaplan 1963 (*JVLVB* 2:201);
+Sharot & Phelps 2004; McGaugh 2000; Ritchey et al. 2008.
+Advantage-accrues-over-delay CONSENSUS; immediate-deficit
+magnitude DEBATED.
+
+At retrieval, E's arousal contribution is age-gated:
+`E_r = E − w_emo·arousal·E·(1 − emo_del_gate(age))`,
+`emo_del_gate(age) = 1 − exp(−age/emo_del_tau)` (0.7d);
+records `arousal ≥ 0.7` additionally read non-arousal E
+×(1−`emo_imm_tax`) (0.10) same-day. Locked
+`emo_instant_null`: with consolidation legs disabled,
+arousal shows ZERO same-day retrieval advantage (P1297) —
+the dividend posts through §v0.5 `emo_consol_gain` and
+friends, never at birth.
+
+### 6.327 The wound-up deadline — `mon_*`, `missed:true` (new in v5.67)
+
+FC§51.5; Harris & Wilkins 1982 (*Br. J. Psychol.* 73:1 —
+verified: J-shaped test–wait–test scallop; check-before-
+miss detail); Ceci & Bronfenbrenner 1985; Kvavilashvili &
+Fisher 2007 (*Memory* 15:458 — time-based PM rides periodic
+self-cues).
+
+Uncued armed intentions (dueDay/dueTime, no event trigger)
+emit self-cues at `mon_rate(t) = mon_base·(1 + mon_gain/
+(1 + (due−t)/mon_tau))` (0.2/day, 6, 0.5d) — each fire is a
+cheap §5.9 leg (cueBind refresh + small S). Unfired at
+`dueDay + pm_grace` (1d): monitoring stops, the intention
+converts to a `missed:true` record minted at
+`missed_enc_gain` (0.15). Locked `deadline_mute_null`: no
+armed-forever survivors (P1299).
+
+### 6.328 Generation is a slope — `gen_tau_mult` (new in v5.67)
+
+FC§51.6; Bertsch, Pesta, Wiscott & McDaniel 2007 (*Memory*
+15:318 meta — d≈0.40, delay-robust); McNamara & Healy 1995;
+Slamecka & Katsaiti 1987 (widening DEBATED, adopted mild —
+Jost-consistent).
+
+Records minted through self-production (`speaker:self`
+fields, `selfacted:true`, generated content) decay at
+`beta·gen_tau_mult` (0.85). Encode-side `selfsaid_gain`
+unchanged — intercept and slope now each carry half.
+Locked `gen_intercept_null`: intercept-only builds fail
+P1300.
+
+### 6.329 The choice flatters itself — `choicesup_*` (new in v5.70)
+
+AgD§154; **Mather & Johnson 2000** (*Psychol. Aging*
+15:596 — verified: age-amplified choice-supportive
+attribution, robust under equated recognition);
+Mather, Shafir & Johnson 2000; **Henkel & Mather 2007**
+(*J. Mem. Lang.* — belief-anchored: the bias follows
+*believed* choice, not actual).
+
+Decision records carry `chosen:{optionId}` and
+`believed_chosen` (defaults to `chosen`; §5.140-style
+misattribution may flip it). On each retell/report:
+
+```
+positive feature fields of believed_chosen:  S += choicesup_w(age)·Δ
+negative  feature fields of believed_chosen: S −= choicesup_w(age)·Δ
+(and mirror for the rejected option)
+choicesup_w: 0.15@55 → 0.20@65 → 0.28@75 → 0.35@85
+```
+
+Store-level, belief-anchored — a flipped belief flips the
+drift. Locked `choicesup_val_neutral_null` (P1322):
+valence-neutral features of both options unmoved; the
+bias is evaluative, never additive noise.
+
+### 6.330 Almost every feeling gets told — `share_*` (new in v5.71)
+
+EM§140; **Rimé, Mesquita, Philippot & Boca 1991**;
+Rimé, Philippot, Boca & Mesquita 1992 (8 studies, 1,384
+episodes: 80–96% shared, ~60% same-day, extent ∝
+intensity r .21–.35); Finkenauer & Rimé 1998 (shame/
+guilt damped + delayed); **Zech & Rimé 2005** (sharing
+does NOT reduce residual intensity).
+
+At mint of any record with `|valence| ≥ share_thresh`
+(0.3) or `arousal ≥ 0.4`: mint a sharing intention with
+`drive0 = min(share_cap, share_base + share_k·arousal)`
+(shame/guilt §26 tag: ×`share_shame`). Drive decays
+`drive0·2^(−t/share_tau)` (7d). When drive exceeds the
+emission threshold and an eligible addressee is present,
+run a discussEvent bout under the §41 epistemic-trust
+audience gate; each bout `share_count++` and spends
+`share_spend` of drive. Locked `share_cool_null`
+(P1331): sharing bouts move strength and `told_to`
+edges only — the stored affect tag never cools.
+
+### 6.331 Avoidance, two ways — `sit_sel_*`, `avoid_habit_*` (new in v5.71)
+
+EM§141; Gross 1998/2015 (situation selection);
+Salkovskis 1991 (safety behaviors maintain anxiety);
+de Wit et al. 2018 (habit transfer).
+
+Deliberate leg: plan/schedule option scores gain
+`sit_sel_w·Σ valence·strength_eff` over matching
+CondEntries — reads §6 entries, no second store; lifts
+with extinction.
+
+Procedural leg: an avoid action taken on CondEntry fire
+≥`avoid_habit_n` times mints `{kind:"avoid_habit", cue,
+action:"avoid", strength}` — fires cue-driven at
+`habit_p` WITHOUT consulting `strength_eff`; decays on
+`avoid_habit_tau_mult`·episodic tau; immune to
+safeCount suppression. Locked `habit_aff_null` (P1332):
+the habit fires at the entry's extinction floor — the
+two legs MUST diverge.
+
+### 6.332 The gut in the option list — `choice_aff_*` (new in v5.71)
+
+EM§142; **Bechara, Damasio, Tranel & Damasio 1997**
+(Iowa Gambling Task — affect biases choice before
+declarative access); Damasio 1994; mechanism DEBATED
+(Dunn, Dalgleish & Lawrence 2006).
+
+At decision scoring: `choice_bias(option) =
+choice_aff_w · Σ valence·strength_eff·simOp` over
+CondEntries sharing cueVector fields with the option;
+bounded by `choice_aff_cap`. Bias only — locked
+`choice_fact_null` (P1333): never mints content or
+belief fields; surfaced to the observation UI as
+INFERRED affect, never as stated reason.
+
+### 6.333 The two ruminations — `brood_*`, `reflect_*` (new in v5.71)
+
+EM§143; **Treynor, Gonzalez & Nolen-Hoeksema 2003**
+(brooding/reflection factor split); Watkins 2008
+(*Psychol. Bull.* — processing-mode account);
+Nolen-Hoeksema, Wisco & Lyubomirsky 2008.
+
+The §64 ruminative rehearsal draw routes per authored
+traits `brooding`/`reflect` ∈[0,1]: a brooding bout
+re-stamps `emotional.arousal` ≥0.7 (§7 intrusion
+channel) and applies `rumin_k` negative drift; a
+reflection bout applies `narr_coher` gain at
+`reflect_coher_gain` plus §135 `reapp_tag_k` drift.
+Locked `brood_content_null` (P1334): brooding never
+rewrites content fields — affect re-stamp only.
+
+### 6.334 The window opens for surprise — `recon_pe_*` (new in v5.71)
+
+EM§144; Sevenster, Beckers & Kindt 2012/2013
+(reconsolidation requires prediction error); Fernández,
+Boccia & Pedreira 2016; Pedreira et al. 2004.
+**DEBATED — Luyten & Beckers 2017 boundary failure;
+adopted as modeling hypothesis.**
+
+At retrieval/retell: `pe = |reconstructed expectation −
+observed|` over valence/outcome/cue fields. If
+`pe ≥ recon_pe_gate` (0.2) OR novel/disconfirming
+input enters → open the §5.9 window. Else retell_boost
+only. Locked `recon_routine_null` (P1335): routine
+retell leaves all fields bit-identical — strength
+rises, nothing rewrites.
+
+### 6.335 Attachment is a bundle — `attach_*`, `avo_emit_damp` (new in v5.71)
+
+EM§145; Hazan & Shaver 1987; Brennan, Clark & Shaver
+1998 (ECR two dimensions); **Mikulincer & Shaver 2007**
+(hyperactivating/deactivating strategies); Fraley 2002
+(rank-order stability — traits, not knots).
+
+`attach_anx` ∈[0,1]: `intrusion_thresh −
+attach_anx_w·attach_anx`, `cond_gain +`, `extinct_suppress·
+(1−0.5·attach_anx)`, `share_drive0 +`. `attach_avo`
+∈[0,1]: suppression trait +, `share_drive0·(1−attach_avo)`,
+emitted affect magnitude `·(1−avo_emit_damp)` — stored
+tags intact. Locked `attach_content_null` (P1336):
+dynamics and emission only; content untouched.
+
+### 6.336 You remind me of someone — `transf_*` (new in v5.71)
+
+EM§146; **Andersen & Cole 1990**; Andersen, Glassman,
+Chen & Cole 1995 (significant-other transference:
+inferred traits + affect transfer).
+
+At new PersonModel mint: simOp of observable cue fields
+vs existing person cue-profiles; if max overlap ≥
+`transf_thresh` (0.6), strongest matching CondEntry
+leaks `affect_prior += transf_k·overlap·valence·
+strength`, flagged `transf:{from:personId,
+provenance:"inferred"}`. The prior biases ambiguous-
+behavior interpretation (§130 lens channel) and MUST be
+labeled INFERRED in any observation surface. Locked
+`transf_fact_null` (P1337): zero content/fact fields —
+expectation only.
+
+### 6.337 Easy means it mattered — `flu_*` (new in v5.71)
+
+EM§147; **Koriat 1993**; Koriat & Ma'ayan 2005;
+Tversky & Kahneman 1973; age leg Jacoby & Rhodes 2006.
+Intensity extension HYPOTHESIS.
+
+At bout resolution, `ease = 1 − failedCandidates/
+search_breadth`: emitted confidence +=
+`flu_conf_gain(age)·ease`; reported arousal +=
+`flu_int_gain·ease`. Report-layer only; locked
+`flu_acc_null` (P1338): stored fields and accuracy
+unmoved — ease inflates certainty and felt intensity,
+never correctness.
+
+### 6.338 Under stress the habit answers — `stress_habit_*` (new in v5.71)
+
+EM§148; **Schwabe & Wolf 2009** (*J. Neurosci.* —
+stress abolishes outcome-devaluation sensitivity);
+Schwabe et al. 2008/2010; blocked by propranolol
+(Schwabe et al. 2011) — the same glucocorticoid +
+noradrenergic co-activation as §118's gate.
+
+At decision time, when `C.stress > stress_habit_thresh`
+(0.6) AND §118 two-factor gate holds: episodic/
+deliberative evaluation weight ×(1−`stress_habit_w`·
+C.stress); CondEntry/procedural weight ×(1+
+`stress_habit_w`·C.stress). Locked
+`stress_ep_fact_null` (P1339): substrate reweighting
+only — stored content untouched.
+
+### 6.339 The spotlight on your own shame — `spotlight_*` (new in v5.71)
+
+EM§149; **Gilovich, Medvec & Savitsky 2000** (~2×
+overestimation of others' noticing); Savitsky, Epley &
+Gilovich 2001. Embarrassment-retention extension
+HYPOTHESIS.
+
+When estimating another's retention of a record where
+self carried a shame/embarrassment §26 tag:
+`estimated_other_retention = own_effective_strength ·
+spotlight_k` (1.8, clamp ≤1). Lives on the estimator's
+person-model — INFERRED display, feeds §§141–142 inputs.
+Locked `spot_fact_null` (P1340): neither the witness's
+record nor the own record's stored fields move.
+
+### 6.340 Peripheral detail sells the teller — `cred_triv_*` (new in v5.72)
+
+FM§129; **Bell & Loftus 1989** (*JPSP* — trivial
+persuasion): peripheral-detail-rich accounts judged
+more credible though not more accurate.
+
+On receiving an emission, perceiver updates the
+speaker's PersonModel:
+`cred_est += cred_triv_w · detail_density`
+(`cred_triv_w` 0.15; `detail_density` =
+peripheral/total emitted fields), EMA decaying toward
+baseline at `cred_triv_decay` 0.5/day. `cred_est`
+enters `sourceCredibility` on later §6.3/§6.344
+adoptions from that speaker. Locked `triv_acc_null`
+(P1341): `cred_est` lives on the perceiver only —
+speaker records and accuracy distributions
+bit-identical regardless of emitted density.
+
+### 6.341 Distrusting your own record — `md_*` (new in v5.72)
+
+FM§130; **Gudjonsson & MacKeith 1982** (memory
+distrust syndrome); **van Bergen et al. 2009**
+(distrust → misinfo acceptance); van Bergen et al.
+2008 (interrogation induces state distrust); counter:
+**Otgaar et al. 2023** registered report — trait leg
+DEBATED, state leg retained.
+
+Authored trait `mem_distrust` ∈[0,1]; state `md_state`
+∈[0,1]: `+= md_acc_k` (0.1) per disconfirmed
+contradiction where own field lost a §6.5 merge; decays
+`md_decay_tau` 30d. `d = 1−(1−trait)(1−state)`. On
+contradiction vs own recall: external adoption bonus
+`md_yield_w(age_eff)·d`; own-account emission
+probability ×(1−`md_under_p·d`) (0.2). Locked
+`md_str_null` (P1342): own-record strength fields
+bit-identical — distrust moves adoption and reporting
+legs only.
+
+### 6.342 Told becomes witnessed — `sh_*` (new in v5.72)
+
+FM§131; **Pynoos & Nader 1989** (absent children
+"remembered" the attack); **Lindner, Echterhoff,
+Davidson & Brand 2010** (observation inflation —
+watching → believing you did it).
+
+A `source.kind:"told"` record at/above `sh_vivid_gate`
+(0.5) accrues `sh_credit += sh_retell_w` (0.3) per
+received retelling. Once `sh_credit>0`, daily
+conversion hazard `1−exp(−sh_credit·ln2/sh_hl)`
+(`sh_hl` 14d): first conversion `told→observed`;
+`observed→witnessed` requires credit from a SECOND
+independent teller. §6.2 `confab_fill` owns the missing
+sensory fields; record keeps `sh_migrated:true`.
+Locked `sh_free_null` (P1343): `source:"experienced"`
+records never convert — the channel re-dates told
+records only.
+
+### 6.343 Self-made errors stick — `selfgen_*` (new in v5.72)
+
+FM§132; **Slamecka & Graf 1978** (generation effect);
+**Zaragoza et al. 2001** (self-generated wrongs
+outlast supplied wrongs).
+
+In §13 candidate competition, `origin:"self_guess"`
+candidates (forced confab, voiced speculation,
+self-produced fills) get adoption/retention legs
+×`selfgen_mult` (1.5) vs identical `supplied`
+candidates. Per-candidate, not per-field. Locked
+`sg_ext_null` (P1344): supplied candidates get zero
+generation bonus.
+
+### 6.344 Saying yes isn't believing it — `conf_norm_*`/`conf_info_*` (new in v5.72)
+
+FM§133; **Gabbert, Memon & Allan 2003** (co-witness
+convergence); **Skagerberg & Wright 2008** (status
+asymmetry directs the winner); **French, Garry & Mori
+2008/2011** (normative/informational split).
+
+At §6.5 merge, split the adoption:
+- informational: `p_info = conf_info_w · cred_factor ·
+  (1−own_field_conf)` (0.5) — the §6.3 record write.
+- normative: `p_norm = conf_norm_w · (1+conf_status_k·
+  status_asym) · audience_factor` (0.4/0.3) — sets
+  `conform_public:true` on the emission; record
+  UNCHANGED.
+A `conform_public` account re-emitted ≥2 times
+converts to a record write at `p_info·0.5` (public
+rehearsal → private drift). Private re-test reverts
+the assent at `conf_revert_p` (0.6). Locked
+`conf_priv_null` (P1345): normative-only adoption
+leaves the record bit-identical — said, not believed.
+
+### 6.345 Confidence resolves, doesn't calibrate — `conf_res_*` (new in v5.72)
+
+FM§134; **Brewer & Wells 2006** (weak postdiction,
+r≈.3 at best, feedback-inflated); **Koriat &
+Goldsmith 1996** (within-person resolution real,
+between-person ordering swamp).
+
+`conf_emit = conf_base·(1+conf_res_k·(strength_eff −
+mean_strength)) + conf_trait_off·conf_trait`
+(`conf_res_k` 0.4; `conf_trait_off` 0.2; authored
+trait `conf_trait` ∈[0,1] shifts level, never slope).
+`conf_emit` is a REPORT field — INFERRED surface;
+may feed §6.340 credibility perception; must never
+enter adoption gates as an accuracy proxy. Locked
+`conf_cross_null` (P1346): cross-character accuracy
+ordering by `conf_emit` is a violation.
+
+### 6.346 The correction arrives late to a smaller room — `corr_*` (new in v5.72)
+
+FM§135; **Vosoughi, Roy & Aral 2018** (*Science* —
+false cascades outrun true); Bordia/DiFonzo rumor-
+correction asymmetry.
+
+Correction/denial records minted against a spread
+record propagate at `spread_w·corr_reach_mult` (0.5);
+audience sampled `corr_seen_p` (0.6) from the
+original's `corr_seen` exposure edges, rest random.
+Locked `corr_equal_null` (P1347): realized correction
+reach must stay strictly below the original's —
+exposed-but-uncorrected residue is a designed
+invariant, not a tuning failure.
+
+### 6.347 The retention you planned on — `meta_mem`/`ret_pred` (new in v5.72)
+
+FM§136; **Kornell & Bjork 2009** (stability bias —
+systematic overprediction); Koriat et al. 1980 (FOK
+anchored on current accessibility).
+
+Authored trait `meta_mem` ∈[0,1] — decorrelated from
+real accuracy by contract. At encode mint report field
+`ret_pred = R0 + meta_bias·(1−meta_mem)` (`meta_bias`
+0.2); `ret_pred` decays with `tau·(1+meta_bias)` —
+always lagging the true curve. Disclosure/commitment
+planning reads `ret_pred`, never R(t). Locked
+`meta_store_null` (P1348): `ret_pred` never feeds
+strength, decay, or adoption legs.
+
+### 6.348 Discredit cuts the band, not the floor — `contag_floor` (new in v5.72)
+
+FM§137; **Roediger, Meade & Bergman 2001** (social
+contagion persists at near-zero partner credibility);
+Meade & Roediger 2002.
+
+Every adoption leg multiplying by `sourceCredibility`
+(§6.3, §6.5, §6.344-info, §6.340-fed) uses
+`(contag_floor + (1−contag_floor)·cred)`,
+`contag_floor` 0.1. Locked `contag_zero_null`
+(P1349): `cred=0` sources contaminate at the floor —
+credibility may never zero the channel.
+
+### 6.349 The audience is the fixative — `commit_freeze_*` (new in v5.72)
+
+FM§138; **Wells & Bradfield 1998/1999** (public
+identification resists later contradiction); Bregman
+& McAllister 1982; consistency-motive literature
+(direction CONSENSUS, magnitude DEBATED).
+
+Emissions flagged `public:true` (audience ≥
+`commit_aud_min` 2, or broadcast channel) freeze the
+emitted fields: contradiction adoption
+×(1−`commit_freeze_k`) (0.4) for `commit_freeze_hl`
+7d (halving tail). `conform_public` accounts do not
+freeze — no private backing exists to protect. Locked
+`commit_priv_null` (P1350): sub-threshold and private
+emissions freeze nothing.
+
+### 6.350 Two honest witnesses, 130% of the work — `selfcontrib_*` (new in v5.72)
+
+FM§139; **Ross & Sicoly 1979** (reported
+contributions sum >100%); **Caruso, Epley & Bazerman
+2006** (availability-driven; listing others' work
+shrinks it).
+
+On `joint:true` records, emitted self-share
+`s_rep = s_true + selfcontrib_boost·(1−s_true)`
+(`selfcontrib_boost` 0.25, clamp ≤1); partner-share
+fields decay at `contrib_partner_hl` (0.7× nominal
+half-life). Emitted shares are NEVER normalized.
+Locked `contrib_sum_null` (P1351): reported shares
+across members must be able to exceed 1.0 — a
+normalization pass is a contract violation; `s_true`
+exists only in the canonical ledger for probe
+scoring, never emitted.
+
+### 6.351 The loop that never buffered — `dys_*` (new in v5.73)
+
+ID§143; **Swanson, Zheng & Jerman 2009** (verbal STM
+~0.5–0.9 SD); **Staels & Van den Broeck 2017**
+(serial-order, not item storage); Beneventi 2010.
+
+On profiles with `dyslex` ∈[0,2]: name/verbatim/
+`auditory`-channel fields on heard events mint
+×(1 − `dys_phon_tax`·d) (0.3); `order`-class fields
+mint ×(1 − `dys_serial_tax`·d) (0.4); with prob
+`dys_comp_p`·d (0.15) an offload/written note
+mints alongside. Locked `dys_gist_null`/`dys_sem_null`
+(P1352): gist strength and all retrieval legs
+untouched — thin fields, full-strength record.
+
+### 6.352 A different buffer — `deaf_*` (new in v5.73)
+
+ID§144; **Rönnberg, Rudner & Ingvar 2004**;
+Wilson & Emmorey; Cardin 2018.
+
+`deaf_sign` ∈{0,1}: `w_sensory`/`place` cue-match on
+seen-channel events ×(1+`deaf_vsp_gain`) (0.15);
+`w_people` density +`deaf_face_gain` (0.1); heard
+events mint only under `heard_vicariously`.
+Sampling excludes `hear` (R=−1.0 structural).
+Locked `deaf_total_null` (P1353): matched-salience
+record strength/count equal to hearing profiles —
+the axes reweight, they never shrink.
+
+### 6.353 The eye that spends — `vis_*` (new in v5.73)
+
+ID§145; **Lin M.Y. et al. 2013**; Pichora-Fuller
+2016 (cross-sensory effortfulness); Maharani 2018
+(rescue DEBATED).
+
+`vision` ∈[0,2]: seen-channel E ×(1−`vis_effort_tax`·v)
+(0.15, lands on visual-detail fields); visual cue-
+match ×(1−`vis_cue_tax`·v) (0.2); `social` effective
+−=`vis_social_drag`·v (0.2). `vis_corrected:true`
+rescues `vis_correct_rescue` (0.5) of legs (a)+(b).
+`vision`+`hear` coexist → `dual_sensory` flag: legs
+add, uncapped. Locked `vis_gist_null` (P1354).
+
+### 6.354 The lesion on the record — `stroke_*` (new in v5.73)
+
+ID§146; **Levine et al. 2015** (verified, REGARDS —
+acute step + faster executive slope).
+
+`stroke_hist` ∈[0,2]: at mint `age_eff` +=
+`stroke_step_k`·sev (4.0 at sev 2, forward-step
+ledger); subsequent `pspeed`/`att_ctl`-routed legs
+×(1+`stroke_slope_k`·sev/yr) (0.15); `stroke_side`
+∈{L,R} applies one-time `stroke_mat_tax` (0.2)
+field-completeness haircut on the side-locked
+material class of pre-event records. Locked
+`stroke_sem_null`/`stroke_pro_null` (P1355):
+semantic and procedural stores flat.
+
+### 6.355 The interruption and the pill — `ep_*`/`aed_*` (new in v5.73)
+
+ID§147; **Bell, Lin, Seidenberg & Hermann 2011**
+(left-TLE verbal memory, replicated); Mula 2012
+(topiramate-class fluency).
+
+`epilep` ∈[0,2] + `epilep_side` ∈{L,R}: side-locked
+material fields mint ×(1−`ep_mat_tax`) (0.25),
+lifetime. `seizure:true` → zero-record window
+±`ep_gap_min` (30 sim-min). `aed_burden` ∈[0,1]
+drives TOT/word-finding legs ×`ep_aed_tax` (0.2)
+through §5.139 machinery. Locked `ep_ret_null`
+(P1356): pre-gap records retrieve clean; stacked
+with `stroke_side`, material haircuts cap at 0.6.
+
+### 6.356 The controlled infection's residue — `hiv_*` (new in v5.73)
+
+ID§148; **Heaton et al. 2010** (CHARTER); Sacktor
+2018 (suppression-era magnitude DEBATED).
+
+`hiv_hist` ∈[0,2]: `pspeed`/`search_breadth` legs
+×(1−`hiv_speed_tax`) (0.2); attention-gated fields
+×(1−`hiv_att_tax`) (0.15); `beta_episodic` leg
+×(1−`hiv_epi_small`) (0.08 — deliberately smallest);
+`on_art:true` multiplies all ×`hiv_art_mult` (0.5);
+complaint surface ×`hiv_monitor_low` (0.8 — under-
+report). Locked `hiv_sem_null` (P1357).
+
+### 6.357 The fog that mostly lifts — `pv_*` (new in v5.73)
+
+ID§149; **Hampshire et al. 2024** (verified, NEJM
+REACT — dose-ordered, resolved recovers);
+Douaud et al. 2022.
+
+`post_viral` ∈{none,resolved,persistent} + `pv_sev`
+∈[0,2]: while persistent, enc_base+exec legs
+×(1−`pv_fog_tax`) (0.2), ×(1−`pv_persist_tax`)
+(0.35) at sev 2; late-variant infections scale legs
+×`pv_var_k` (0.6); on resolve, legs decay at
+`pv_recover_tau` (365d); residue `age_eff` +=
+`pv_resid`·sev (0.5 at sev 2). Locked
+`pv_sudden_null`/`pv_complaint_null` (P1358):
+recovery is a tau; complaint-vs-objective corr ≤0.4.
+
+### 6.358 The deficit that won't sit still — `cfs_*` (new in v5.73)
+
+ID§150; **Cockshell & Mathias 2010** (meta — speed/
+attention, small SD); complaint-premium pattern.
+
+`cfs_state` ∈[0,2] overlay: `cfs_speed_tax` (0.25),
+`cfs_att_tax` (0.15), `cfs_epi_small` (0.1); in-bout
+decline — attention/encode legs ×(1−`cfs_fatigue`
+·min_in_bout/60) (0.3); complaint ×`cfs_complaint`
+(2.0). Shares fatigability with `post_viral` at max
+coefficient, stacks enc taxes. Locked `cfs_ep_null`
+(P1359): long-haul episodic strength normal.
+
+### 6.359 The cheap fix — `b12_*` (new in v5.73)
+
+ID§151; **Allen 2009**; Moorthy 2012 (prevalence,
+reversibility).
+
+`b12_state` ∈[0,2]: enc_base ×(1−`b12_enc_tax`·b)
+(0.2); wmc-loadings ×(1−`b12_att_tax`·b) (0.15);
+`b12_treated:true` decays legs at `b12_rescue_tau`
+(90d) toward `1−b12_resid_frac` (0.8; residue only
+if deficiency ran >2 sim-yr). Locked `b12_ret_null`
+(P1360).
+
+### 6.360 The weak-signal complaint — `thy_*` (new in v5.73)
+
+ID§152; Ritchie & Yeap 2015; Akintola 2015
+(subclinical weak/inconsistent).
+
+`thyroid_state` ∈{0,1,2}: enc ×(1−`thy_enc_tax`
+·stage/2) (0.1 at 2, 0.04 at 1); speed ×(1−
+`thy_speed_small`·stage/2) (0.08); complaint
+×`thy_complaint` (1.8); `thy_treated:true` → legs
+to `thy_resid` (0.1). Locked `thy_sub_null`
+(P1361): stage-1 single-parameter legs ≤0.05.
+
+### 6.361 The air you can't choose — `airpoll_*`/`aq_*` (new in v5.73)
+
+ID§153; **Weuve et al. 2012** (verified — ~2y/10µg
+PM10 decade); Ailshire & Clarke 2015; Cleland 2022
+(wildfire acute, DEBATED).
+
+`air_poll` ∈[0,2] cumulative (world `aqi_annual`
+history): sustained ≥`aqi_thresh` (80) accrues
+`airpoll_age_k` (0.2 age-yr/sim-yr at poll 2);
+`aqi_day`>150 → same-day attention-gated encode
+×(1−`aq_day_tax`) (0.1), resets next day.
+Environmental-slope sources share
+`exposure_slope_cap` (0.4 age-yr/yr with `smoker`
+et al.). Locked `air_loc_null`/`air_ind_null`
+(P1362): no per-event step; no invented
+susceptibility spread.
+
+### 6.362 The winter that borrows through mood — `sad_*` (new in v5.73)
+
+ID§154; thin direct literature → mediation-priced.
+
+`sad_state` ∈[0,2] adds `sad_mood_w`·s (0.3)
+fractional weight INTO the §4.86 `depr` overlay —
+all legs (enc tax, overgenerality) arrive via that
+channel at fractional strength. Locked
+`sad_direct_null` (P1363): overlay disabled →
+zero legs. The mediation IS the model.
+
+### 6.363 The surgery that lingers — `postop_*` (new in v5.73)
+
+ID§155; **Monk et al. 2008** (verified direction —
+~40% discharge, ~10–13% at 3mo ≥60); Evered 2018.
+
+World `surgery:true` mints `postop` ∈[0,2] with
+probability scaled by `postop_age_w` (≈0 under
+age_eff 50); legs `postop_enc_tax` (0.3) +
+`postop_speed_tax` (0.25) decay at
+`postop_recover_tau` (90d); `postop_resid_p` (0.1)
+of mints keep a permanent `age_eff` step (1.0).
+Distinct mint from `delirium` (§111) — both may
+fire on one surgery. Locked `postop_young_null`
+(P1364).
+
+### 6.364 The pill that almost works — `mv_*` (new in v5.73)
+
+ID§156; **Vyas et al. 2024** (verified, COSMOS —
+episodic +0.12 SD clinic / +0.06 meta ≈ 2y;
+exec/att null).
+
+`multivit` ∈{0,1} gated `mv_age_gate` (age_eff≥60):
+`beta_episodic` ×(1−`mv_slope_gain`) (0.05 slope
+damp). DEBATED tag — one trial family. Locked
+`mv_exec_null`/`mv_level_null` (P1365): no exec/
+attention leg, no level effect on stored records.
+
+### 6.365 The sixth refusal — `fast_*` (new in v5.73)
+
+ID§157; **Benau et al. 2014** (meta — acute
+fasting effects scatter ~0).
+
+`fast_state` {0,1} may exist as a world flag;
+`fast_enc_leg`, `fast_decay_leg`, `fast_clear_leg`
+are locked 0.0. Any nonzero param minted under
+`fast_*` fails P1365.
+
+### 6.366 The seventh refusal — `glp1_*` (new in v5.73)
+
+ID§158; EVOKE pending; LEADER/REWIND cognition
+substudies underpowered — two-sided null.
+
+`glp1_state` {0,1} may sit on the med list;
+`glp1_enc_leg`, `glp1_slope_leg`, `glp1_fog_leg`
+locked 0.0. Neither benefit nor fog claim is
+licensed; revisit trigger = human cognition-
+primary RCTs. Fails P1365 on any nonzero leg.
+
+### 6.367 Reading the mind behind the move — `goal_infer_*` (new in v5.74)
+
+SM§181; **Hassin, Aarts & Ferguson 2005**;
+**Jones & Davis 1965**; **Gilbert et al. 1988**
+(load blocks situational correction).
+
+On encode, `agent != self` events carrying
+`goal_cand` mint `intent_inferred` at
+`goal_infer_p` (0.5), halved when `task_load`
+≥0.6 and halved again when `sit_force` ≥0.7.
+Field carries `provenance:"inferred"`
+permanently; parallel write to
+`PersonModel[agent].lastIntent`. Locked
+`intent_fact_null` (P1366): inferred intent
+never copies into verbatim/fact-class fields —
+bias gist/eval paths only; UI renders INFERRED.
+
+### 6.368 "Let's get lunch" is not a promise — `commit_soft` (new in v5.74)
+
+SM§182; **Clark & Bavelas 2004**;
+**Brown & Levinson 1987**; McDaniel & Einstein
+2007 (no intention, no prospective memory).
+
+`commit_soft` events mint `courtesy` records:
+`soft_commit_strength` 0.5×, `soft_commit_tau`
+5d half-life, ZERO debt/expectation edges —
+the §6.139 absence path cannot bind to them.
+Locked `soft_breach_null` (P1367): a dropped
+soft token never mints `breach`/`betrayal` tags
+or `credibility` decrements; a revival event
+("you never called") writes its own mild eval.
+`soft_genre_age` ~12 gates the distinction —
+younger characters treat tokens as formal.
+
+### 6.369 Half-heard counsel — `advice_*` (new in v5.74)
+
+SM§183; **Bonaccio & Dalal 2006** (meta);
+**Yaniv & Kleinberger 2000** (WoA ≈0.2–0.4);
+**Yaniv 2004** (distance moderates).
+
+Record class `advice` (world tags counsel/
+warning/recommendation) enters decision-relevant
+retrieval at weight `advice_w` (0.4) relative
+to matching own records; scaled ×(1 +
+`advice_trust_gain`·advisorCred) and ×(1 +
+`advice_close_gain`) for relationship-tier
+advisors. Advisor-side emitted uptake belief
+runs `advice_over_est` (0.15) high — metamodel
+field, not fact. Advice reweights recall order;
+it never replaces advisee priors.
+
+### 6.370 The granter warms — `benfrank_*` (new in v5.74)
+
+SM§184; **Jecker & Landy 1969**; Schopler &
+Compere 1971 boundary [DEBATED dose].
+
+`favor_granted:true` with `granter=self` and
+`voluntary:true`: granter's
+`PersonModel[target].eval_tag +=
+benfrank_gain·cost` (0.05 × cost ∈[0,1]).
+Locked `benfrank_vol_null` (P1369): coerced
+grants write nothing positive. Recipient debt
+path unchanged (§114).
+
+### 6.371 Fear by proxy — `instruct_fear` / `obs_fear` (new in v5.74)
+
+SM§185; **Rachman 1977** (three pathways);
+**Mineka et al. 1984**; **Olsson & Phelps
+2007**; **Phelps et al. 2001**; **Askew &
+Field 2007/2008** (ordering result).
+
+`warned:true` told_by content naming a cue
+dangerous mints avoidance eval on the cue at
+`instruct_fear` (0.45 × direct-aversive write,
+scaled by advisor credibility + `neuro`).
+Witnessing another's `aversive:true` event at
+a cue mints `obs_fear` (0.55 × direct, scaled
+by `emp` + target closeness). Locked
+`indirect_exceed_null` (P1370): stacked
+indirect legs never exceed the direct write;
+locked `instruct_erase_null`: threat info
+arriving AFTER vicarious acquisition cannot
+damp the fear tag (order-bound).
+
+### 6.372 Talk tilts the room — `polar_*` (new in v5.74)
+
+SM§186; **Moscovici & Zavalloni 1969**;
+**Isenberg 1986** meta; **Sunstein 1999**.
+
+In `groupRecall`/`discussEvent` bouts, n ≥ 3:
+compute member mean lean `L` on the discussed
+record's valence; if |L| > `polar_gate` (0.15),
+each member's surfaced record drifts
+`valence += polar_gain·sign(L)·|L|` (0.06,
+once per bout). Locked `polar_zero_null`
+(P1371): |L| below gate → zero drift; mixed
+rooms settle, they don't extremitize.
+
+### 6.373 The doorway in the party — `boundary_*` (new in v5.74)
+
+SM§187; **Zacks et al. 2007** (EST);
+**Radvansky & Copeland 2006**;
+**Zacks et al. 2006** (aging leg).
+
+`boundary:true` events (location/cast/phase
+shifts): mint a low-content `edge` record
+(time + cast delta); apply `boundary_gain`
+(1.25) to ±1-adjacent records; apply
+`boundary_reset_tax` (0.12 strength cut) to
+unrehearsed prior-segment tail records.
+`seg_grain` ∈[0.7,1.3] per character;
+`seg_norm` −0.2 at 65+ — older adults lose
+segmentation normativity (order confusion
+rises, item boost stays).
+
+### 6.374 The punisher's dividend — `punish_*` (new in v5.74)
+
+SM§188; **Barclay 2006** (justified-only
+dividend); **Fehr & Gächter 2002**;
+**Jordan et al. 2016**.
+
+Observer of `punish:true` computes
+`prop = sanction_cost / perceived_offense`
+where `perceived_offense` reads the
+OBSERVER's own offense record (§86 gap
+composes). `prop` ∈ [`punish_prop_lo` 0.3,
+`punish_prop_hi` 3.0] → `punisher.eval_trust
++= punish_trust` (0.06); over →
+`punish_over` (−0.08 moral-negative write).
+Locked `punish_free_null` (P1373): no
+trust gain without the gate; unconditional
+dividend inverts the finding.
+
+### 6.375 "Everyone was there" — `rosterRecall` (new in v5.74)
+
+SM§189; **Bernard, Killworth & Sailer**
+(informant accuracy series);
+**Freeman & Romney 1987**; **Freeman, Romney
+& Freeman 1987** (patterned error).
+
+`rosterRecall(charId, event)`: per plausible
+member, recall P = `roster_base` (0.5)·(0.4 +
+0.6·tie)·(0.5 + 0.5·typicality); close-tie
+canonical absentees (tie ≥ `roster_fill_gate`
+0.6) intrude at `roster_fill` (0.18). Locked
+`roster_exact_null` (P1374): set-size ≥5
+rosters are never perfect — ≥1 miss or
+intrusion forced; perfect guest lists are
+database behavior.
+
+### 6.376 The laugh eats the next line — `humor_*` (new in v5.74)
+
+SM§190; **Schmidt 1994** (mixed-list
+boundary); **Schmidt & Williams 2001**
+(redistribution); **Fraley & Aron 2004**
+(closeness leg).
+
+`humor:true` records ×`humor_gain` (1.4);
+±1 stream neighbors pay `humor_tax` (0.5
+attention). `humor` density > `humor_sat`
+(0.5) → gain collapses to 1.0; locked
+`humor_sat_null` (P1375): saturation never
+inverts the gain below baseline. Shared
+humor records add `humor_bond` (0.03) to the
+mutual eval edge per bout.
+
+### 6.377 Person models for collectives — `collective_*`/`stereo_*` (new in v5.74)
+
+SM§191; **Campbell 1958**; **Hamilton &
+Sherman 1996**; **Lickel et al. 2000**.
+
+`PersonModel` admits `collective:true` group
+nodes (world-supplied `personId` group
+namespaces); same update rules,
+`collective_decay` 0.7×. Member PMs with
+`familiarity` < `stereo_floor` (0.3) retrieve
+eval as `member_eval·(1−stereo_prior) +
+collective_eval·stereo_prior` (`stereo_prior`
+0.4, decaying toward 0 with individuation).
+Locked `stereo_fact_null` (P1376): collective
+traits never write member verbatim/fact
+fields, never enter `told_by` as asserted
+fact; collective-sourced evals render
+INFERRED always.
+
+### 6.378 The provenance lattice — `tier()` (new in v5.75)
+
+FM§§104–105. Every record maps to a display
+tier, `OBSERVED > TOLD > INFERRED > UNKNOWN`:
+`witnessed`/`self` → OBSERVED; `told_by` →
+TOLD (hop from `prov_chain`); `inferred`/
+`imagined` → INFERRED; absent → UNKNOWN.
+Tier is a function of kind only — strength,
+confidence, and hearCount never enter
+(`tier_strength_null`, P1391). Merges take
+max-tier; upgrades only via `absorb` (§6.23),
+`witness`, `reality_flip` (§6.9), all
+journaled (`prov_up_null`, P1382). Source
+decay strips attribution, never the tier.
+`commonTier(A,B,F) = min(tier_A, tier_B)`
+per side — never averaged.
+
+### 6.379 The chain crossover — `chain_crossover_h` (new in v5.75)
+
+FM§106; **Kashima 2000** (*PSPB* 26:594 —
+verified: SI early advantage, SC end-of-chain
+dominance); **Lyons & Kashima 2003** (*JPSP*
+85:989 — SI screened out progressively).
+§6.12 operators declared as crossover:
+
+```
+S_si(h) = si_early_gain(1.2)·si_dropoff·
+          exp(−h/chain_sc_thresh)
+S_sc(h) = 1 − (1−sc_retain(0.7))·
+          exp(−h·assimilation_gain/0.05)
+```
+
+Ordering gated at `chain_crossover_h` (3 —
+HYPOTHESIS index; ordering CONSENSUS): SI
+reproduction advantage below, SC above.
+P1386 gates the order, reports observed h*.
+
+### 6.380 `knows()` — the isolation contract (new in v5.75)
+
+FM§107. `knows(charId, factKey) →
+{tier,conf,hops}|null`: a recognition-mode
+recall (§5.6) on the factKey content-hash
+family; `null` = doesn't-have or can't-get
+(never encoded, decayed, blocked,
+cue-missed). Reads exactly one character's
+stores — locked `knows_db_null` (P1383): the
+canonical ledger and other heads are
+unreachable. Ignorance is a return value,
+not a flag; secrets are `null`s the world
+holds and the head doesn't.
+
+### 6.381 `knowsOf()` — meta-knowledge, noisy by law (new in v5.75)
+
+FM§108. `knowsOf(A, B, factKey) → p∈[0,1]`:
+noisy-OR over A's own evidence —
+
+```
+p = 1 − Π(1 − w_i·ev_i)
+  told_to edge  w = meta_dest_w 0.6 (§5.140 decay)
+  co-presence   w = meta_copres_p 0.7 (§6.21)
+  shared_with   w = common_ground_conf
+  rumor-of-B    w = meta_rumor_w 0.4
+```
+
+Locked `meta_omni_null` (P1384): false
+"they know" (the unremembered prior telling
+→ repeat-tell) and false "they don't" must
+both occur at nonzero rate. Output renders
+INFERRED always.
+
+### 6.382 `disclose()` — the asymmetric write (new in v5.75)
+
+FM§109. `disclose(A, B, factRef, mode)`,
+mode ∈ `tell|confide|blurt`. Pre-gate:
+`confidential` records roll §6.22 P(respect);
+leaks mint B-side `leak:true` +
+`disclosed_by:A`. A-side: `tell` event +
+`told_to:{B}` edge at `dest_E` (weak —
+§5.140). B-side: `told_by` record +
+`heard_from:{A}` at source strength;
+`confide` re-mints `confidential` on B's
+copy (`secret_str = E_B`); `blurt` adds
+arousal, skips the gate. Hearer tier capped
+at TOLD — locked `tell_obs_null` (P1385).
+Unequal knowledge is the attractor: the weak
+edge erodes first.
+
+### 6.383 `discoverWithheld()` — the meta-event (new in v5.75)
+
+FM§110. `discoverWithheld(A, factRef, B)`
+mints a `withheld` record — "B held F back,"
+`target:B`, valence `withheld_valence` (−0.4,
+HYPOTHESIS), feeds `PersonModel[B].credibility`
+at `withheld_cred` (−0.15). Idempotent:
+repeat discovery merges, never double-mints.
+`prov_chain` carries the discovery evidence;
+inference-only discovery keeps the evidence
+INFERRED-tier for the UI.
+
+### 6.384 `acknowledge()` — repair that doesn't erase (new in v5.75)
+
+FM§111. `acknowledge(A, B, eventRef, kind)`,
+kind ∈ `competence|integrity`: paired
+`repair` records, `repair_of:eventRef` links.
+Breach/withheld records persist at full
+provenance — locked `repair_erase_null`
+(P1388). Repair surfaces alongside the breach
+at `repair_link_p` (0.6); B-side PM eval
+gains `repair_eval_gain` (0.1) ×
+`repair_integ_mult` (0.4) on integrity kind —
+ordering per Kim, Ferrin, Cooper & Dirks
+2004 (*JAP* 89:104); dose DEBATED.
+
+### 6.385 `PromiseView` — one utterance, two records (new in v5.75)
+
+FM§112; **Ross & Sicoly 1979** (*JPSP*
+37:322 — self-serving contribution recall,
+CONSENSUS direction; asymmetry magnitude
+HYPOTHESIS). Every commitment mints paired
+records — `promiser_view` (act-gist: "I
+committed") and `promisee_view` (terms-gist)
+— independent E draws with own-role boost
+`promise_self_boost` (0.15), independent
+decay. `promise_div(Δt)` must grow with lag,
+bounded `promise_div_max` (0.4); P1389 gates
+the ordering.
+
+### 6.386 `promote()`/`demote()` — the era
+transitions (new in v5.76)
+
+CP§42; world/promotion.md is the owner of *when*;
+this spec owns *what the archive does*. Every
+record gains immutable `era` ∈
+{`ambient`,`promoted`} at mint; the era field is
+the boundary, and it never moves. `promote(id)`:
+(a) full-MVN param sample conditioned on card
+pins — card-observable traits (voice, schedule
+priors, greeting ecology) held within
+`promote_cont` (0.15σ) of ambient values, locked
+by `promote_recast_null` (the block must not
+notice — promotion.md §2.4); (b) SelfModel +
+DomainTable + MetaModel minted per
+profile-generation §1; (c) every extant record
+retained byte-verbatim, `era:"ambient"` — locked
+`promote_rewind_null`: no field may be added,
+enriched, or re-derived for a pre-promotion
+record (the thin encoder wrote what it wrote;
+richness must be earned in-sim). `demote(id)`:
+encoding returns to thin-tier, ALL records
+persist (`demote_keep_null`) — a reverted
+character carries a dense `era:"promoted"`
+island inside its later ambient era, and
+re-promotion retrieves it at savings rates
+(`demote_isle_gain` 1.5 — Ebbinghaus relearning,
+not re-encoding).
+
+### 6.387 The typed era — `generic` records and
+the remember/know split (new in v5.76)
+
+CP§43. Ambient-era records are
+`class:"generic"` — repetition-collapsed general
+event representations (Conway & Pleydell-Pearce
+2000, *Psych Rev* 107:261 — the knowledge base's
+middle level; Neisser 1981 *Cognition* 9:1 —
+repetitions answer as the type; Barsalou 1988 —
+GERNs; Robinson 1992 — repeated events merge;
+all CONSENSUS). At promotion each ambient-era
+record is tagged `rk:"know"` — familiarity
+without recollection (Tulving 1985 *Can Psych*
+26:1; Gardiner 1988 *M&C* 16:309; Yonelinas 2002
+*JML* 46:441 — dual-process CONSENSUS-adjacent;
+single-process dissent Wixted/Dunn DEBATED). The
+exception: ambient-era events whose thin-encoder
+E crossed `theta` mint `rk:"remember"` islands,
+expected fraction `promote_remember_isle_p`
+(0.08) — the drumsticks tattoo, the first day,
+the storm shift. Retrieval asymmetry: know-tier
+records return gist/eval/relational fields
+capped at `know_detail_cap` (0.4) field fraction
+and never yield verbatim/sensory fields;
+remember islands retrieve normally. Locked
+`know_upgrade_null`: rehearsal raises strength
+and accessibility but never flips `rk` —
+recollection is a birth property here (our
+modeling choice ON the DEBATED point; fluency-
+driven know→remember shifts exist in lab data,
+we refuse them for era integrity — P1395).
+
+### 6.388 Backfill — the seeded past (new in
+v5.76)
+
+CP§44. World-builder supplies the promotion
+packet's relationships-to-seed and off-screen
+threads; `deriveParams` mints them as
+`backfill:true`, `prov:"backfill"` records —
+gist/eval/relationship class ONLY (locked
+`backfill_detail_null`: no verbatim, sensory,
+or dated-scene fields; Wagenaar 1986 — the
+when is the first casualty, so a skeleton is
+what a true seed looks like). Strength
+`backfill_E` (0.5) — they decay like any gist.
+Honest provenance: `backfill` records never
+satisfy ledger-OBSERVED (locked
+`backfill_obs_null`) — the catch-up edition's
+"verified changes" may cite only simulated
+events, so a seeded quarrel can drive behavior
+but can never be shown as footage. From the
+character's inside they are self-witnessed and
+display OBSERVED; from every other head and
+every camera they are invisible except through
+what the character does with them.
+
+### 6.389 The thin-years SelfModel —
+`meta_gap` (new in v5.76)
+
+CP§45. At promotion the minted SelfModel takes
+card-authored facet self_est but believes its
+ambient era at NORMAL accessibility — the human
+default is to trust one's past. Actual
+accessibility is sparse-typed, so
+`meta_gap = believed − actual` starts at
+`meta_gap_init` (0.25) and decays with τ =
+`promote_calib_d` (21d) as retrieval failures
+teach the instrument (metamemory is learned;
+Johnson, Hashtroudi & Lindsay 1993 *Psych Bull*
+114:3 — source monitoring fills confident gaps;
+CONSENSUS on the fill, our gap-dose HYPOTHESIS).
+A positive meta_gap is the confabulation
+substrate: `confab_fill` has somewhere to pour
+— Esther (CP§43) is the designed probe:
+confident block historian, half-true archive.
+
+### 6.390 Ambient witness edges — thin but
+real (new in v5.76)
+
+CP§46. The ambient tier was *present* for the
+mains' public lives; the thin encoder wrote
+`ambient:true` sparse edges (§5.x hyperbind
+edge). On promotion these edges become
+reachable: a promoted NPC asked about a main's
+ambient-era public event retrieves gist-tier
+content at `ambient_wit_gain` (0.5) — "I saw
+them argue last spring" — capped TOLD-tier
+content only (they witnessed; the fields the
+thin encoder never wrote stay unwritten —
+`promote_rewind_null` applies to edges too).
+This is unequal knowledge with honest limits:
+promoted residents carry a real, thin,
+non-authoritative witness ledger. Memory for
+others' events < own events (self-reference
+asymmetry — Symons & Johnson 1997 direction,
+dose HYPOTHESIS).
+
+### 6.391 The dense island — demotion and
+re-promotion (new in v5.76)
+
+CP§47. A demoted character's `era:"promoted"`
+records persist verbatim (`demote_keep_null`)
+and thin-era encoding resumes. The result is
+the mirror image of infantile amnesia: a rich
+island inside a thin sea. Re-promotion finds
+the island at `demote_isle_gain` (1.5) — savings
+(Ebbinghaus 1885 relearning), not new encoding.
+`rk` values survive demotion unchanged.
+
+### 6.392 The minor guard (new in v5.76)
+
+CP§48. `promote(id)` refuses any character
+whose profile lacks `guardian:true` (minted
+household lease held by off-registry
+parent/guardian — promotion.md §2.2) when
+`age_now < 18` — locked `minor_promote_null`.
+A04/A20 stay ambient until both conditions
+hold; teen archetype machinery (CP-band B) is
+ready, the door is gated, not absent.
+
+### 6.393 The volitional mint — `chosen` (new in v5.78)
+
+EM§133. Murty, DuBrow & Davachi 2015 (*J. Neurosci.*
+35:6255): the mere opportunity to choose during
+encoding — choice unrelated to content — enhances
+24-h declarative memory via anticipatory
+striatum→hippocampus modulation; extends to
+incidental encoding (2021 replication). Event
+field `chosen:true` requires ≥`choice_opt_min` (2)
+live options AND self-picked deliberation —
+world-imposed, scripted, or unvetted request-granted
+content fails the flag. `E += choice_gain` (0.10);
+the boost is anticipatory, applies to the event's
+own records only — forward sweeps stay in §99.
+Locked `choice_trivial_null` (P1420): a `chosen`
+flag without the live option set yields zero gain.
+
+### 6.394 Breadth follows want, not valence —
+`motiv_intensity` (new in v5.78)
+
+EM§134. Gable & Harmon-Jones 2008 (*Psychol. Sci.*
+19:476); Harmon-Jones, Gable & Price 2013:
+attentional/encoding breadth tracks motivational
+intensity, not valence — high-approach positive
+narrows like fear; low-intensity states broaden.
+Magnitude DEBATED (2025 registered replication
+null) → SHOULD tier, small dose. Encoder-state
+input `motiv_intensity ∈ [0,1]`; when
+`> motiv_gate` (0.5), peripheral field-write
+probability `× (1 − motiv_narrow · MI)`
+(`motiv_narrow` 0.15). Orthogonal to ABC:
+arousal moves E distribution; MI moves which
+peripheral fields exist — on either valence sign.
+Locked `motiv_valence_null` (P1421): valence-only
+narrowing at constant MI is the pre-2008 theory.
+
+### 6.395 The pattern mints without an event —
+`pattern:true` (new in v5.78)
+
+EM§135. Saffran, Aslin & Newport 1996 (*Science*
+274:1926); Turk-Browne, Jungé & Scholl 2005
+(*JEP:G* 134:552): implicit statistical learning —
+attention-gated, awareness-free, abstracted. A
+per-character pattern ledger accrues `stat_ev`
+per attended co-occurrence (att_min applies —
+locked `stat_unseen_null`, P1424); at
+`stat_ev ≥ stat_thresh` (5) it mints a
+`pattern:true` record — `class:"generic"`,
+`rk:"know"`, `prov:"implicit"`, `dateKnown:null` —
+at `E = stat_E` (0.4), decaying at
+`stat_beta_mult` 0.7 × episodic β. Ledger cap
+`stat_max_active` 64; LRU eviction decays, never
+deletes. Locked `stat_event_null` (P1425): a
+pattern record never cites a constituent episode
+and never emits OBSERVED-tier — implicit accrual
+minting footage is provenance forgery.
+
+### 6.396 The smell index — `ctx_odor` (new in v5.78)
+
+EM§136. Willander & Larsson 2006 (*Psychon. Bull.
+Rev.* 13:240): odor-cued autobiographical memories
+peak in the first decade (<10 y) vs the 10–30 bump
+for word/picture cues; more emotional, stronger
+brought-back (2007, *Mem. Cognit.* 35:1659); Chu &
+Downes 2000 (*Cognition* 75:B41). Event field
+`odor ∈ [0,1]`; `odor > 0` records write a
+`ctx_odor` bound field decaying at
+`odor_beta_mult` 0.5 of base β (field-level
+durability — the smell outlives the facts) and
+mint `+ odor_emo_gain` (0.1) into affective
+fields. Retrieval: odor cue match adds
+`odor_rescue_gain` (0.2) against records below
+`resurrect_thresh`. `odorName:true` at mint
+multiplies odor gains by `odor_name_mult` 0.5 —
+locked `odor_name_null` (P1427): naming attenuates,
+never abolishes.
+
+### 6.397 The bear costs and rebounds —
+`suppressing` (new in v5.78)
+
+EM§137. Wegner, Schneider, Carter & White 1987
+(*JPSP* 53:5); Wegner 1994 (*Psychol. Rev.*
+101:34 — ironic process: effortful operator +
+automatic monitor); Macrae et al. 1994 (*JPSP*
+67:808 — rebound on social content). Event flag
+`suppressing:"<topicRef>"`: `daLoad += sup_load`
+(0.2) for the event (feeds §4 DA machinery), and
+target records get `rebound_mark` — within
+`rebound_win` (24 h) per-tick rolls at
+`sup_rebound_p` (0.3) grant `R += rebound_gain`
+(0.15) + intrusion eligibility. Locked
+`sup_free_null` (P1428/P1429): zero-cost or
+zero-rebound suppression fails. Composes §77
+preoccupation — different clocks, no fold.
+
+### 6.398 Far things write abstract — `construal`
+(new in v5.78)
+
+EM§138. Trope & Liberman 2003 (*Psychol. Rev.*
+110:403): psychological distance → high-level
+construal. Memory-side mapping HYPOTHESIS
+(OBSERVE). Event field `construal` ∈
+{abstract,concrete} derived from `psychDistance`
+at `construal_dist_w` (0.5) drive; `abstract`
+mints peripheral/verbatim field-write `×
+construal_concrete` (0.6), schema-level
+`coherence`, E unchanged — a far plan is born as
+gist, not footage.
+
+### 6.399 The idea changes owners — `gen_by` / `plag_*`
+(new in v5.82)
+
+AD§168; **McCabe, Smith & Parks 2007** (*Mem. Cogn.*
+35:231 — verified: generate-new AND recall-own
+plagiarism both age-scaled, confidence flat);
+Brown & Murphy 1989; Marsh & Bower 1993; Braun et
+al. 2012 (free-recall null — bound the claim to
+source-tagged generation). Records mint
+`gen_by:{self|other:id}` riding the source-decay
+leg (faster than content, AD§21). When `gen_by`
+strength < `plag_thresh` (0.3), a generation-context
+emit rolls `plag_p(age_eff)` to relabel
+`gen_by:self`; content and confidence unchanged
+(`plag_conf` holds conf flat — McCabe's null).
+Locked `plag_source_null` (P1466): every claimed-
+self emission must trace to an extant
+`gen_by:other` record — relabel, never mint.
+
+### 6.400 The appraisal mints the wound — `rej_sens` (new in v5.83)
+
+EM§156; **Downey & Feldman 1996** (*JPSP*
+70:1327 — RSQ, verified construct); Downey et
+al. 1998 (self-fulfilling loop). On a social
+event with `ambiguity ≥ rej_cue_thresh` (0.4 —
+unanswered, uninvited, lukewarm fields), roll
+the authored trait `rej_sens` [0,1]: on fire the
+record mints `emo_tag:"rejection"` with
+`prov:"appraisal"` (INFERRED tier — the world
+didn't reject them; the read did) and the tag's
+intrusion weight scales with `rej_sens`. Feeds
+§4.106 relive leg. Locked `rej_amb_null`
+(P1478): `rej_sens` may not mint rejection from
+unambiguous affiliation events — the bias needs
+fog to work.
+
+### 6.401 Labeling some blesses the rest — `imptruth_*` (new in v5.84)
+
+FM§65; **Pennycook, Bear, Collins & Rand
+2020** (*Manag. Sci.* 66:4944 — verified,
+N=5,271/1,568; verified-tag arm eliminates
+the effect). On any warn/dispute event
+visible to C within `imptruth_win` (48h) over
+a shared corpus (same channel/venue/clique —
+scope tag on the rumor hash): every other
+pending rumor candidate sharing the scope and
+carrying no correction tag gains
+`believe_p += imptruth_gain (0.08)·(1−believe_p)`
+once, and gets `imptruth_boost:true` — INFERRED
+tier (an inference about vetting, never
+OBSERVED). If the session also mints a
+`verified:true` tag on a corpus-mate,
+`imptruth_gain` → `imptruth_verified` (−0.03)
+for remaining untagged items — ambiguity
+removed, the unlabeled read as unvetted.
+Age: ×(1 + `imptruth_age_k` (0.5)·
+(age_eff−40)/40). Locked `imptruth_free_null`
+(P1485): warning one rumor must move believe_p
+on untagged corpus-mates — a warning with no
+cross-item backwash fails.
+
+### 6.402 The correction needs a cause — `corr_alt_*` (new in v5.84)
+
+FM§66; **Johnson & Seifert 1994**
+(*JEP:LMC* 20:1420 — verified); **Chan,
+Jones, Jamieson & Albarracín 2017** (*Psychol.
+Bull.* 143:1241 meta — verified); Ecker,
+Lewandowsky & Tang 2010. Correction accounts
+(§6.6) gain optional `alt_cause:{value}`. On
+successful retract_p: bare retraction keeps
+`cie_residual` (0.3); `alt_cause` that links
+the record's evClust causal slot drops residue
+to `cie_resid_alt` (0.12) and itself encodes
+as a competing candidate at `cand_base_str·
+corr_alt_cred` (0.9·corrector trust);
+`alt_cause` with no causal slot →
+`cie_resid_mid` (0.22). Ordering strictly
+alt < mid < bare (P1486). Locked
+`corr_alt_equal_null`: a retraction carrying
+a causal alternative may not leave bare-
+retraction residue.
+
+### 6.403 The stance swap — `sswap_*` (new in v5.84)
+
+FM§68; **Strandberg, Sivén, Hall, Johansson
+& Pärnamets 2018** (*JEP:G* 147:1382 —
+verified, N=140+232, ~50% acceptance,
+confabulation drives the one-week lasting
+shift); Hall et al. 2012/2013. hearAccount
+flag `about_own_stance:true` — a resident
+asserting what C previously believed. If the
+asserted value differs from the stance field
+by > `sswap_min_gap` (0.3): P(accept-as-own) =
+`sswap_p` (0.45)·sourceCredibility·
+(1−stance_field_strength)·(1−meta_mem).
+Acceptance mints candidate `prov:"restated"`
+(INFERRED) AND fires §6.79 reason mints FOR
+the swapped stance at `sswap_justify_str`
+(0.5) — the confab payload. Each accepted
+swap that minted ≥1 justification promotes
+the candidate to primary at `sswap_last_k`
+(0.3) per emission — defending it moves it.
+Locked `sswap_last_null` (P1488): an accepted
+swap that minted no justification may not
+promote — hearing it isn't holding it.
+
+### 6.404 The count that tells a story — `freq_emit` (new in v5.84)
+
+FM§69; **Lichtenstein, Slovic, Fischhoff,
+Layman & Combs 1978** (*JEP:HLM* 4:551 —
+verified); **Tversky & Kahneman 1973**;
+Jonides & Naveh-Benjamin 1987 (compression).
+Emitted counts never read `freq` raw:
+
+```
+emit_n = round( freq_stored^freq_verid_w (0.8)
+    · exp(freq_sal_bias (1.0)·(meanSalience−0.5))
+    + freq_rumor_add (0.35)·n_heard_only )
+freq_stored ≤ 3 → emitted = freq_stored
+clamp ≥1 if any instance survives; ≤ freq_cap
+```
+
+Report-level only — the `freq` store field is
+bit-identical after emission (P1489, MUST).
+Serial retells re-sample: dramatic counts
+creep up, routine counts creep down. Locked
+`freq_verid_null`: emitted count = stored
+count for salient/forgettable mixes is the
+failure mode.
+
+### 6.405 The selfish shrink — `selfdir_*` (new in v5.84)
+
+FM§70; **Carlson, Maréchal, Oud, Fehr &
+Crockett 2020** (*Nat. Commun.* 11:2100 —
+verified, five experiments N=3190, incentive-
+robust, own-standard-gated, responsibility-
+gated); Kouchaki & Gino 2011 (vividness leg —
+this is the directional leg). On emission of
+a self-authored action record with a
+magnitude field and `benefits_self:true`:
+`emit_val = stored + selfdir_k (0.4)·
+(fair_std − stored)` — only when
+stored < `fair_std` (authored trait [0,1],
+default 0.5; the violator gate) AND the
+record is not `resp:"diffused"` (responsibility
+gate — diffused multiplies the shift by 0).
+Emitted inflated values re-encode as
+`origin:"self_guess"` candidates at
+`selfdir_reenc` (0.15)·cand_base_str — the
+flattered version can become the remembered
+version over retells. Locked
+`selfdir_flat_null` (P1490): records above
+fair_std or diffused must emit flat; a
+symmetric upward drift fails.
+
+### 6.406 The rumor keeps the teeth — `dread_tx_*` (new in v5.84)
+
+FM§71; **Fessler, Pisor & Navarrete 2014**
+(*Hum. Nat.* 25:241 — verified, negatively
+biased credulity); **Heath, Bell & Sternberg
+2001** (*JPSP* 81:1028 — emotional selection);
+Walker & Blaine 1991 (dread-rumor
+persistence). In §6.12 per-field survival,
+fields flagged `threat_relevant` (valence<−0.3
+∧ topic ∈ {harm, loss, betrayal, hazard},
+tagged at encode by the §4 arousal leg) gain
+P(survive) += `dread_tx_gain` (0.2) and their
+emitted magnitude sharpens toward the
+threatening pole by `dread_tx_sharp` (0.15)·
+|valence| per hop. Receiver side: incoming
+hazard-topic claims multiply cred_p by
+(1 + `dread_tx_cred` (0.15)). `phantom:true`
+records excluded — already at the lure pole.
+Locked `dread_flat_null` (P1491): matched
+valence± rumor chains must show the survival/
+sharpening asymmetry.
+
+### 6.407 The level that isn't a slope — `edu_*` (new in v5.85)
+
+ID§164; **Lövdén, Fratiglioni, Glymour,
+Lindenberger & Tucker-Drob 2020**; **Zahodne et
+al. 2011** (VLS, verified); Wilson et al. 2009.
+
+`edu` ∈[0,2] authored: semantic-store field
+density ×(1+`edu_sem_gain`·e) (0.15); search/
+fluency legs ×(1+`edu_flu_gain`·e) (0.1);
+enc_base level ×(1+`edu_epi_level`·e) (0.08 —
+weakest on purpose). Locked `edu_slope_null`
+(P1492): no leg may touch decay rate, slope
+multiplier, or age_eff accrual. `edu_mask_k`
+(0.2·e) delays complaint-surface onset under
+objective decline (threshold model, DEBATED —
+detection lag, never resilience).
+
+### 6.408 The mind that kept working — `cogact_*` (new in v5.85)
+
+ID§165; **Wilson et al. 2013** (*Neurology*
+74:1121, verified); Salthouse 2006 reverse-
+causation critique priced into the size.
+
+`cog_act` ∈[0,2] sampled: `beta_episodic` and
+search-aging legs ×(1−`cogact_slope_gain`·c)
+(0.08); routine retell/reflect mint rate
+×(1+`cogact_rehearse`·c) (0.1 — the mechanism
+arm). Locked `cogact_level_null` (P1494): at
+matched `edu`, baseline metrics equal — rate,
+not résumé.
+
+### 6.409 The reason that slows the slide — `purpose_*` (new in v5.85)
+
+ID§166; **Boyle, Buchman, Barnes & Bennett
+2010**; **Boyle et al. 2012** (autopsy-moderation,
+verified); Kim et al. 2021.
+
+`purpose` ∈[0,2] sampled, drifts on life-event
+mints: `age_eff`-routed decline legs ×(1−
+`purpose_slope_k`·p) (0.1 — moderation OF the
+decline machinery, matching the pathology
+interaction, not a second slope). PM-intention
+survival ×(1+`purpose_pm_gain`·p) (0.1 —
+HYPOTHESIS, the commitment-decay tie-in).
+Locked `purpose_path_null` (P1495): encode
+strength and pathology mints untouched.
+
+### 6.410 The counted crowd — `socnet_*` (new in v5.85)
+
+ID§167; **Barnes et al. 2004**; **James et al.
+2011**; Wilson et al. 2007 (loneliness dominates).
+
+`soc_net` ∈[0,2] derived from relationship-store
+edge count + interaction frequency: decline legs
+×(1−`socnet_slope_k`·s) (0.08); discussEvent
+opportunity rate ×(1+`socnet_rehearse`·s) (0.15).
+Stacks additively with `lonely` (~2:1 dominance
+to the subjective axis). Locked `socnet_felt_null`
+(P1496): crowded-but-disconnected gets the
+rehearsal legs, not the slope rescue;
+`lonely_crowd_null` precedent preserved.
+
+### 6.411 The pressure years — `htn_*` (new in v5.85)
+
+ID§168; **Gottesman, Schneider, Albert et al.
+2014** (*JAMA Neurol.* 71:1218 — verified, ARIC
+N=13,476: midlife HTN → extra −0.056 z/20y;
+treated −0.050 vs untreated −0.079).
+
+`htn` ∈[0,2] authored + `htn_onset` age: slope
+accrual `htn_slope_k` (0.1 age-yr/yr at htn=2)
+applies only to sim-years with onset_age ≤
+age_eff < `htn_window_hi` (65), feeding
+`vasc_stack_cap`. `htn_treated:true` → accrual
+×`htn_treated_mult` (0.6). Locked `htn_late_null`
+(P1497): onset ≥70 → legs ≤`htn_late_mult` (0.3).
+
+### 6.412 The event that isn't a stroke — `cvd_*` (new in v5.85)
+
+ID§169; Johansen et al. 2023 (*JAMA Neurol.*,
+pooled incident-MI cohorts); magnitude DEBATED
+(confounding by indication flagged).
+
+`cvd_hist` ∈[0,2] event-minted: `age_eff` +=
+`cvd_step`·sev (1.5 at sev 2 — under
+`stroke_step_k`); slope legs ×(1+`cvd_slope_k`·sev)
+(0.1, `vasc_stack_cap` cluster); post-event enc
+×(1−`cvd_acute_tax`) (0.15, τ=`cvd_acute_tau`
+180d). Locked `cvd_sem_null`/`cvd_pro_null`
+(P1498): stores exempt, `stroke_hist` family.
+
+### 6.413 The sound a child can't leave — `noise_*` (new in v5.85)
+
+ID§170; **Stansfeld et al. 2005** (*Lancet*
+365:1942 — verified, RANCH N=2,844: aircraft →
+recognition memory + reading, sustained attention
+NULL); **Hygge, Evans & Bullinger 2002** (Munich
+prospective — reversible on closure).
+
+`noise_exp` ∈[0,2] derived from residence/
+workplace: age_eff < `noise_child_hi` (13) →
+heard-channel recognition-class fields ×(1−
+`noise_rec_tax`·n) (0.15), reverting at
+`noise_revert_tau` (365d) after removal; adults
+→ attention-gated fields ×(1−`noise_att_tax`·n)
+(0.05, annoyance-mediated HYPOTHESIS). Legs scale
+×(1−0.6·`hear`/2). Locked `noise_sust_null` +
+`noise_road_gain_null` (P1499): sustained
+attention flat; road-class gains banned (RANCH's
+unreplicated outlier).
+
+### 6.414 The decade of drinks — `alchist_*` (new in v5.85)
+
+ID§171; **Sabia et al. 2014** (*Neurology*,
+Whitehall II heavy-midlife ≈ +2y aging);
+Topiwala 2017; Stockwell et al. 2016 (J-curve
+corrections).
+
+`alc_hist` ∈[0,2] authored chronic dose
+(`blackout` event count feeds it): at alc_hist ≥
+`alc_heavy_thr` (1.5) → decline legs ×(1+
+`alc_slope_k`·a) (0.15, `vasc_stack_cap`) and
+frontal/exec field completeness ×(1−
+`alc_exec_tax`·a) (0.15). Below threshold legs →0.
+Locked `alc_mod_null` (P1500): no protection leg
+at any dose; moderate arm bit-identical to
+abstinent on all memory termini.
+
+### 6.415 Born early — `pt_*` (new in v5.85)
+
+ID§172; **Aarnoudse-Moens, Weisglas-Kuperus, van
+Goudoever & Oosterlaan 2009** (*Pediatrics*
+124:717 — verified meta); Eryigit Madzwamuse et
+al. 2018 (adult persistence).
+
+`preterm` ∈[0,2] authored biography flag:
+wmc/exec legs ×(1−`pt_ef_tax`·pt/2) (0.25);
+`pspeed` ×(1−`pt_speed_tax`·pt/2) (0.2);
+episodic encode level ×(1−`pt_epi_tax`·pt/2)
+(0.15); complaint surface +`pt_att_surf` (0.4).
+All LEVEL legs — locked `pt_slope_null` (P1501):
+signature present at 20, rate-unchanged at 60.
+
+### 6.416 The honest nap — `nap_*` (new in v5.85)
+
+ID§173; Lovato & Lack 2010 (nap meta); **Li et
+al. 2020/2022** (Rush actigraphy — long-nap ↔
+decline is bidirectional, consequence not cause).
+
+`nap_event` state (daytime episode <120min within
+10:00–19:00): that morning's mints consolidate at
+×(1+`nap_gain`) (0.1) inside the existing sleep
+channel — never a new channel. `nap_hab` ∈[0,2]
+sets daily probability. `nap_long` flag minted BY
+age_eff/fatigue/`apnea`; locked
+`nap_long_cause_null` (P1502): the flag may
+predict on inspection, causes nothing.
+
+### 6.417 The private gate — `repr_*` II (new in v5.85)
+
+ID§174; **Myers & Derakshan 2004** (*Cogn. Emot.*
+18:635 — verified: enhanced negative forgetting in
+private self-descriptive contexts, gone under
+public/evaluative); Newman & Hedberg 1999;
+Hauer et al. (negative-AM specificity).
+
+Extends §6.102 (derived pin `repress` unchanged):
+negative self-referential records mint with
+specificity ×(1−`repr_spec_tax`) (0.3 — valence-
+gated; `repr_pos_null`). §6.102 access-
+suppression legs fire only in private/self-paced
+contexts; evaluative/public contexts restore —
+locked `repr_pub_null` (P1503).
+
+### 6.418 The count of bad years — `advers_*` (new in v5.85)
+
+ID§175; Lynch et al. HARMONY 2015 (dose);
+Holtz/Seery steeling literature (DEBATED — upside
+arm refused).
+
+`advers_cum` ∈[0,2] event-minted adult-window
+counter (separate from `early_adv`/`ptsd`):
+attention-gated enc ×(1−`advers_enc_tax`·a)
+(0.1); threat-cue over-match +`advers_threat_w`
+(0.1). Encode-tax stacking with `early_adv`
+bounded at `advers_cap` (0.3). Locked
+`steel_null` (P1504): no moderate-dose upside
+leg on any terminus.
+
+### 6.419 The eighth refusal — `vitd_*` (new in v5.85)
+
+ID§176; VITAL cognition ancillary (null);
+DO-HEALTH 3y (null); observational links
+confounded.
+
+`vitd_state` ∈{0,1} med-list flag legal; all
+`vitd_*` legs locked 0.0. Revisit trigger:
+cognition-primary RCT with a positive memory
+endpoint. Same discipline as `fast_null`/`glp1_null`.
+
+### 6.420 The ninth and tenth refusals — `omega3_*` / `bil_res_*` (new in v5.85)
+
+ID§§177–178; Sydenham, Dangour & Lim 2012
+(Cochrane — null); JAD 2017 prospective meta
+(bilingualism OR 0.96); Paap & Greenberg 2013;
+Paap 2019.
+
+`omega3_state` flag legal, `omega3_*` legs locked
+0.0 (revisit: APOE-stratified cognition-primary
+RCT). `bil_res` claim flag banned: `bil_slope_null`,
+`bil_exec_null`, `bil_delay_null` locked 0.0 —
+bilingual profiles differ from monolingual ONLY on
+the §11 language-of-encoding and §86 TOT legs,
+which stay INTACT (asymmetric ban, P1505).
+
+### 6.421 The secret that thinks of itself — `sec_*` (new in v5.86)
+
+SM§197; **Slepian, Chun & Mason 2017** (*JPSP*
+113:1 — verified: mind-wandering to secrets, not
+concealment moments, predicts the cost);
+Wegner, Lane & Petri 1994.
+
+`secret:true` records enter the §5.84 pop queue at
+rate ×(1+`sec_pop_boost`) (0.8) regardless of
+concealment history. `sec_conceal_state` (target
+co-present + topic-adjacent cue) arms the §5.102
+repress leg while live only. `sec_pop_cost` (0.02)
+accrues per pop into fatigue/rumination. Locked
+`sec_int_null` (P1506): concealment events never
+carry the cost.
+
+### 6.422 Forgiven ≠ forgotten — `forg_*` (new in v5.86)
+
+SM§198; McCullough, Rachal et al. 1998 (*JPSP*
+75:1586 — two dissociable channels); Exline et
+al. 2003.
+
+`forgive_event` writes `forgiven:true` on the
+offense record; avoidance weight ×(1−
+`forg_avoid_damp`) (0.6), retaliation weight
+×(1−`forg_revenge_damp`) (0.7). `strength`,
+`specificity`, retrieval eligibility untouched.
+Locked `forgive_erase_null` (P1507): forgiveness
+never decrements the record.
+
+### 6.423 The discloser's inflation — `discl_*` II (new in v5.86)
+
+SM§199; Collins & Miller 1994 meta (disclosure→
+liking, CONSENSUS); felt-intimacy asymmetry
+[HYPOTHESIS — beautiful-mess §144 adjacency].
+
+`disclosed_to:B` mints A-side closeness
+`discl_self_gain` (0.08·intimacy) vs B-side
+`discl_recv_gain` (0.05·intimacy·cred factor);
+delta accrues to `MetaModel.intimacy_gap`
+(INFERRED-tier). Locked `discl_equal_null`
+(P1508).
+
+### 6.424 Forgetting me is the insult — `forgot_*` (new in v5.86)
+
+SM§200; Reis, Clark & Holmes 2004; Maisel &
+Gable 2009 responsiveness lit; metamemory
+asymmetry (search failure vs evidence event).
+
+Witnessed `recall_fail:about:B` mints on B:
+`forgot_me` record, eval ×`forgot_sting` (0.15),
+retell-eligible, feeds §6.430 responsiveness EMA
+down; mints on A: `emb` record, `forgot_self_emb`
+(0.05), faster decay, retell-suppressed. Locked
+`forgot_equal_null` (P1509): the two mints never
+share weight.
+
+### 6.425 The advisor's vindication — `toldya_*` (new in v5.86)
+
+SM§201; Yaniv & Kleinberger 2000 (WOA 0.2–0.4);
+Bonaccio & Dalal 2006; §174 generation leg.
+
+`told_by` advice records carry `role:{advisor,
+advisee}`. On `outcome_bad` + ignored advice:
+advisor-side `vindicated:true`, strength
+×(1+`toldya_boost`) (0.4), retell-priority up;
+advisee-side routes through §10 mnemic-neglect
+suppression (`self_rel:true`). Locked
+`toldya_sym_null` (P1510): advisee never mints
+`vindicated`.
+
+### 6.426 Credit evaporates — `prov_*` II (new in v5.86)
+
+SM§202; Johnson, Hashtroudi & Lindsay 1993
+(source monitoring); complements §6.399 `gen_by`
+cryptomnesia (idea ownership — this leg is
+knowledge provenance).
+
+`learned_from:X` fields ride source leg
+`prov_tau` (45d, ≈`beta_source`×1.5); below
+`prov_thresh` (0.08) re-label `prov:"common"`.
+Content legs untouched. Locked `prov_sticky_null`
+(P1511): provenance never pinned to content decay.
+
+### 6.427 Each side's promise — `scope_*` (new in v5.86)
+
+SM§203; Kunda 1990 motivated reconstruction;
+Thompson & Loewenstein 1992 egocentric fairness
+[DEBATED magnitude]; extends §67 ledger.
+
+`promise` records mint per-role `scope_cred`/
+`scope_debt` (OBSERVED terms at mint); each
+holder's retell drifts own copy ±`scope_drift`
+(0.02, creditor +/debtor −), asymptote
+`scope_cap` (±0.2). Locked `scope_canon_null`
+(P1512): no canonical term-set anywhere — shared
+stores, feeds, and ledgers carry only per-holder
+copies.
+
+### 6.428 Betrayal blindness — `bb_*` (new in v5.86)
+
+SM§204; Freyd 1996; **Freyd, DePrince & Gleaves
+2007** (*Psych. Rev.* 114:400 meta); Smith &
+Freyd 2014 institutional ext. Phenomenon
+CONSENSUS; mechanism DEBATED.
+
+`betrayal` events where `PersonModel[src]
+.dependence` ≥ `bb_dep_thresh` (0.6) mint with
+eval-tag write ×(1−`bb_eval_supp`) (0.5) and
+retell eligibility ×(1−`bb_retell_supp`) (0.4);
+record strength intact. Dependence end unblinds
+via existing context-shift retrieval. Locked
+`bb_erase_null` (P1513): blindness gates
+processing/broadcast, never storage.
+
+### 6.429 The compressed neighborhood — `net_*` (new in v5.86)
+
+SM§205; **Brashears 2013** (*Sci. Rep.* 3:1513 —
+verified: triad+kin ~50% recall gain); Brashears
+& Quintane 2015 (*Soc. Netw.* 44:300 — triadic
+encoding).
+
+`netRecall()` returns ego-network via compression:
+closed-triad edges at base rate; unclosed/weak
+edges drop `net_drop_p` (0.35, +0.1 @75+);
+missing mutual-contact edges fill
+`net_close_bias` (0.2); kin-labeled edges exempt
+from drop. Report layer only — the RelEdge store
+stays verbatim. Locked `net_exact_null` (P1514).
+
+### 6.430 Remembering is itself a kindness — `rem_kind_*` (new in v5.86)
+
+SM§206; Reis & Shaver 1988; Maisel & Gable 2009
+(*JPSP* 96:123); positive leg of §6.424.
+
+`recall_ok:about:B` witnessed by B mints
+`PersonModel[A].responsiveness` EMA +=
+`rem_kind_gain` (0.06), ×(1+`rem_kind_stale`·
+record_age_norm) (0.5); τ ~60d. Locked
+`rem_kind_auto_null` (P1515): unwitnessed recall
+mints nothing — the kindness is being SEEN to
+remember.
+
+### 6.431 The trait ledger — provenance classes + the six backlog traits (new in v5.88)
+
+cast-profiles.md Part IX §48; the compile found
+six per-person axes the machinery implied but
+never declared. All authored ∈ profile traits,
+compiled at `deriveParams`, never state.
+
+**Provenance classes** — every profile pin
+carries `prov ∈ {authored, derived, event,
+sampled}`: `authored` pins cite a bible line;
+`derived` pins name their computation (e.g.
+`soc_net` from the relationship store);
+`event` pins name the minting counter
+(`advers_cum`, `alc_hist` feed); `sampled`
+pins cite the §76 prior draw. A pin with no
+resolvable provenance fails the compile —
+locked `pin_orphan_null` (P1538).
+
+**The six traits:**
+
+- `ifthen_use` ∈[0,1] — probability an
+  authored intention mints carrying
+  `if_then:{cue,action}` (§5.162). Individual-
+  difference propensity for implementation
+  intentions (Gollwitzer & Sheeran 2006,
+  *Adv. Exp. Soc. Psych.* 38:69 — verified
+  meta-analysis, d≈0.65 goal-attainment).
+  Locked `ifthen_author_null` (P1537):
+  script-injected or request-minted intentions
+  never carry `if_then` — plans are authored.
+- `rtr_mult` ∈[0.5,1.5] — scales `rtr_p` in
+  the §5.169 recollection-rejection vote.
+  Metacognitive skepticism is a stable
+  individual difference (Koriat 2007,
+  *TiCS* 11:296 — verified review). Never
+  reorders verbatim-vs-verbatim (extends
+  `rtr_free_null`, P1533).
+- `persp_shift_p` ∈[0,0.5] — per-retell
+  probability of a deliberate §5.165
+  `persp_shift` op (self-distanced retell;
+  Sekiguchi & Nonaka 2014 — the cooling
+  is a *choice* some characters make often).
+- `bored_sus` ∈[0,1] — boredom proneness
+  (Farmer & Sundberg 1986, *J. Pers. Assess.*
+  50:4 — BPS, verified): `bored` state entry
+  threshold ×(1.5−`bored_sus`) and §5.166
+  `bored_nost` knots ×(0.5+`bored_sus`).
+  Locked `bored_mint_null` (P1536): the leg
+  reweights which records surface — it mints
+  nothing.
+- `goal_dis` / `goal_reeng` ∈[0,1] — the
+  Wrosch Goal Adjustment Scale's SEPARABLE
+  capacities (Wrosch, Scheier, Miller, Schulz
+  & Carver 2003, *PSPB* 29:1494 — verified;
+  reengagement is not the complement of
+  disengagement). `goal_sub_p_eff =
+  goal_sub_p·(0.4+0.6·goal_dis)`; post-
+  abandonment intrusion τ =
+  `goal_grief_days`·(1.6−0.8·goal_reeng).
+  Locked `goal_forget_null` (P1532):
+  disengagement lifts `selfdef_floor` and
+  reprices — the goal record and its history
+  are never deleted.
+- `collab_partner` (dyad field, DERIVED) —
+  `{id, shared_years, lost:bool}` from the
+  top RelEdge by shared_years where
+  `kind:"transact"` history exists (§6.14).
+  `lost:true` on partner death: `collab`
+  bouts end, `transact_loss` θ penalty
+  applies to partner-cued records, the
+  directory entry stays (Wegner 1987; the
+  widower keeps knowing *who would have
+  known*). Never authorable — computed.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -16430,6 +22114,950 @@ MemoryParams = {
 //   `fok_pre`; lingering suppression tag `hint_linger` on
 //   target+bout-topic pair. All snapshot-additive; absent =
 //   legacy.
+// v5.59 additions (age-development X — AD§§112–125)
+"hyperbind_str": 0.35,                           // §4.64
+"bind_dev_mult_floor": 0.4,                      // §4.65 @4
+"nap_req_age": 2, "nap_win": 4, "nap_min": 30,
+"nap_cap": 0.15,                                 // §4.66
+"chron_age_shift": 0.4, "chron_ado_dip": 0.25,
+"sync_pen_enc": 0.10, "sync_pen_ret": 0.15,
+"sync_pm_pen": 0.15,                             // §4.67
+"verb_hl_mult_floor": 0.25,                      // §4.68 @5
+"reserve_delay": 6, "reserve_steep": 0.4,
+"reserve_cliff": 75,                             // §4.69
+"crosscue_w": 0.3, "collab_inhib": 0.10,
+"transact_years_gain": 0.8,                      // §5.121
+"fam_rely_gain": 0.4, "fam_floor": 0.5,
+"fam_err_k": 0.3,                                // §5.122
+"df_old_leak": 0.5,                              // §5.123
+"dediff_w": 0.15,                                // §6.281
+// v5.59 knot tables (functions, not scalars):
+//   hyperbind_p(age_eff): 0.02@30 → 0.05@55 → 0.15@65 →
+//     0.30@75 → 0.40@85                          (§4.64)
+//   bind_dev_mult(encodeAge): 0.4@4 → 0.55@6 → 0.75@8 →
+//     0.9@10 → 1.0@13                            (§4.65)
+//   nap_req_soft: hard@<1.5 → win 8h@2 → 24h@4 → adult@6
+//                                                (§4.66)
+//   verb_hl_mult(encodeAge): 0.25@5 → 0.4@8 → 0.6@12 →
+//     0.8@16 → 1.0                               (§4.68)
+//   mask granularity g(age_eff): 1.0@40 → 0.9@60 →
+//     0.8@75 → 0.7@90                            (§6.281)
+// v5.59 locked nulls: hyperbind_aware_null (attn:ambient
+//   collapses minting to young rate — P1176 leg);
+//   nap_cont_null (semantic minting ungated — P1178 leg);
+//   reserve_skill_null (no child legs / skill fields —
+//   P1182 leg); fam_age_null (fam strength flat <80 —
+//   P1184 leg); dediff_item_null (within-record fidelity
+//   untouched — P1180 leg).
+// v5.59 fields/state: record flag `ambient:true` on spurious
+//   edges; profile scalar `chronotype` ∈[0,1] +
+//   `reserve` ∈[0,1] (world-builder mints); `shared_years` +
+//   `intimacy` on character-pair state (world supplies);
+//   event field `attn:"ambient"` flag. All snapshot-
+//   additive; absent = legacy.
+// v5.60 additions (age-decline X — AD§§139–152)
+"strat_instruct_floor": 0.85,                     // §4.70
+"effort_disc_cap": 0.4, "relevance_rescue": 0.7,  // §4.71
+"belief_tax_max": 0.3,                            // §4.72
+"slip_check_p": 0.5,                              // §4.73
+"pi_w_floor": 0.02, "pi_clear": 0.7,              // §5.125
+"pot_k": 0.3,                                     // §5.126
+"tele_gain": 0.05, "tele_cap": 0.25,              // §6.282
+"order_confuse": 0.15,                            // §6.283
+// v5.60 knot tables (functions, not scalars):
+//   strat_spont(age_eff): 1.0@55 → 0.85@65 → 0.7@75 →
+//     0.6@85                                          (§4.70)
+//   effort_disc(age_eff): 0@55 → 0.1@65 → 0.25@75 →
+//     0.4@85                                          (§4.71)
+//   slip_p(age_eff): 0.02@30 → 0.05@65 → 0.08@75 →
+//     0.12@85                                         (§4.73)
+//   proac_mult(age_eff): 1.0@55 → 0.8@65 → 0.6@75 →
+//     0.45@85                                         (§5.124)
+//   pi_w(age_eff): 0.02@30 → 0.05@65 → 0.09@85   (§5.125)
+//   tele age_leg(age_eff): 0@55 → 0.3@65 → 0.6@75 →
+//     1.0@85                                          (§6.282)
+//   order_hl_mult(age_eff): 1.0@55 → 0.85@65 → 0.7@75 →
+//     0.55@85                                         (§6.283)
+//   hind_mult(age_eff): 1.0@55 → 1.2@65 → 1.4@75 →
+//     1.6@85                                          (§6.284)
+// v5.60 locked nulls: strat_teach_null (instruction never
+//   worse than spontaneous — P1186 leg); reac_null
+//   (reactive paths flat — P1187 leg); belief_decay_null
+//   (memself never touches decay — P1189 leg);
+//   slip_intent_null (pm_focal exempt — P1190 leg);
+//   hind_recall_null (live prior-belief field immune —
+//   P1195 leg).
+// v5.60 fields/state: profile trait `memself` ∈[0,1]
+//   (world-builder mints; population prior +0.15/20y);
+//   snapshot field `d_norm` (young-adult median landmark
+//   density, frozen at first crossing ≥40); per-day counter
+//   `pi_n` (clears on sleep/boundary); record flag
+//   `slip:true`; emissions `slip_check` intent,
+//   `tele_shift`, `order_confused:true`. All snapshot-
+//   additive; absent = legacy.
+// v5.61 additions (emotional-memory X — EM§§126–135)
+"recep_thresh": 0.8, "recep_frame_gain": 0.4,
+"recep_share_gain": 0.15,                           // §4.74
+"label_dampen": 0.25,                               // §4.76
+"unresolv_thresh": 0.6, "unresolv_intrude": 0.15,
+"unresolv_draw": 0.10, "closure_decay": 0.3,        // §§4.77/5.130
+"central_thresh": 0.68, "central_lens_w": 0.2,
+"central_draw": 0.10,                               // §5.127
+"attrib_disc": 0.6,                                 // §5.128
+"approach_rehearse": 0.15, "envy_intrude": 0.10,    // §5.129
+"emo_foil_bias": 0.15,                              // §6.285
+"distract_drive_k": 0.4, "distract_dur": 2.0,
+"reapp_tag_k": 0.10, "reg_choice_knee": 0.7,        // §6.286
+"tele_emo_resist": 0.6,                             // §6.287
+// v5.61 knot tables (functions, not scalars):
+//   emo_attn_floor(age_eff): 0.4@30 → 0.3@65 →
+//     0.15@75 → 0.10@85                            (§4.75)
+//   emo_foil_pos_leg(age_eff): 0.3@30 → 0.5@55 →
+//     0.8@75                                       (§6.285)
+//   reg_knee_age(age_eff): 0@55 → −0.05@65 →
+//     −0.15@75 → −0.2@85                           (§6.286)
+//   attrib_disc age leg: −0.2@75 (HYPOTHESIS)      (§5.128)
+// v5.61 locked nulls: recep_content_null (remote content
+//   never witnessed — P1196); emo_attn_blink_null (blink +
+//   conditioning exempt — P1197); label_som_null
+//   (CondEntry acquisition unaffected — P1198);
+//   unresolv_neutral_null (neutral interruptions take no
+//   premium — P1199); lens_fact_null (central lens never
+//   writes content — P1200); foil_recall_null (recall mode
+//   immune — P1201); distract_tag_null (stored tag bit-
+//   identical under distraction — P1205).
+// v5.61 fields/state: record flags `reception:true`,
+//   `central:true`, `unresolved:true`; discrete-emotion
+//   tag field `motiv` ∈{approach,avoid,ambivalent};
+//   emotion enum += {envy, pride}; ctx field
+//   `mood_source`; event flags `labeled:true`,
+//   `closed:true`, `scope:"remote"`. All snapshot-
+//   additive; absent = legacy.
+// v5.64 additions (social-memory XII — SM§§166–175)
+"firstlook_p": 0.85, "firstlook_conf_gain": 0.1,      // §6.308
+"fs_gain": 0.15, "fs_cap": 0.85, "fs_intro_gain": 0.2,// §6.309
+"status_face_gain": 0.4, "status_anger_gain": 0.3,    // §6.310
+"vic_snub_k": 0.4, "vic_snub_close": 1.5,             // §6.311
+"obs_eval_gain": 0.6,                                 // §6.312
+"moremo_gain": 1.2, "moremo_outgroup_pen": 0.6,
+"trans_cap": 1.6,                                     // §6.313
+"sync_aff_gain": 0.08, "sync_aff_cap": 0.4,
+"sync_enc": 0.1,                                      // §6.314
+"tease_mitigate_loss": 0.5, "tease_perp_damp": 0.5,   // §6.315
+"selfsaid_gain": 0.25,                                // §6.316
+"hh_gain": 0.5, "soc_abstract_age": 7,                // §6.317
+// v5.64 locked nulls: firstlook_mut_null (exposure grows
+//   confidence only — P1231); fs_identity_null (co-presence
+//   never mints identity — P1232); vic_exceed_null (below the
+//   target's own — P1235); obs_standing_null (PM only, no
+//   facts — P1236); moremo_acc_null (reach only — P1237);
+//   sync_trait_null (eval/E only — P1238); tease_benign_null
+//   (intent one-way-lost — P1239); selfsaid_echo_null
+//   (retention, not credence — P1240); hh_trait_null (no
+//   traits before abstraction — P1241). Frozen: none.
+// v5.64 fields: `seen:` op class (co-presence, no
+//   interaction); `PersonModel.firstlook{sketch,conf}`;
+//   `via:"witnessed"` joins "hearsay"/"met"; `vic_snub:true`
+//   self-records; `pm_eval_raw` eval leg; event fields
+//   `actorStatus` [0,1], `sync:true`, `tease:true`,
+//   `moral:true` content tag; `face_trait` proxy fields.
+//   Emissions: `firstlook_mint`, `fs_met`, `vic_snub`,
+//   `tease_gap`. All snapshot-additive; absent = legacy.
+// v5.65 additions (formal-model XI — FM§§92–99; all
+//   pop/harness, zero per-char)
+"consol_deadline_h": 36, "owed_yield": 0.5,          // §94
+"owed_cap": 64, "backlog_order": "ledger",           // §94/§95
+"ambient_err_bound": 0.15,                          // §99 (per 30 dark-days, §21 composites)
+"hash_domain_ver": "v2", "migrate_strict": "enforce" // §96
+// v5.65 locked nulls: lazy_write_null (reads never
+//   mutate — P1246); owed_full_null (owed never lands
+//   whole — P1248); null_unlock_null (locks monotone —
+//   P1252); hash_version_null (bookkeeping ∉ hash —
+//   P1253); migrate_silent_null (no undeclared delta —
+//   P1251); equiv_claim_null (claim ≤ proof — P1254);
+//   eval_skip_null (NEVER_SKIP never defers — P1247).
+// v5.65 state/fields: record `evaluatedAt` watermark
+//   (bookkeeping — excluded from canonHash domain under
+//   hash_domain_ver v2); per-char `owedQueue`
+//   {opId, triggerDay, deadlineDay, payloadRef, yield}
+//   snapshot-persisted + journal-visible; snapshot
+//   `specVersion` + versioned `Delta` registry +
+//   branch registry (§16.2); opLog `writer_ver` per
+//   entry; op catalog gains `evalClass` column
+//   (§16.1). All snapshot-additive; absent = legacy
+//   (evaluatedAt absent → treat as createdDay).
+// v5.71 additions (emotional-memory XI — EM§§140–149)
+"share_base": 0.15, "share_k": 0.75, "share_cap": 0.95,
+"share_tau": 7, "share_spend": 0.25, "share_shame": 0.7,
+"share_thresh": 0.3,                                  // §6.330
+"sit_sel_w": 0.4,                                     // §6.331
+"avoid_habit_n": 3, "avoid_habit_tau_mult": 3.0,
+"habit_p": 0.8,                                       // §6.331
+"choice_aff_w": 0.5, "choice_aff_cap": 0.6,           // §6.332
+"reflect_coher_gain": 0.15,                           // §6.333
+"recon_pe_gate": 0.2,                                 // §6.334
+"attach_anx_w": 0.4, "avo_emit_damp": 0.35,           // §6.335
+"transf_thresh": 0.6,                                 // §6.336
+"flu_int_gain": 0.10,                                 // §6.337
+"stress_habit_w": 0.5, "stress_habit_thresh": 0.6,    // §6.338
+"spotlight_k": 1.8,                                   // §6.339
+// v5.71 authored traits: `brooding` ∈[0,1], `reflect`
+//   ∈[0,1] (correlate with `neuro`, sampled);
+//   `attach_anx` ∈[0,1], `attach_avo` ∈[0,1] (authored
+//   bible traits — Fraley 2002 stability; never knotted).
+// v5.71 knot curves (piecewise, lerp between):
+//   flu_conf_gain(age_eff): 0.12@55 → 0.18@75 → 0.25@85
+//     (§6.337; Jacoby & Rhodes 2006)
+//   transf_k(age_eff): 0.5@55 → 0.6@75 → 0.7@85
+//     (§6.336; Hess direction — HYPOTHESIS)
+//   stress_habit_w(age_eff): 0.5@55 → 0.6@75 → 0.7@85
+//     (§6.338; HYPOTHESIS — direct aging evidence thin)
+// v5.71 fields/state: procedural record
+//   `{kind:"avoid_habit", cue, action:"avoid", strength}`;
+//   PersonModel `transf:{from:personId, provenance:
+//   "inferred"}` + `affect_prior`; record fields
+//   `shared:true`, `share_count`; report scalars
+//   `flu_conf_gain·ease`, `flu_int_gain·ease`;
+//   person-model estimate `estimated_other_retention`.
+//   All snapshot-additive; absent = legacy.
+// v5.71 locked nulls: share_cool_null (telling never
+//   cools the stored tag — P1331); habit_aff_null
+//   (habit fires at the extinction floor — P1332);
+//   choice_fact_null (bias writes no content — P1333);
+//   brood_content_null (re-stamp only — P1334);
+//   recon_routine_null (routine retell bit-identical —
+//   P1335); attach_content_null (dynamics/emission only
+//   — P1336); transf_fact_null (expectation only —
+//   P1337); flu_acc_null (ease ≠ accuracy — P1338);
+//   stress_ep_fact_null (substrate shift only — P1339);
+//   spot_fact_null (estimate moves no records — P1340).
+// v5.72 additions (false-memory XI — FM§§129–139)
+"cred_triv_w": 0.15, "cred_triv_decay": 0.5,        // §6.340
+"md_acc_k": 0.1, "md_decay_tau": 30,
+"md_under_p": 0.2,                                // §6.341
+"sh_vivid_gate": 0.5, "sh_retell_w": 0.3,
+"sh_hl": 14,                                      // §6.342
+"selfgen_mult": 1.5,                              // §6.343
+"conf_info_w": 0.5, "conf_norm_w": 0.4,
+"conf_status_k": 0.3, "conf_revert_p": 0.6,       // §6.344
+"conf_res_k": 0.4, "conf_trait_off": 0.2,         // §6.345
+"corr_reach_mult": 0.5, "corr_seen_p": 0.6,       // §6.346
+"meta_bias": 0.2,                                 // §6.347
+"contag_floor": 0.1,                              // §6.348
+"commit_freeze_k": 0.4, "commit_aud_min": 2,
+"commit_freeze_hl": 7,                            // §6.349
+"selfcontrib_boost": 0.25,
+"contrib_partner_hl": 0.7,                        // §6.350
+// v5.72 authored traits: `mem_distrust` ∈[0,1]
+//   (bible-level; DEBATED trait leg — Otgaar 2023);
+//   `meta_mem` ∈[0,1] (decorrelated from accuracy by
+//   contract); `conf_trait` ∈[0,1] (level shift only).
+// v5.72 knot curves (piecewise, lerp between):
+//   md_yield_w(age_eff): 0.4@30 → 0.5@65 → 0.6@85
+//     (§6.341; HYPOTHESIS — direct aging evidence thin)
+// v5.72 fields/state: per-char state `md_state` ∈[0,1];
+//   emission flag `conform_public:true`; record flag
+//   `sh_migrated:true`; spread edge-list `corr_seen`;
+//   report field `ret_pred`; PersonModel `cred_est`
+//   (INFERRED); `joint:true` records carry contribution
+//   fields `s_true`(ledger)/`s_rep`(emitted); emission
+//   flag `public:true` reused for §6.349. All
+//   snapshot-additive; absent = legacy.
+// v5.72 locked nulls: triv_acc_null (density ≠
+//   accuracy — P1341); md_str_null (distrust moves
+//   legs not records — P1342); sh_free_null
+//   (experienced records never convert — P1343);
+//   sg_ext_null (supplied candidates unboosted —
+//   P1344); conf_priv_null (normative-only adoption
+//   writes nothing — P1345); conf_cross_null
+//   (cross-person confidence ≠ accuracy rank —
+//   P1346); corr_equal_null (correction reach <
+//   original — P1347); meta_store_null (ret_pred
+//   feeds no store leg — P1348); contag_zero_null
+//   (cred=0 still contaminates — P1349);
+//   commit_priv_null (private emissions don't freeze
+//   — P1350); contrib_sum_null (reported shares may
+//   exceed 1.0 — P1351).
+// v5.73 additions (individual-differences XI —
+//   ID§§143–163, the chart nobody shows)
+"dys_phon_tax": 0.3, "dys_serial_tax": 0.4,
+"dys_comp_p": 0.15,                                // §6.351
+"deaf_vsp_gain": 0.15, "deaf_face_gain": 0.1,      // §6.352
+"vis_effort_tax": 0.15, "vis_cue_tax": 0.2,
+"vis_social_drag": 0.2, "vis_correct_rescue": 0.5, // §6.353
+"stroke_step_k": 4.0, "stroke_slope_k": 0.15,
+"stroke_mat_tax": 0.2,                             // §6.354
+"ep_mat_tax": 0.25, "ep_gap_min": 30,
+"ep_aed_tax": 0.2,                                 // §6.355
+"hiv_speed_tax": 0.2, "hiv_att_tax": 0.15,
+"hiv_epi_small": 0.08, "hiv_art_mult": 0.5,
+"hiv_monitor_low": 0.8,                            // §6.356
+"pv_fog_tax": 0.2, "pv_persist_tax": 0.35,
+"pv_recover_tau": 365, "pv_var_k": 0.6,
+"pv_resid": 0.5, "pv_corr": 0.3,                   // §6.357
+"cfs_speed_tax": 0.25, "cfs_att_tax": 0.15,
+"cfs_epi_small": 0.1, "cfs_fatigue": 0.3,
+"cfs_complaint": 2.0,                              // §6.358
+"b12_enc_tax": 0.2, "b12_att_tax": 0.15,
+"b12_rescue_tau": 90, "b12_resid_frac": 0.8,       // §6.359
+"thy_enc_tax": 0.1, "thy_speed_small": 0.08,
+"thy_complaint": 1.8, "thy_resid": 0.1,            // §6.360
+"airpoll_age_k": 0.2, "aqi_thresh": 80,
+"aq_day_tax": 0.1, "exposure_slope_cap": 0.4,      // §6.361
+"sad_mood_w": 0.3,                                 // §6.362
+"postop_enc_tax": 0.3, "postop_speed_tax": 0.25,
+"postop_recover_tau": 90, "postop_resid_p": 0.1,
+"postop_age_w": 1.0,                               // §6.363
+"mv_age_gate": 60, "mv_slope_gain": 0.05,          // §6.364
+"rev_state_cap": 0.5,                              // §159 cap
+// v5.73 authored traits: `dyslex` ∈[0,2];
+//   `deaf_sign` ∈{0,1} (⊘`hear`); `vision` ∈[0,2]
+//   (age-correlated); `stroke_hist` ∈[0,2] +
+//   `stroke_side` ∈{L,R}; `epilep` ∈[0,2] +
+//   `epilep_side` ∈{L,R}; `hiv_hist` ∈[0,2];
+//   `air_poll` ∈[0,2] (derived from residence);
+//   `multivit` ∈{0,1} (≥60 only).
+// v5.73 states: `post_viral` {none,resolved,
+//   persistent} + `pv_sev` ∈[0,2]; `cfs_state`,
+//   `b12_state` (+`b12_treated`), `postop`,
+//   `sad_state`, `aed_burden`, `aqi_day`,
+//   `thyroid_state` {0,1,2} (+`thy_treated`),
+//   `fast_state`, `glp1_state` (legs locked 0);
+//   flag `dual_sensory`; field class `order`
+//   (serial-sequence fields on records).
+// v5.73 locked nulls: dys_gist_null, dys_sem_null
+//   (P1352); deaf_total_null (P1353); vis_gist_null
+//   (P1354); stroke_sem_null, stroke_pro_null
+//   (P1355); ep_ret_null (P1356); hiv_sem_null
+//   (P1357); pv_sudden_null, pv_complaint_null
+//   (P1358); cfs_ep_null (P1359); b12_ret_null
+//   (P1360); thy_sub_null (P1361); air_loc_null,
+//   air_ind_null (P1362); sad_direct_null (P1363);
+//   postop_young_null (P1364); mv_exec_null,
+//   mv_level_null + fast_* + glp1_* bans (P1365).
+//   All snapshot-additive; absent = legacy.
+// v5.76 additions (character-profiles X — CP§§42–48,
+//   the promoted tier)
+"promote_cont": 0.15, "promote_remember_isle_p": 0.08,
+"know_detail_cap": 0.4, "know_retell_gist": 0.7,
+"backfill_E": 0.5, "meta_gap_init": 0.25,
+"promote_calib_d": 21, "ambient_wit_gain": 0.5,
+"ambient_wit_hops": 1, "demote_isle_gain": 1.5,
+"generic_merge_thresh": 0.6, "guardian_req": true,
+// v5.76 record fields/ops: `era` ∈{ambient,promoted}
+//   immutable; `rk` ∈{remember,know}; `class:"generic"`;
+//   `backfill:true` + `prov:"backfill"`; `guardian:true`
+//   mint flag; ops `promote`, `demote`.
+// v5.76 locked nulls: promote_rewind_null (P1392);
+//   know_upgrade_null (P1395); backfill_obs_null +
+//   backfill_detail_null (P1396/P1397);
+//   promote_recast_null (P1398); ambient_secret_null
+//   (P1399); minor_promote_null (P1404);
+//   demote_keep_null (P1401). All snapshot-additive;
+//   absent = legacy.
+// v5.77 additions (validation-design XI — §14.9,
+//   consequence-continuity contracts; all pop/harness,
+//   no psychology moved)
+"persist_probe_days": 21, "icc_persist_min": 0.6,
+"kappa_prov_min": 0.8, "pair_recall_mde": 0.3,
+"repair_margin": 0.2, "deception_asym": 0.15,
+"priority_persist_d": 7, "srm_actor_min": 0.2,
+"cover_gate_min": 0.9, "untouched_arm": true,
+// v5.77 record fields/ops: `pairId` on shared-event
+//   records; `scenario_arm` ∈{admit,deny,control} on
+//   fixture mints; no new character-facing ops.
+// v5.77 locked nulls: memless_behav_null (P1406 —
+//   behavioral signature must collapse when the
+//   mediating record is deleted); repair_script_null
+//   (P1407 — identical repair rate in the
+//   memory-lesioned arm = fail); ffwd_checkpoint_null
+//   (P1418 — accelerated replay skips zero commitment
+//   checkpoints); label_gap_null (P1410 — memory-backed
+//   emission with no display_tier). All snapshot-
+//   additive; absent = legacy.
+// v5.82 additions (age-decline XII v136 —
+//   AD§§167–176, §§4.101–4.104 + §§5.160–5.164 +
+//   §6.399)
+"pm_hold_tax": "knot:foc 0.05@55,0.08@65,0.12@75,0.18@85 | nonfoc 0.1@55,0.16@65,0.24@75,0.36@85",
+"pm_hold_relief": 10,                        // §4.101
+"practice_gain": "knot:0.12@55,0.11@65,0.09@75,0.07@85",
+"prac_cap": 0.3, "prac_prod_tax": 0.5,        // §4.102
+"alf_tau": 5, "alf_delay_thr": 1,             // §4.103
+"expert_shift": 15, "expert_envsup": 1.0,     // §4.104
+"offtarg_p": "knot:0.04@55,0.07@65,0.12@75,0.18@85",
+"offtarg_len": 1.4, "offtarg_goalw": 1.5,     // §5.160
+"collab_inhib": 0.25, "collab_errfix": 0.35,
+"collab_oldfix": 0.15, "collab_adopt": "knot:0.1@40,0.18@75", // §5.161
+"ifthen_boost": "knot:0.3@55,0.35@65,0.3@75,-0.05@85",
+"ifthen_agecap": 78,                          // §5.162
+"remfn_deprep": 0.3,                          // §5.163
+"mse_learn_dn": 0.08, "mse_learn_up": 0.04,   // §5.164
+"plag_p": "knot:0.05@55,0.08@65,0.14@75,0.2@85",
+"plag_thresh": 0.3, "plag_conf": 1.0,         // §6.399
+// v5.84 additions (false-memory VI v138 —
+//   FM§§65–74, §5.169 + §§6.401–6.406)
+"imptruth_gain": 0.08, "imptruth_win": 48,
+"imptruth_verified": -0.03, "imptruth_age_k": 0.5, // §6.401
+"cie_resid_alt": 0.12, "cie_resid_mid": 0.22,
+"corr_alt_cred": 0.9,                    // §6.402
+"sswap_p": 0.45, "sswap_min_gap": 0.3,
+"sswap_justify_str": 0.5, "sswap_last_k": 0.3, // §6.403
+"freq_verid_w": 0.8, "freq_sal_bias": 1.0,
+"freq_rumor_add": 0.35, "freq_cap": 12, // §6.404
+"selfdir_k": 0.4, "selfdir_reenc": 0.15, // §6.405
+"rtr_p": 0.7, "rtr_min_str": 0.35,       // §5.169
+"dread_tx_gain": 0.2, "dread_tx_sharp": 0.15,
+"dread_tx_cred": 0.15,                   // §6.406
+// v5.84 traits/fields/state: authored trait
+//   `fair_std` [0,1]; account flag
+//   `about_own_stance`; correction field
+//   `alt_cause`; record fields
+//   `imptruth_boost`, `veto_scar`,
+//   `benefits_self`/`resp`, `threat_relevant`.
+// v5.84 locked nulls: imptruth_free_null
+//   (P1485); corr_alt_equal_null (P1486);
+//   rtr_free_null (P1487); sswap_last_null
+//   (P1488); freq_verid_null (P1489);
+//   selfdir_flat_null (P1490);
+//   dread_flat_null (P1491). All snapshot-
+//   additive; absent = legacy.
+// v5.85 additions (individual-differences XII v139 —
+//   ID§§164–183, §§6.407–6.420, the résumé and the wear)
+"edu_sem_gain": 0.15, "edu_flu_gain": 0.1,
+"edu_epi_level": 0.08, "edu_mask_k": 0.2,        // §6.407
+"cogact_slope_gain": 0.08, "cogact_rehearse": 0.1, // §6.408
+"purpose_slope_k": 0.1, "purpose_pm_gain": 0.1,  // §6.409
+"socnet_slope_k": 0.08, "socnet_rehearse": 0.15, // §6.410
+"htn_slope_k": 0.1, "htn_window_hi": 65,
+"htn_treated_mult": 0.6, "htn_late_mult": 0.3,   // §6.411
+"cvd_step": 1.5, "cvd_slope_k": 0.1,
+"cvd_acute_tax": 0.15, "cvd_acute_tau": 180,     // §6.412
+"noise_rec_tax": 0.15, "noise_child_hi": 13,
+"noise_revert_tau": 365, "noise_att_tax": 0.05,  // §6.413
+"alc_heavy_thr": 1.5, "alc_slope_k": 0.15,
+"alc_exec_tax": 0.15,                             // §6.414
+"pt_ef_tax": 0.25, "pt_speed_tax": 0.2,
+"pt_epi_tax": 0.15, "pt_att_surf": 0.4,          // §6.415
+"nap_gain": 0.1,                                  // §6.416
+"repr_spec_tax": 0.3, "repr_priv_gate": true,    // §6.417
+"advers_enc_tax": 0.1, "advers_threat_w": 0.1,
+"advers_cap": 0.3,                                // §6.418
+// v5.85 traits: `edu`, `cog_act`, `purpose`,
+//   `soc_net` (derived), `htn` (+`htn_onset`,
+//   `htn_treated`), `cvd_hist`, `noise_exp`
+//   (derived), `alc_hist`, `preterm`, `nap_hab`,
+//   `advers_cum` (counter) — all ∈[0,2].
+// v5.85 states/flags: `nap_event`, `nap_long`
+//   (marker — legs locked), `vitd_state`,
+//   `omega3_state`, `bil_res` (claim — banned).
+// v5.85 locked nulls: edu_slope_null +
+//   edu_epi_slope_null (P1492); cogact_level_null
+//   (P1494); purpose_path_null (P1495);
+//   socnet_felt_null (P1496); htn_late_null
+//   (P1497); cvd_sem_null + cvd_pro_null (P1498);
+//   noise_sust_null + noise_road_gain_null
+//   (P1499); alc_mod_null (P1500); pt_slope_null
+//   (P1501); nap_long_cause_null (P1502);
+//   repr_pub_null + repr_pos_null (P1503);
+//   steel_null (P1504); vitd_* + omega3_* +
+//   bil_res_* bans (P1505 — mandated nulls 8–10).
+//   All snapshot-additive; absent = legacy.
+// v5.86 additions (social-memory XIV v140 —
+//   SM§§197–206, §§6.421–6.430, the unequal books II)
+"sec_pop_boost": 0.8, "sec_pop_cost": 0.02,      // §6.421
+"forg_avoid_damp": 0.6, "forg_revenge_damp": 0.7, // §6.422
+"discl_self_gain": 0.08, "discl_recv_gain": 0.05,
+"discl_recv_cred": 0.3,                         // §6.423
+"forgot_sting": 0.15, "forgot_self_emb": 0.05,   // §6.424
+"toldya_boost": 0.4,                            // §6.425
+"prov_tau": 45, "prov_thresh": 0.08,             // §6.426
+"scope_drift": 0.02, "scope_cap": 0.2,           // §6.427
+"bb_dep_thresh": 0.6, "bb_eval_supp": 0.5,
+"bb_retell_supp": 0.4,                          // §6.428
+"net_drop_p": 0.35, "net_close_bias": 0.2,       // §6.429
+"rem_kind_gain": 0.06, "rem_kind_stale": 0.5,    // §6.430
+// v5.86 record fields: `forgiven` (bool),
+//   `vindicated` (bool), `forgot_me`/`emb`
+//   (record kinds), `scope_cred`/`scope_debt`
+//   (per-role promise copies), `role:{advisor,
+//   advisee}` on `told_by`, `prov:"common"`
+//   re-label; dyad field `MetaModel.intimacy_gap`;
+//   PM field `responsiveness` (EMA, τ~60d);
+//   context flag `sec_conceal_state`; PM field
+//   `dependence` read by §6.428 (world-supplied).
+// v5.86 locked nulls: sec_int_null (P1506);
+//   forgive_erase_null (P1507); discl_equal_null
+//   (P1508); forgot_equal_null (P1509);
+//   toldya_sym_null (P1510); prov_sticky_null
+//   (P1511); scope_canon_null (P1512);
+//   bb_erase_null (P1513); net_exact_null
+//   (P1514); rem_kind_auto_null (P1515).
+//   All snapshot-additive; absent = legacy.
+//   Provenance audit: P1516.
+// v5.87 additions (formal-model XIII v141 —
+//   FM§§117–125, §17 annex, durability/promotion/
+//   battery/wiring)
+"cls_write_frac": 0.6,                        // §17.2
+"consol_window_h": 6, "reconsol_rewrite_p": 0.7, // §17.2
+"prom_cadence_mult": 4, "prom_elig_n": 12,
+"prom_elig_days": 30,                         // §17.3
+"cb_disappoint_days": 30,                     // §17.4
+"goal_sub_p": 0.6, "goal_grief_days": 21,     // §17.4
+// v5.87 record fields: `consolidated` (bool),
+//   `goal` record `status:{active,abandoned}` +
+//   `goal_sub` kind + `repair_of` reuse; op field
+//   `origin:{char,script}` on repair-path ops;
+//   `resident_tier:{main,promoted,ambient}` on
+//   the character record (harness-visible).
+// v5.87 locked nulls: persist_derived_null
+//   (P1518); daylog_durable_null (P1519);
+//   prom_quality_null + prom_shadow_null +
+//   prom_camera_null (P1522/P1523);
+//   breach_erase_null (P1524); script_repair_null
+//   (P1525); goal_resurrect_null (P1526);
+//   wire_regress_null (P1527).
+//   All snapshot-additive; absent = legacy.
+// v5.88 additions (cast-profiles IX v142 —
+//   CP§§48–54, §6.431, the trait backlog)
+"ifthen_use": 0.4,                            // §6.431 trait
+"rtr_mult": 1.0,                              // §6.431 trait
+"persp_shift_p": 0.1,                         // §6.431 trait
+"bored_sus": 0.5,                             // §6.431 trait
+"goal_dis": 0.5, "goal_reeng": 0.5,           // §6.431 traits
+// v5.88 dyad field: `collab_partner`
+//   {id, shared_years, lost} — DERIVED, §6.431.
+// v5.88 locked nulls: pin_orphan_null (P1538);
+//   ifthen_author_null (P1537);
+//   bored_mint_null (P1536); goal_forget_null
+//   (P1532). All snapshot-additive; absent =
+//   legacy default behavior.
+// v5.89 additions (validation-design XII v143 —
+//   VD§§288–293, §18 annex)
+"prov_audit_k": 200, "audit_catch_min": 0.95,  // §18.2
+"residue_tail_min": 0.05,                      // §18.1
+// v5.89 emitter contracts: `residue_ref`
+//   {recordId, channel} + `cb_origin:{t0_id}`
+//   on CB mints; `prov_audit_sample(k,seed)`;
+//   `conf_bin_report()`; display_tier mandatory
+//   on memory-backed claims.
+// v5.89 locked nulls: residue_zero_null +
+//   residue_mono_null (P1541); prov_label_null
+//   (P1548); audit_blind_null (P1549);
+//   implicit_orphan_null (P1550);
+//   conf_perfect_null (P1551).
+//   All validation-only; absent = legacy.
+// v5.83 additions (emotional-memory XII v137 —
+//   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
+//   §6.400)
+"eib_pen": "knot:0.4@55,0.35@65,0.28@75,0.2@85",
+"retro_prio_gain": 0.3,                      // §4.105
+"rej_relive": 0.85, "pain_relive": 0.3,       // §4.106
+"incub_thresh": 0.6, "incub_gain": 0.04,
+"ext_min_dur": 1,                             // §4.107
+"oth_emo_mult": 1.4,                          // §4.108
+"strade_arm": 0.5, "sleep_ctx_mult": 1.3,     // §4.109
+"persp_stick": 0.7, "persp_cool": 0.35,       // §5.165
+"bored_win": 45,
+"bored_nost": "knot:0.15@55,0.22@70,0.3@85",  // §5.166
+"calm_arm": 0.35, "calm_pos_spare": 1.0,      // §5.167
+"fc_sample_n": 3, "fc_dev": 0.2,              // §5.168
+"rej_cue_thresh": 0.4,                        // §6.400
+// v5.83 traits/fields/state: authored trait
+//   `rej_sens` [0,1]; record fields `calm`,
+//   `oth_emo`, `persp_persist`, `emo_tag:
+//   "rejection"`; state `bored`; one-shot
+//   `blind_until` on the character record.
+// v5.83 locked nulls: eib_free_null (P1475);
+//   retro_flat_null (P1476); rej_flat_null +
+//   oth_free_null (P1477); rej_amb_null
+//   (P1478); incub_mild_null (P1479);
+//   persp_reheat_null (P1480); calm_boost_null
+//   (P1481); nost_rand_null (P1482);
+//   sleep_ctx_null (P1483); fc_mean_null
+//   (P1484). All snapshot-additive; absent =
+//   legacy.
+// v5.82 traits/fields/state: `expert_dom`
+//   [domainIds] + `remfn_w` vector authored
+//   traits; record fields `offtarg`, `gen_by`,
+//   `if_then`, `collab` bout flag, `remfn` bout
+//   field; states `alf:true` (under prodrome),
+//   `mse` [0,1] per domain.
+// v5.82 locked nulls: offtarg_content_null
+//   (P1465); plag_source_null (P1466);
+//   collab_sum_null (P1467); pm_free_null
+//   (P1468); ifthen_free_null (P1469);
+//   prac_level_null (P1470); alf_short_null
+//   (P1471); expert_general_null (P1472);
+//   remfn_random_null (P1473); mse_perf_null
+//   (P1474). All snapshot-additive; absent =
+//   legacy.
+// v5.81 additions (age-development XII v135 —
+//   AD§§140–149, §§4.96–4.100 + §§5.155–5.159)
+"pv_verbal_block": 0.0, "pv_sense_gain": 1.6,
+"pv_enact_gain": 1.8,                       // §5.155
+"remnis_gain": 0.4,                          // §4.96
+"ord_betw_mult": "knot:0@4,0.3@6,0.6@8,0.9@10,1@12", // §4.97
+"freq_decay": 0.02,                          // §4.98
+"patsep_sim": 0.7, "patsep_conf_tax": 0.15,  // §4.99
+"first_bump_mult": 0.35, "selfdef_bump_mult": 0.5,
+"selfdef_overlap": 0.5, "selfdef_floor": 0.3, // §4.100
+"pm_nat_boost": "knot:1@40,1.1@60,1.25@80",
+"pm_evt_pen": "knot:1@40,0.85@60,0.65@80",   // §5.156
+"clust_temp_w": "knot:1,0.85@70,0.7@85",
+"clust_sem_w": "knot:0.2@5,0.6@9,1@14,1@75,0.9@85", // §5.157
+"jol_child_bias": "knot:1@5,0.7@7,0.35@10,0.15@13,0", // §5.158
+"prime_gain": 0.1, "prime_tau": 3,
+"prime_bias": 0.1,                           // §5.159
+// v5.81 traits/fields: `amnesia_offset`
+//   [2.5,4.5] µ3.5, `remnis_style` [0,1],
+//   `language_age` default 3.5 (§4.96/§5.155);
+//   record fields `preverbal`, `freq`,
+//   `ord_betw`, `prime`, `first`, `selfdef`,
+//   `pm_locus`.
+// v5.81 locked nulls: pv_talk_null (P1455);
+//   freq_attn_null (P1458); pm_flat_null
+//   (P1459); prime_age_null (P1464). All
+//   snapshot-additive; absent = legacy.
+// v5.80 additions (retrieval-cues XIV v134 —
+//   RC§§116–121, §§5.149–5.154)
+"tx_dir_p": 0.6, "tx_lazy_mult": 0.5,
+"tx_where_w": 2.0,                           // §5.149
+"piq_build": 0.12, "piq_cap": 0.35,          // §5.150
+"circ_sigma": 3, "circ_gain": 0.2,
+"circ_age_k": 0.5,                           // §5.151
+"retro_fok_inf": 0.25, "retro_inf_tau": 7,   // §5.152
+"tune_msg": 0.3, "tune_shift": 0.15,
+"tune_believe": 0.6,                         // §5.153
+"schemis_thresh": 0.4, "schemis_fac": 0.35,
+"schemis_intr": 0.1,                         // §5.154
+// v5.80 record/event fields: `holder`
+//   (pointer+conf) on access-expected mints;
+//   per-record `fok_bias`; retell event
+//   `audience`/`uptake`; venue `schema`
+//   vector + `lastVerified` pointer; session
+//   `piq_state`; authored trait `circ_peak_hr`.
+// v5.80 locked nulls: tx_mem_null (P1444);
+//   piq_none_null (P1446); circ_flat_null
+//   (P1448); retro_acc_null (P1450);
+//   tune_free_null (P1453); schema_free_null
+//   (P1454). All snapshot-additive; absent =
+//   legacy.
+// v5.79 additions (forgetting-curves XII v133 —
+//   FC§§56–60, §§4.92–4.95 + §§5.147–5.148)
+"emo_nbr_thresh": 0.75, "emo_nbr_tax": 0.20,
+"emo_nbr_win": 0.02,                           // §4.92
+"post_emo_gain": 0.10, "post_emo_win": 0.04,   // §4.93
+"interf_perm_frac": 0.4, "supp_recover": 0.10,
+"rif_recover_tau": 2,                          // §4.94
+"interf_shield": 0.4, "interf_shield_decay": 0.3, // §4.95
+"ctx_var_floor": 0.3,                          // §5.147
+"rote_ctx": 0.8, "rote_gap": 0.25,
+"rote_mult": 0.2, "rote_effort": 0.2,          // §5.148
+// v5.79 record fields/state: `supp`, `shield`,
+//   `lastAccessCtx`; retell flag `rote:true`;
+//   pending consolidation credit
+//   `post_emo_pending`.
+// v5.79 locked nulls: emo_free_null (P1431);
+//   post_emo_instant_null (P1433);
+//   supp_perm_null (P1435); supp_instant_null
+//   (P1436); sleep_fragile_null (P1438);
+//   ctx_same_null (P1440); rote_free_null
+//   (P1441). All snapshot-additive; absent =
+//   legacy.
+// v5.78 additions (encoding-mechanics v132 — EM§§133–138,
+//   §§6.393–6.398)
+"choice_gain": 0.10, "choice_opt_min": 2,
+"motiv_narrow": 0.15, "motiv_gate": 0.5,
+"stat_thresh": 5, "stat_E": 0.4,
+"stat_beta_mult": 0.7, "stat_max_active": 64,
+"odor_beta_mult": 0.5, "odor_emo_gain": 0.1,
+"odor_rescue_gain": 0.2, "odor_name_mult": 0.5,
+"sup_load": 0.2, "sup_rebound_p": 0.3,
+"rebound_gain": 0.15, "rebound_win": 1.0,
+"construal_concrete": 0.6, "construal_dist_w": 0.5,
+// v5.78 record fields/flags: Event `chosen`,
+//   `odor`, `odorName`, `suppressing`,
+//   `construal`; encoder-state `motiv_intensity`;
+//   record flag `pattern:true` + field
+//   `ctx_odor`; pattern ledger `stat_ev`.
+// v5.78 locked nulls: choice_trivial_null
+//   (P1420); motiv_valence_null (P1421);
+//   stat_unseen_null (P1424); stat_event_null
+//   (P1425); odor_name_null (P1427);
+//   sup_free_null (P1428/P1429). All snapshot-
+//   additive; absent = legacy.
+// v5.75 additions (formal-model XII — FM§§104–116,
+//   the epistemic layer)
+"si_early_gain": 1.2, "sc_retain": 0.7,
+"chain_crossover_h": 3,                        // §6.379
+"meta_dest_w": 0.6, "meta_copres_p": 0.7,
+"meta_rumor_w": 0.4,                           // §6.381
+"withheld_valence": -0.4, "withheld_cred": -0.15, // §6.383
+"repair_eval_gain": 0.1, "repair_integ_mult": 0.4,
+"repair_link_p": 0.6,                          // §6.384
+"promise_self_boost": 0.15, "promise_div_max": 0.4, // §6.385
+// v5.75 record classes/fields/ops: `withheld`,
+//   `repair` record classes; `leak:true` +
+//   `disclosed_by` mint fields; `repair_of` link;
+//   `display_tier` emission field; ops `knows`,
+//   `knowsOf`, `disclose`, `discoverWithheld`,
+//   `acknowledge`.
+// v5.75 locked nulls: obs_label_null (P1381);
+//   prov_up_null (P1382); knows_db_null (P1383);
+//   meta_omni_null (P1384); tell_obs_null (P1385);
+//   repair_erase_null (P1388); tier_strength_null
+//   (P1391). All snapshot-additive; absent = legacy.
+// v5.74 additions (social-memory XIII — SM§§181–191,
+//   the intention layer)
+"goal_infer_p": 0.5,                               // §6.367
+"soft_commit_strength": 0.5, "soft_commit_tau": 5,
+"soft_genre_age": 12,                              // §6.368
+"advice_w": 0.4, "advice_trust_gain": 0.5,
+"advice_close_gain": 0.3, "advice_over_est": 0.15, // §6.369
+"benfrank_gain": 0.05,                             // §6.370
+"instruct_fear": 0.45, "obs_fear": 0.55,           // §6.371
+"polar_gain": 0.06, "polar_gate": 0.15,            // §6.372
+"boundary_gain": 1.25, "boundary_reset_tax": 0.12,
+"seg_grain": 1.0, "seg_norm": -0.2,                // §6.373
+"punish_trust": 0.06, "punish_over": -0.08,
+"punish_prop_lo": 0.3, "punish_prop_hi": 3.0,      // §6.374
+"roster_base": 0.5, "roster_fill": 0.18,
+"roster_fill_gate": 0.6,                           // §6.375
+"humor_gain": 1.4, "humor_tax": 0.5,
+"humor_sat": 0.5, "humor_bond": 0.03,              // §6.376
+"collective_decay": 0.7, "stereo_floor": 0.3,
+"stereo_prior": 0.4,                               // §6.377
+// v5.74 record classes/fields: `advice`, `courtesy`
+//   record classes; `intent_inferred` field
+//   (provenance:"inferred" permanent); `edge`
+//   boundary-anchor records; `commit_soft` event
+//   tag; `warned`/`favor_granted`/`punish`/`humor`/
+//   `boundary`/`collective` event+PM flags;
+//   `PersonModel.lastIntent`; op `rosterRecall`.
+// v5.74 locked nulls: intent_fact_null (P1366);
+//   soft_breach_null (P1367); benfrank_vol_null
+//   (P1369); indirect_exceed_null +
+//   instruct_erase_null (P1370); polar_zero_null
+//   (P1371); punish_free_null (P1373);
+//   roster_exact_null (P1374); humor_sat_null
+//   (P1375); stereo_fact_null (P1376). All
+//   snapshot-additive; absent = legacy.
+// v5.70 additions (age-decline XI — AgD§§153–162)
+"auto_freq_flat": true,                               // §4.84
+"selfrel_keep": 1.0,                                  // §4.85
+"dep_enc_tax": 0.3, "dep_ogm": 0.25,
+"dep_neg_skew": 0.2, "dep_remit_tau": 90,             // §4.86
+"odor_enc_lead": 5,                                   // §4.87
+"idea_dens_w": 0.35,                                  // §4.88
+"sem_bend_k": 0.15,                                   // §4.89
+"fin_conf_keep": 0.95,                                // §§4.90/5.146
+"aware_scd_mu": 68, "aware_scd_h": 0.25,
+"aware_invert_k": 0.4,                                // §5.145
+// v5.70 knot curves (piecewise, lerp between):
+//   odor_id_eff(age_eff): 1.0@50 → 0.9@60 → 0.7@70 →
+//     0.45@82   (§4.87)
+//   choicesup_w(age_eff): 0.15@55 → 0.20@65 → 0.28@75 →
+//     0.35@85   (§6.329)
+//   fin_num_hl(age_eff): 1.0@55 → 1.2@65 → 1.6@75 →
+//     2.0@85   (§4.90)
+//   sem_bend(age_eff): −0.02@55 → 0@65 → 0.05@75 →
+//     0.10@85   (§4.89)
+//   aware_scd hump(age_eff): +0.10@55 → +0.25@65 →
+//     +0.20@75 → +0.05@85   (§5.145)
+// v5.70 trait/field/state: profile trait `idea_dens`
+//   ∈[0,1] authored (never sampled — Snowdon's deposit
+//   is biographical); profile scalar `cohort_shift` ±8y
+//   derived from birthYear+education (§4.91); profile
+//   state `odor_id_eff`; overlay state `depr:true`;
+//   record field class `freq_count`; decision-record
+//   fields `chosen:{optionId}` + `believed_chosen`;
+//   report scalar `aware_eff`.
+// v5.70 locked nulls: auto_loc_null (frequency-only
+//   automaticity — P1321); choicesup_val_neutral_null
+//   (neutral features unmoved — P1322);
+//   selfrel_third_null (self-specific — P1323);
+//   dep_sem_null (semantic untouched — P1324);
+//   odor_sem_null (label intact — P1325);
+//   idea_late_null (no backfill — P1326);
+//   aware_perf_null (monitoring-layer lie — P1327);
+//   sem_bend_healthy_null (≤0.4× episodic — P1328);
+//   fin_decl_null (applied-numeric only — P1329);
+//   cohort_within_null (shift never flattens — P1330).
+//   All snapshot-additive; absent = legacy.
+// v5.69 additions (age-development XI — AD§§126–135)
+"tot_p_base": 0.05, "tot_name_mult": 2.0,
+"tot_resolve_p": 0.15,                              // §5.139
+"dest_selffocus": 0.15, "dest_miss_conf": 0.3,      // §5.140
+"ecue_odor_w": 0.35, "ecue_odor_mu": 6,
+"ecue_odor_sigma": 4, "ecue_music_w": 0.25,
+"ecue_music_mu": 20, "ecue_reliving": 0.2,
+"ecue_unrehearsed": 0.3, "ecue_name_att": 0.5,      // §5.141
+"rif_w": 0.25,                                      // §5.142
+"partcue_w": 0.3,                                   // §5.143
+"stereo_w": 0.12,                                   // §4.80
+"savings_gain": 0.5, "savings_inf_gain": 0.8,       // §4.81
+"ownage_gain": 0.2, "ownage_sigma": 15,
+"ownage_contact": 0.5,                              // §4.82
+"da_enc_tax": 0.25,                                 // §4.83
+"fok_old_k": 0.3,                                   // §5.144
+// v5.69 knot curves (piecewise age knots, lerp between):
+//   tot_age(age_now): 1.0@30 → 1.3@55 → 1.8@70 → 2.2@85
+//   tot_partial(age_now): 0.7@30 → 0.6@60 → 0.35@75 →
+//     0.25@85   (§5.139)
+//   dest_mult(age_now): 1.0@40 → 0.85@55 → 0.6@70 →
+//     0.4@85   (§5.140)
+//   rif_amp(age_eff): 0@<5 → 0.3@6 → 0.7@8 → 1.0@10–75 →
+//     0.7@80 → 0.4@88   (§§5.142–5.143)
+//   stereo_leg(age_now): 0@<55 → 0.5@62 → 1.0@70–78 →
+//     0.5@85   (§4.80)
+//   da_enc_age(age_now): 1.4@5 → 1.2@8 → 1.0@15–45 →
+//     1.3@60 → 1.7@75 → 2.0@88   (§4.83)
+// v5.69 trait/edge/state: profile trait `stereo_val`
+//   ∈[0,1] authored (never sampled >0.6 without a bible
+//   line); retell edge field `told_to:{charId}`; bout-end
+//   state `tot:true` with partial fields; emissions
+//   `tot_resolved`. `ctx.divided:true`/`eval:true` are
+//   context flags the world supplies.
+// v5.69 locked nulls: tot_sem_null (name block is
+//   phonology-only — P1311); dest_src_null (destination
+//   deficit is direction-locked — P1312); ecue_name_null
+//   (naming the odor halves the shift — P1313);
+//   rif_item_null (suppression hits competitors only —
+//   P1314); partcue_free_null (supplied fields unmoved —
+//   P1315); stereo_impl_null (implicit legs exempt —
+//   P1316); savings_recall_null (discount is re-encode
+//   only — P1317); ownage_sem_null (semantic fields
+//   Δage-flat — P1318); da_ret_over_null (encode leg >
+//   retrieval leg at every knot — P1319); fok_store_null
+//   (monitoring noise never touches S — P1320).
+//   All snapshot-additive; absent = legacy.
+// v5.68 additions (retrieval-cues XI — RC§§108–112)
+"cowit_fac": 0.15, "cowit_src_mult": 1.2,
+"cowit_lag_gain": 0.1,                              // §5.134
+"era_w": 0.3, "era_sigma": 180, "era_gap": 365,
+"era_return_gain": 0.2,                             // §5.135
+"sdret_thresh": 5, "sdret_mult": 0.9,
+"sdret_lat": 1.2, "sdret_confab": 1.3,
+"sdret_sug": 1.25,                                  // §5.136
+"ownname_ret_p": 0.35, "ownname_attribut_p": 0.6,
+"ownname_close": 0.4,                               // §5.137
+"warmth_k": 0.5, "warmth_win": 3,
+"warmth_floor": 0.1, "warmth_ext": 0.4,             // §5.138
+// v5.68 locked nulls: cowit_free_null (neutral talk is
+//   accuracy-neutral — P1303); place_now_null (uniform
+//   history → no era bias — P1305); sdret_over_null
+//   (retrieval-side < encode-side — P1306);
+//   ownname_gate_null (forced bout bypasses fok_pre —
+//   P1308); warmth_conf_null (warmth never enters
+//   confidence — P1310).
+// v5.68 fields/state: derived `placePeakDay` per (char,
+//   place) from the visit ledger — computed, not stored on
+//   records; bout state `warmth` (EMA, per-bout, never
+//   persisted); emission `name_overheard` with optional
+//   speaker-id fork result. All snapshot-additive; absent
+//   = legacy.
+// v5.67 additions (forgetting-curves XI — FC§§51–55)
+"lag_ratio_a": 0.30, "lag_ratio_t0": 7, "lag_ratio_b": -0.33,
+"lag_ratio_lo": 0.05, "lag_ratio_hi": 0.40,    // §6.323
+"fitness_gain": 0.12, "fitness_imm": 0.5,      // §6.324
+"gap_load_k": 0.15, "gap_load_cap": 0.5,
+"skill_dom_mult": 0.3, "vac_gap_d": 14,
+"vac_fail_base": 0.15,                         // §6.325
+"emo_del_tau": 0.7, "emo_imm_tax": 0.10,       // §6.326
+"mon_base": 0.2, "mon_gain": 6, "mon_tau": 0.5,
+"pm_grace": 1, "missed_enc_gain": 0.15,        // §6.327
+"gen_tau_mult": 0.85,                          // §6.328
+// v5.67 locked nulls: lag_flat_null (horizon-constant ratio
+//   fails — P1292); fitness_redux_null (matched-arousal
+//   controls must separate — P1293); skill_clock_null
+//   (disuse-days, not record age — P1295); emo_instant_null
+//   (zero same-day arousal advantage legs-off — P1297);
+//   deadline_mute_null (no armed-forever intentions —
+//   P1299); gen_intercept_null (self-vs-heard gap must
+//   widen with delay — P1300).
+// v5.67 fields/flags: event flag `fitness:true` (world-side
+//   appraisal); record flag `selfacted` (reuses enactment
+//   marker); per-skill `disuseDays` counter; intention state
+//   `missed:true` + armed-intention self-cue accumulator;
+//   derived `T_hor` (min(τ_eff, 1/needRate), not stored).
+//   `lag_opt_ratio` demoted to unknown-horizon fallback.
+//   All snapshot-additive; absent = legacy.
+// v5.66 additions (encoding-mechanics X — EM§§123–127)
+"rew_thresh": 0.4, "post_rew_win": 45, "post_rew_gain": 0.10,
+"post_rew_tau": 15, "post_rew_cat_w": 0.5,        // §6.318
+"blink_trigger": 0.65, "blink_win": 2, "blink_loss": 0.35,
+                                                  // §6.319
+"pi_run_k": 0.05, "run_cap": 6, "pi_rel_gain": 0.08,
+                                                  // §6.320
+"persp_obs_arousal": 0.75, "persp_obs_field_loss": 0.30,
+"persp_obs_layout_gain": 0.20, "persp_birth_bias": 0.35,
+                                                  // §6.321
+"bound_ante_gain": 0.08, "bound_ante_n": 5,
+"bound_bridge": 0.6,                              // §6.322
+// v5.66 locked nulls: rew_inst_null (no same-day gain —
+//   P1282); rew_ant_only_null (backward sweep only —
+//   P1283); blink_self_null (trigger exempt — P1285);
+//   pi_relabel_null (release needs real tag change —
+//   P1287); persp_birth_null (birth vantage immutable —
+//   P1289); bound_ante_null (prior segment only — P1290).
+// v5.66 fields: record `perspBirth` ("field"|"observer",
+//   mint-fixed); record flag `rew_tagged`; per-char run
+//   state {lastMintTag, run_n} (harness-side, snapshot-
+//   persisted); event ctx `persp:"observer"` accepted at
+//   encode. All snapshot-additive; absent = legacy.
+// v5.63 additions (individual-differences X — ID§§125–137)
+"hear_effort_tax": 0.2, "hear_src_tax": 0.15,
+"hear_social_drag": 0.3, "hear_aid_rescue": 0.4,
+"hear_decline_k": 0.1,                         // §6.295
+"antichol_enc_tax": 0.25, "antichol_iiv": 0.02,
+"antichol_decline": 0.5,                       // §6.296 (age-yr/decade)
+"menop_learn_tax": 0.25, "menop_pspeed_tax": 0.15,
+"menop_complaint": 1.5, "menop_rebound_d": 180, // §6.297
+"shift_age_equiv": 3.0, "shift_recovery": 0.6,  // §6.298 (at w=2, @5y)
+"sick_enc_tax": 0.3, "sick_wmc_tax": 0.2,
+"sick_dream_p": 0.1, "sick_theta": 0.05,        // §6.299
+"smoke_decline_k": 1.0, "smoke_quit_rescue": 0.5,
+"nic_acute_gain": 0.08, "nic_withdraw_tax": 0.1, // §6.300
+"medit_att_buf": 0.05, "medit_mw_buf": 0.15,
+"medit_conf_gain": 0.1,                        // §6.301
+"jobcplx_reserve_feed": 0.3, "jobcplx_breadth": 0.05, // §6.302
+"retire_slope_tax": 0.05, "retire_pm_tax": 0.1, // §6.303
+"lonely_vigil": 0.1, "lonely_rehearse_tax": 0.15,
+"lonely_decline": 0.15, "lonely_neg_bias": 0.1, // §6.304
+"diab_decline_k": 0.4, "diab_pspeed_tax": 0.1,
+"diab_hypo_frag": 0.3, "vasc_stack_cap": 2.0,   // §6.305
+"migr_ictal_tax": 0.3, "migr_sens_gain": 0.2,
+"migr_complaint": 0.2,                         // §6.306
+"grief_acute_d": 90, "grief_acute_tax": 0.25,
+"grief_slope": 0.2, "grief_intr": 0.8,
+"grief_stack_cap": 1.5,                        // §6.307
+// v5.63 locked nulls: hear_gist_null + hear_sem_null
+//   (ear spends at the door — P1218); antichol_ret_null
+//   (encoding-selective — P1219); menop_ret_null +
+//   menop_sym_null (reversible, stage-gated — P1220);
+//   shift_sem_null (P1221); sick_dur_null (full
+//   reversal — P1222); smoke_encode_null (withdrawal-
+//   repair only — P1223); medit_store_null (P1224);
+//   jobcplx_retire_null (deposit stays banked — P1225);
+//   retire_step_null (slope, never cliff — P1226);
+//   lonely_crowd_null (perception gap — P1227);
+//   diab_sem_null (P1228); migr_cumul_null (fifth
+//   mandated null — P1229); grief_perm_null (wound,
+//   not lesion — P1230). Frozen: none.
+// v5.63 traits/states/fields: traits `hear` [0,2],
+//   `shift_wrk` [0,2], `smoker` {0,1,2} (+pack_yrs/
+//   quit_yrs), `medit`, `job_cplx`, `lonely`, `diab`
+//   {0,1,2} (+diab_yrs), `migr` [0,2]; states
+//   `antichol` [0,2] + `antichol_yrs`, `menop` {0,1,2},
+//   `sick_day` [0,1], `retire` {0,1} + `retire_voluntary`
+//   + `post_engagement` [0,1], `grief:{onset,kin_type,
+//   ambivalence}`, `day_shift_yrs`; ctx flags
+//   `post_night:true`, `nicotine_sated:true`,
+//   `ictal:true`; event/channel fields
+//   `channel:"heard"`, `hypo_episode:true`,
+//   `hear_aided:true`, `withdrawal_h`; retell flag
+//   `bonded:true`. All snapshot-additive; absent =
+//   legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -16725,6 +23353,52 @@ MemoryParams = {
 //   `rewrote_feelings`, `rebound`, `seq_redempt`/
 //   `seq_contam`, `heal_gap`, `rationalized`,
 //   `photo_gap`. All snapshot-additive.
+// v5.62 additions (false-memory X — FM§§114–125)
+"infer_mint_p": 0.25, "infer_str_mult": 0.5,
+"infer_thresh": 0.5,                              // §4.78
+"script_mint_p": 0.3, "script_mint_delay_k": 1.5, // §4.79
+"cgist_w": 0.15, "cgist_amb_thresh": 0.4,         // §5.131
+"da_ret_src_lax": 0.2, "da_ret_thresh": 0.5,      // §5.132
+"fame_p": 0.12, "fame_lag": 2.0,
+"fame_src_floor": 0.25,                           // §5.133
+"stress_gist_gain": 0.35, "stress_gist_thresh": 0.6,
+"stress_verb_loss": 0.15,                         // §6.288
+"res_boost": 0.6, "res_hl": 1.0,                  // §6.289
+"plaus_exp": 1.5, "plaus_floor": 0.15,
+"vouch_mult": 1.4, "photo_plaus_mult": 1.8,       // §6.290
+"fb_conf_gain": 0.12, "fb_disc_gain": 0.06,       // §6.291
+"sens_src_k": 0.5, "sens_fm_k": 0.35,             // §6.292
+"slant_k": 0.10,                                  // §6.293
+"act_imag_k": 0.08, "act_imag_cap": 0.4,          // §6.294
+// v5.62 knot tables (functions, not scalars):
+//   res_age_leg(age_eff): ×1.0@30 → ×1.3@75    (§6.289)
+//   fame_age_leg(age_eff): ×1.0@30 → ×1.4@75   (§5.133)
+// v5.62 locked nulls: infer_verb_null (inferred fields
+//   never carry verbatim confidence — P1206);
+//   script_atyp_null (atypical tags never become fills —
+//   P1207); cgist_personal_null (no shared schema, no
+//   pull — P1208); da_fam_null (familiarity bit-identical
+//   under DA — P1209); fame_fresh_null (records < fame_lag
+//   immune — P1210); stress_verb_null (verbatim never
+//   gains under stress — P1211); res_nt_null (un-recalled
+//   fields take no premium — P1212); plaus_floor_null
+//   (no medium/voucher mints below floor — P1213);
+//   fb_acc_null (feedback never touches content — P1214);
+//   sens_true_null (sensitization spares veridical
+//   records — P1215); slant_contra_null (incongruent
+//   slants never drift — P1216); act_imag_intent_null
+//   (no intent record, no minting — P1217).
+// v5.62 fields/state: field flag `inferred:true`; record
+//   per-field `res_flag` (expires res_hl); context
+//   `attn_ret` (retrieval attention, reuses attn scale);
+//   event field `plaus` ∈[0,1] (world-supplied biography
+//   fit), media flag `photo:true`, source flag
+//   `vouched:true`; emission `feedback:"confirm"|
+//   "disconfirm"` on recall reports; reversal ops
+//   `source_sensitize`/`fm_sensitize` (speaker ≠ planter);
+//   retell flag `audience_tuned:true`; action records
+//   `planned`/`imagined` gain mintable `performed`
+//   variant. All snapshot-additive; absent = legacy.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -19006,6 +25680,1169 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.63 additions (individual-differences.md §§125–137 —
+  the body keeps the ledger):
+  - **World-supplied states/flags:** `antichol` [0,2]
+    minted from the character's med list (+ integrated
+    `antichol_yrs`); `menop` {0,1,2} stage (~4y window,
+    world-owned); `sick_day` [0,1] illness severity;
+    `retire` {0,1} + `retire_voluntary:true` +
+    `post_engagement` [0,1] (did the week fill or
+    empty); `grief:{onset, kin_type, ambivalence}` on
+    loss events; `day_shift_yrs` accrual; ctx flags
+    `post_night:true`, `nicotine_sated:true`,
+    `ictal:true`; event fields `channel:"heard"`,
+    `hypo_episode:true`; `hear_aided:true`; retell flag
+    `bonded:true` (the felt-connection rescue channel
+    for `lonely`). All snapshot-additive; absent =
+    mechanism inert.
+  - **Bible-set traits:** `hear` [0,2] (age-correlated),
+    `shift_wrk` [0,2] (career history), `smoker`
+    {0,1,2} + `pack_yrs`/`quit_yrs`, `medit`, `job_cplx`
+    (era/sex-aware), `lonely` (never derived from
+    `social`), `diab` {0,1,2} + `diab_yrs`, `migr` [0,2].
+  - **Layer contracts:** `antichol`/`menop`/`sick_day`/
+    `migr`-ictal are acquisition-side only — retrieval,
+    decay, and stored records unreachable
+    (`antichol_ret_null`, `menop_ret_null`,
+    `sick_dur_null`, `migr_cumul_null`); `hear` taxes
+    heard-event E + source fields, gist/store flat
+    (`hear_gist_null`/`hear_sem_null`); `medit` legs
+    confined to att/mw (`medit_store_null`); nicotine
+    legs active only under withdrawal
+    (`smoke_encode_null`); `menop` legs are stage-gated
+    and MUST NOT scale with depr/sleep/vasomotor states
+    (`menop_sym_null` — the forbidden mediator).
+  - **Slope contracts:** cumulative `age_eff` steps —
+    `hear_decline_k`, `antichol_decline`,
+    `shift_age_equiv`, `smoke_decline_k`,
+    `lonely_decline`, `diab_decline_k`, `grief_slope` —
+    are forward-only and stack under `vasc_stack_cap`
+    (2.0×) where vascular-clustered; `retire`/`menop`/
+    `sick_day`/`grief` are reversible-or-adapting legs,
+    never cliffs (`retire_step_null`,
+    `menop_ret_null`, `sick_dur_null`,
+    `grief_perm_null`); `job_cplx` deposits into
+    `reserve`-eff and persists at `retire`
+    (`jobcplx_retire_null`); `lonely` legs are rescued
+    by `bonded:true` retells only, never by `social`
+    headcount (`lonely_crowd_null`).
+  - **Locked boundaries game-systems must honor:**
+    `hear_gist_null`, `hear_sem_null`,
+    `antichol_ret_null`, `menop_ret_null`,
+    `menop_sym_null`, `shift_sem_null`,
+    `sick_dur_null`, `smoke_encode_null`,
+    `medit_store_null`, `jobcplx_retire_null`,
+    `retire_step_null`, `lonely_crowd_null`,
+    `diab_sem_null`, `migr_cumul_null`,
+    `grief_perm_null`.
+  - **New params (§7):** 30 scalars + 8 traits +
+    7 state fields + 15 locked nulls.
+  - Probes P1218–P1230.
+- v5.71 additions (emotional-memory.md §§140–149 — the
+  affect that reaches behavior):
+  - **Sharing contract (§6.330):** the sharing intention
+    mints at encode, decays on `share_tau`, and is spent
+    only through §41-gated discussEvent bouts — never a
+    side channel that bypasses audience trust.
+    `share_cool_null` (P1331): bouts move strength and
+    `told_to` edges; stored affect tags bit-identical.
+  - **Avoidance contract (§6.331):** `sit_sel_w` reads
+    CondEntry `strength_eff` (lifts with extinction);
+    `avoid_habit` procedural records do NOT (fire on cue,
+    `habit_aff_null` P1332). The legs must diverge — a
+    merge that routes both through one strength fails.
+  - **Choice-bias contract (§6.332):** `choice_aff_*` is
+    a bounded scoring bias; `choice_fact_null` (P1333)
+    bars it from minting content/belief fields, and the
+    UI surfaces it as INFERRED.
+  - **Rumination contract (§6.333):** `brooding`/
+    `reflect` are authored traits routing the §64 draw;
+    `brood_content_null` (P1334) — brooding re-stamps
+    affect only, reflection gains coherence.
+  - **Reconsolidation contract (§6.334):** the §5.9
+    window opens on `pe ≥ recon_pe_gate` or disconfirming
+    input; `recon_routine_null` (P1335) — routine retells
+    raise strength with fields bit-identical. DEBATED
+    literature; the gate is a hypothesis under test.
+  - **Attachment contract (§6.335):** `attach_anx`/
+    `attach_avo` remap existing knobs only;
+    `avo_emit_damp` hits EMITTED affect — stored tags
+    intact; `attach_content_null` (P1336).
+  - **Transference contract (§6.336):** `affect_prior`
+    on new PersonModels carries
+    `provenance:"inferred"` and biases interpretation
+    only; `transf_fact_null` (P1337) — zero fact fields.
+    Art/UI must render it as inference, not fact.
+  - **Fluency contract (§6.337):** `flu_*` are report-
+    layer gains on emitted confidence + reported arousal;
+    `flu_acc_null` (P1338) — stored fields and accuracy
+    unmoved.
+  - **Stress-shift contract (§6.338):** `stress_habit_*`
+    reweights deliberative↔habitual substrates at choice
+    under the §118 two-factor gate;
+    `stress_ep_fact_null` (P1339) — records untouched.
+  - **Spotlight contract (§6.339):** the ×`spotlight_k`
+    estimate lives on the estimator's person-model;
+    `spot_fact_null` (P1340) — it alters no record on
+    either side.
+  - **Locked boundaries game-systems must honor:**
+    `share_cool_null`, `habit_aff_null`,
+    `choice_fact_null`, `brood_content_null`,
+    `recon_routine_null`, `attach_content_null`,
+    `transf_fact_null`, `flu_acc_null`,
+    `stress_ep_fact_null`, `spot_fact_null`.
+  - **New params (§7):** 23 scalars + 4 authored traits +
+    3 knot curves + 10 locked nulls; procedural
+    `avoid_habit` record kind; PersonModel
+    `transf`/`affect_prior` fields with INFERRED
+    provenance; `share_count`/`shared:true` fields.
+  - Probes P1331–P1340.
+- v5.84 additions (false-memory.md Part VI
+  §§65–74 — the label that blesses the
+  unlabeled, the correction that needs a cause,
+  the verbatim veto, the stance you never
+  held, the count that tells a story, the
+  selfish shrink, the rumor that keeps the
+  teeth):
+  - **Implied-truth contract (§6.401):** warn/
+    dispute events boost untagged corpus-mates
+    once within `imptruth_win`; `verified`
+    tags flip the sign; `imptruth_boost`
+    field is INFERRED tier — the UI must
+    never render it OBSERVED;
+    `imptruth_free_null` (P1485).
+  - **Causal-gap contract (§6.402):**
+    `alt_cause` on corrections drops
+    continued-influence residue only when it
+    fills the event's causal slot — the
+    strict ladder alt < mid < bare;
+    `corr_alt_equal_null` (P1486).
+  - **Verbatim-veto contract (§5.169):**
+    verbatim survivors suppress contradicting
+    non-verbatim candidates at emission;
+    `veto_scar` halves re-offer; verbatim
+    never vetoes verbatim; `rtr_free_null`
+    (P1487).
+  - **Stance-swap contract (§6.403):**
+    `about_own_stance` accounts flip stance
+    candidates at `sswap_p`; `prov:"restated"`
+    INFERRED; promotion to primary only via
+    minted justifications (`sswap_last_k`);
+    `sswap_last_null` (P1488).
+  - **Frequency contract (§6.404):** emitted
+    counts sample salience-weighted
+    instances + rumor adds; stored `freq`
+    bit-identical (report-only);
+    `freq_verid_null` (P1489).
+  - **Selfish-shrink contract (§6.405):**
+    self-benefit magnitudes emit pulled
+    toward authored `fair_std`, gated on
+    violation + non-diffused responsibility;
+    flattered values re-encode as
+    self_guess candidates;
+    `selfdir_flat_null` (P1490).
+  - **Threat-transmission contract
+    (§6.406):** `threat_relevant` fields
+    survive hops and sharpen per hop;
+    receiver cred premium on hazard topics;
+    phantoms exempt; `dread_flat_null`
+    (P1491).
+  - **New params (§7):** 22 scalars + 1
+    authored trait (`fair_std`) + 1 account
+    flag + 4 record fields + 7 locked nulls.
+  - Probes P1485–P1491.
+- v5.85 additions (individual-differences.md
+  Part XII §§164–183 — the résumé and the
+  wear):
+  - **Education contract (§6.407):** `edu`
+    pays level legs only (semantic density,
+    fluency, weak episodic); `edu_slope_null`
+    (P1492) bans every decay/slope leg;
+    `edu_mask_k` delays complaint onset —
+    detection lag, never resilience.
+  - **Cognitive-activity contract (§6.408):**
+    `cog_act` damps `beta_episodic` slope and
+    raises retell-mint ecology;
+    `cogact_level_null` (P1494).
+  - **Purpose contract (§6.409):** `purpose`
+    moderates `age_eff`-routed decline legs
+    (autopsy-interaction form) + PM-intention
+    survival (HYPOTHESIS);
+    `purpose_path_null` (P1495).
+  - **Counted-crowd contract (§6.410):**
+    `soc_net` derives from the relationship
+    store; slope rescue follows `lonely`,
+    rehearsal ecology follows `soc_net`;
+    `socnet_felt_null` (P1496).
+  - **Vascular-window contracts
+    (§§6.411–6.412):** `htn` accrues slope
+    only inside the midlife window (treated
+    ×0.6, late-onset ≤0.3 — `htn_late_null`
+    P1497); `cvd_hist` mints a small step +
+    transient enc dip, stores exempt
+    (`cvd_sem_null`/`cvd_pro_null` P1498);
+    both feed `vasc_stack_cap`.
+  - **Noise contract (§6.413):** child
+    recognition tax dose-ordered, reversible
+    on exposure removal; adult leg
+    annoyance-mediated; `noise_sust_null` +
+    `noise_road_gain_null` (P1499).
+  - **Alcohol-history contract (§6.414):**
+    heavy-dose slope + frontal fields;
+    `alc_mod_null` (P1500) — moderate arm
+    bit-identical to abstinent; the J-curve
+    is a banned emission.
+  - **Preterm contract (§6.415):** ordered
+    level taxes exec>speed>episodic;
+    `pt_slope_null` (P1501) — signature is
+    level, not trajectory.
+  - **Nap contract (§6.416):** `nap_event`
+    consolidates that morning's mints;
+    `nap_long` is a decline-minted marker —
+    `nap_long_cause_null` (P1502): predicts,
+    never causes.
+  - **Private-gate contract (§6.417):**
+    §6.102 suppression legs fire only in
+    private contexts; `repr_pub_null` +
+    `repr_pos_null` (P1503).
+  - **Adversity contract (§6.418):**
+    `advers_cum` dose counter, encode tax +
+    threat over-match; `steel_null` (P1504)
+    bans the moderate-adversity upside.
+  - **Refusal contracts (§§6.419–6.420):**
+    `vitd_*`/`omega3_*`/`bil_res_*` legs
+    locked 0 — mandated nulls 8–10; `bil_res`
+    bans the reserve claim while §11/§86
+    language costs stay intact (P1505).
+  - **New params (§7):** 26 scalars + 11
+    traits + 5 states/flags + 16 locked nulls.
+  - Probes P1492–P1505.
+- v5.86 additions (social-memory.md Part XIV
+  §§197–206 — the unequal books II: secrets,
+  repairs, and the versions only one head keeps):
+  - **Secret-burden contract (§6.421):**
+    `secret:true` joins the pop queue at
+    `sec_pop_boost` regardless of concealment;
+    `sec_pop_cost` rides pops only;
+    `sec_int_null` (P1506).
+  - **Forgiveness contract (§6.422):**
+    `forgiven:true` reprices avoid/revenge
+    channels; strength/retrievability untouched;
+    `forgive_erase_null` (P1507).
+  - **Disclosure-gap contract (§6.423):**
+    `discl_self_gain` > `discl_recv_gain`; delta
+    accrues to `MetaModel.intimacy_gap`
+    (INFERRED); `discl_equal_null` (P1508).
+  - **Forgotten-me contract (§6.424):**
+    witnessed `recall_fail` mints victim
+    `forgot_me` vs forgetter `emb`, asymmetric;
+    `forgot_equal_null` (P1509).
+  - **Vindication contract (§6.425):**
+    `told_by` role tags; `outcome_bad` boosts
+    advisor, suppresses advisee;
+    `toldya_sym_null` (P1510).
+  - **Provenance-erosion contract (§6.426):**
+    `learned_from` on `prov_tau`, re-labels
+    `prov:"common"`; `prov_sticky_null` (P1511).
+  - **Scope-drift contract (§6.427):** per-role
+    `scope_cred`/`scope_debt` drift ±`scope_drift`
+    to `scope_cap`; `scope_canon_null` (P1512) —
+    no canonical term-set exists anywhere.
+  - **Betrayal-blindness contract (§6.428):**
+    dependence-gated eval/retell suppression,
+    record intact + restorable;
+    `bb_erase_null` (P1513).
+  - **Network-compression contract (§6.429):**
+    `netRecall` triad/kin boost, `net_drop_p`,
+    `net_close_bias`; report layer only, RelEdge
+    store verbatim; `net_exact_null` (P1514).
+  - **Witnessed-kindness contract (§6.430):**
+    observed `recall_ok` mints `responsiveness`
+    EMA on the rememberer, staleness-scaled;
+    `rem_kind_auto_null` (P1515).
+  - **New params (§7):** 20 scalars + 3 record
+    fields + 1 dyad field + 10 locked nulls.
+  - Probes P1506–P1516 (P1516 = provenance
+    audit of all new mints).
+- v5.88 additions (cast-profiles.md Part IX
+  §§48–54 — the trait backlog compile: every
+  authored axis v5.77–v5.87 minted, pinned
+  per character, plus six traits the compile
+  forced into the spec):
+  - **Provenance contract (§6.431):** every
+    profile pin resolves
+    {authored|derived|event|sampled};
+    `pin_orphan_null` (P1538).
+  - **Planning contract:** `ifthen_use`
+    propensity on authored intentions only;
+    `ifthen_author_null` (P1537).
+  - **Veto contract:** `rtr_mult` trait-scales
+    the §5.169 vote; verbatim ordering
+    untouched (P1533).
+  - **Distance contract:** `persp_shift_p`
+    deliberate observer retells.
+  - **Boredom contract:** `bored_sus` gates
+    state entry and `bored_nost` reach-back;
+    `bored_mint_null` (P1536).
+  - **Release contract:** `goal_dis`/
+    `goal_reeng` separable; `goal_sub_p_eff`
+    and intrusion τ scaled;
+    `goal_forget_null` (P1532).
+  - **Dyad contract:** `collab_partner`
+    derived; `lost:true` keeps the directory,
+    ends the bouts, applies `transact_loss`.
+  - **New params (§7):** 6 scalars + 1 dyad
+    field + 4 locked nulls.
+  - Probes P1529–P1540.
+- v5.82 additions (age-decline.md Part XII
+  §§167–176 — the mouth that wanders, the idea
+  that changes owners, the dyad that edits, the
+  errand that taxes the hour, the plan that binds
+  the cue, the retest that stops paying, the week
+  that erases the hour, the craft that holds its
+  own, the reason for retelling, the belief that
+  starves the muscle):
+  - **Off-target contract (§5.160):** `offtarg_p`
+    per-clause drift into real neighbor records,
+    `offtarg:true`, topic-weighted;
+    `offtarg_content_null` (P1465).
+  - **Cryptomnesia contract (§6.399):** `gen_by`
+    rides the source-decay leg; below
+    `plag_thresh` generation emits relabel
+    `gen_by:self` at flat conf;
+    `plag_source_null` (P1466).
+  - **Collaboration contract (§5.161):**
+    `collab` bout — age-flat hit inhibition,
+    partner challenge, elder production-
+    inhibition, age-scaled contagion mint
+    `prov:"collab"` INFERRED; `collab_sum_null`
+    (P1467).
+  - **Hold-cost contract (§4.101):** pending
+    intentions tax concurrent E/latency,
+    nonfocal 2×; `pm_free_null` (P1468).
+  - **If-then contract (§5.162):** `if_then`
+    cue-binding cuts `pm_evt_pen`, crosses zero
+    at `ifthen_agecap`; time-based ineligible;
+    `ifthen_free_null` (P1469).
+  - **Practice contract (§4.102):**
+    `practice_gain` equivalent-task slope,
+    halved under `prodrome` while level holds;
+    `prac_level_null` (P1470).
+  - **ALF contract (§4.103):** `alf:true` adds
+    second decay leg gated `alf_delay_thr`;
+    early retention identical;
+    `alf_short_null` (P1471).
+  - **Expertise contract (§4.104):**
+    `expert_dom` in-domain age_eff rebate,
+    envsup-gated; `expert_general_null`
+    (P1472).
+  - **Reminiscence contract (§5.163):** `remfn`
+    bout motive resamples WHICH records
+    rehearse; `remfn_random_null` (P1473).
+  - **Self-efficacy contract (§5.164):** `mse`
+    state scales effort/strategy willingness,
+    never capacity; `mse_perf_null` (P1474).
+  - **New params (§7):** 25 named (~33 scalars
+    expanded) + 2 authored traits + 10 locked
+    nulls + fields `offtarg`, `gen_by`,
+    `if_then`, `collab`, `remfn` + states
+    `alf`, `mse`.
+  - Probes P1465–P1474.
+- v5.81 additions (age-development.md Part XII
+  §§140–149 — the wordless file, the trait-set
+  wall, order without a clock, the free counter,
+  the paradox, the twins, chains vs islands, the
+  bump of firsts, the optimistic prophet, the flat
+  channel):
+  - **Preverbal contract (§5.155):** `preverbal`
+    records match verbal cues at ×0, sensory ×1.6,
+    enactive ×1.8; emission `prov:"enactive"`
+    INFERRED, no narrative fields; `pv_talk_null`
+    (P1455).
+  - **Offset-trait contract (§4.96):** era gate
+    centers `offset_eff` from `amnesia_offset`/
+    `remnis_style`; all era terms inherit.
+  - **Order contract (§4.97):** `ord_within`
+    vs `ord_betw`; child `when` emits cyclic
+    anchors only.
+  - **Frequency contract (§4.98):** `freq`
+    accumulator, attention-free, age-flat;
+    `freq_attn_null` (P1458).
+  - **Pattern-separation contract (§4.99):**
+    `patsep_mult(age_now)` U-curve gates sibling-
+    lure emission; error keeps `prov:"episode"`
+    at reduced conf.
+  - **Bump-of-firsts contract (§4.100):** `first`/
+    `selfdef` mint flags scale `bump_bonus`;
+    `selfdef` decay floor lifts on goal
+    abandonment.
+  - **PM-paradox contract (§5.156):** `pm_locus`
+    environmental boost vs self-initiated penalty
+    past 60; `pm_flat_null` (P1459).
+  - **Recall-order contract (§5.157):** two-field
+    `clust_temp_w`/`clust_sem_w(age)` walk.
+  - **Child-JOL contract (§5.158):**
+    `jol_child_bias` inflates predictions only.
+  - **Priming contract (§5.159):** `prime`
+    activation, no bout, INFERRED, age-flat;
+    `prime_age_null` (P1464).
+  - **New params (§7):** 18 scalars + 3 authored
+    traits + 4 locked nulls + fields `preverbal`,
+    `freq`, `ord_betw`, `prime`, `first`,
+    `selfdef`, `pm_locus`.
+  - Probes P1455–P1464.
+- v5.80 additions (retrieval-cues.md §§116–121 —
+  the cue has an address, a shelf, an hour, a
+  listener, and a lie):
+  - **Who-knows contract (§5.149):** `holder`
+    pointer on access-expected mints; directory-
+    first at `tx_dir_p`; `tx_mem_null` (P1444) —
+    the address never mints the fact.
+  - **Session-PI contract (§5.150):** per-session
+    `piq_state` accumulator, full release on
+    feature-class switch; `piq_none_null`
+    (P1446).
+  - **Synchrony contract (§5.151):** trait
+    `circ_peak_hr` gaussian; `circ_flat_null`
+    (P1448) — the age×hour interaction must live
+    in this term.
+  - **Hindsight contract (§5.152):** `fok_bias`
+    monitor-only writeback; `retro_acc_null`
+    (P1450).
+  - **Audience-tuning contract (§5.153):**
+    message tunes any room; writeback gated by
+    `ingroup·uptake`; `tune_free_null` (P1453).
+    Tuned emissions carry INFERRED-motive
+    labeling for the UI.
+  - **Schema-mismatch contract (§5.154):** venue
+    `schema` + `lastVerified`; mismatch opens a
+    bout at `schemis_fac`; consistent fills emit
+    `prov:"schema"` (INFERRED); `schema_free_null`
+    (P1454).
+  - **New params (§7):** 16 scalars + 1 authored
+    trait + 6 locked nulls + fields `holder`,
+    `fok_bias`, `audience`, `uptake`, `schema`,
+    `lastVerified`, `piq_state`.
+  - Probes P1443–P1454.
+- v5.79 additions (forgetting-curves.md §§56–60 —
+  the neighborhood prices the record):
+  - **Neighbor-tax contract (§4.92):**
+    `arousal ≥ emo_nbr_thresh` mints tax records
+    inside `emo_nbr_win` at `emo_nbr_tax`;
+    co-hot neighbors exempt; `da_enc` halves —
+    `emo_free_null` (P1431) makes the spike's
+    advantage paid, never free.
+  - **Post-encoding contract (§4.93):**
+    records in `(emo_nbr_win, post_emo_win]`
+    before a spike earn `post_emo_gain` posted at
+    the next sleep tick only —
+    `post_emo_instant_null` (P1433).
+  - **Lease contract (§4.94):** interference loss
+    splits `interf_perm_frac`/`supp`; `supp`
+    decays at `supp_recover`, RIF shares the
+    state at `rif_recover_tau`; retrieval reads
+    `R_eff = R·(1−supp)` — `supp_perm_null`
+    (P1435) and `supp_instant_null` (P1436).
+  - **Armor contract (§4.95):** the sleep tick
+    grants `interf_shield` on future accrual,
+    decaying at `interf_shield_decay` —
+    `sleep_fragile_null` (P1438).
+  - **Context contract (§5.147):** retell
+    S-growth scales with `1−overlap(C_now,
+    lastAccessCtx)`, floor `ctx_var_floor` —
+    `ctx_same_null` (P1440).
+  - **Rote contract (§5.148):** `rote:true`
+    retells earn `rote_mult`, no lag credit, no
+    `prevGapDays` update — `rote_free_null`
+    (P1441).
+  - **Locked boundaries game-systems must
+    honor:** `emo_free_null`,
+    `post_emo_instant_null`, `supp_perm_null`,
+    `supp_instant_null`, `sleep_fragile_null`,
+    `ctx_same_null`, `rote_free_null`.
+  - **New params (§7):** 15 scalars + 7 locked
+    nulls; record fields `supp`, `shield`,
+    `lastAccessCtx`, `post_emo_pending`; retell
+    flag `rote:true`.
+  - Probes P1431–P1442.
+- v5.78 additions (encoding-mechanics.md §§133–138 —
+  the volitional/breadth/pattern/odor/suppression/
+  construal intake channels):
+  - **Volition contract (§6.393):** `chosen` requires
+    ≥`choice_opt_min` live options and self-picked
+    deliberation — `choice_trivial_null` (P1420)
+    bars agency theater; gain is mint-local,
+    forward sweeps stay in §99.
+  - **Breadth contract (§6.394):**
+    `motiv_intensity > motiv_gate` thins peripheral
+    field-write at `motiv_narrow`, valence-
+    independent — `motiv_valence_null` (P1421);
+    orthogonal to ABC (arousal moves E, MI moves
+    field existence).
+  - **Pattern contract (§6.395):** `pattern:true`
+    records mint from the attended-co-occurrence
+    ledger at `stat_thresh`; `rk:"know"`,
+    `prov:"implicit"`, `dateKnown:null`; locked
+    `stat_unseen_null` (P1424) and
+    `stat_event_null` (P1425) — never episode-
+    cited, never OBSERVED.
+  - **Odor contract (§6.396):** `ctx_odor` decays
+    at `odor_beta_mult`, cues rescue below
+    `resurrect_thresh` at `odor_rescue_gain`;
+    naming attenuates at `odor_name_mult`, never
+    abolishes — `odor_name_null` (P1427).
+  - **Suppression contract (§6.397):**
+    `suppressing` spends `sup_load` at mint and
+    marks targets for `sup_rebound_p` intrusion in
+    `rebound_win` — `sup_free_null` (P1428/P1429).
+  - **Construal contract (§6.398):**
+    `construal:"abstract"` thins verbatim fields at
+    unchanged E — HYPOTHESIS mapping, OBSERVE tier
+    (P1430).
+  - **Locked boundaries game-systems must honor:**
+    `choice_trivial_null`, `motiv_valence_null`,
+    `stat_unseen_null`, `stat_event_null`,
+    `odor_name_null`, `sup_free_null`.
+  - **New params (§7):** 18 scalars + 6 locked
+    nulls; Event fields `chosen`, `odor`,
+    `odorName`, `suppressing`, `construal`;
+    encoder-state `motiv_intensity`; record flag
+    `pattern:true` + field `ctx_odor`.
+  - Probes P1419–P1430.
+- v5.77 additions (validation-design.md §§264–265 —
+  consequence-continuity contracts; all §14.9
+  harness, no psychology moved):
+  - **Dyad contract (§14.9a):** shared events mint
+    per-head records under one `pairId`; SRM
+    partition enforced — actor-variance share ≥
+    `srm_actor_min`.
+  - **Fixture contract (§14.9b):** the breach/repair
+    fixture carries `scenario_arm` ∈
+    {admit,deny,control} + mandatory `untouched_arm`;
+    `memless_behav_null` (P1406) and
+    `repair_script_null` (P1407) make persistence
+    and repair prove they are memory-mediated, not
+    scripted.
+  - **Scar contract (§14.9c):** deny-arm trust
+    asymptote ≥ `deception_asym` below admit-arm
+    (Schweitzer et al. 2006).
+  - **Audit contract (§14.9d):** every memory-backed
+    emission carries `display_tier`
+    (`label_gap_null`, P1410); label audits pass at
+    κ ≥ `kappa_prov_min`.
+  - **Reliability contract (§14.9e):** longitudinal
+    measures report ICC(2,k) ≥ `icc_persist_min`;
+    revised priorities persist ≥ `priority_persist_d`;
+    within-person variance stays ≫ trait variance.
+  - **Clock contract (§14.9f):** fast replay drops
+    zero commitment checkpoints —
+    `ffwd_checkpoint_null` (P1418).
+  - **Gate contract (§14.9g):** locked-null/contract
+    live-probe coverage ≥ `cover_gate_min`.
+  - **Locked boundaries game-systems must honor:**
+    `memless_behav_null`, `repair_script_null`,
+    `ffwd_checkpoint_null`, `label_gap_null`.
+  - **New params (§7):** 10 scalars + 4 locked
+    nulls; fields `pairId`, `scenario_arm`; no new
+    character-facing ops.
+  - Probes P1405–P1418.
+- v5.76 additions (cast-profiles.md §§42–48 — the
+  promoted tier):
+  - **Era contract (§6.386):** `era` immutable at
+    mint; `promote()` retains every ambient-era record
+    byte-verbatim — `promote_rewind_null` (P1392);
+    card-observable traits held inside `promote_cont` —
+    `promote_recast_null` (P1398).
+  - **Typed-era contract (§6.387):** ambient-era
+    records are `generic`+`rk:"know"`; remember islands
+    at `promote_remember_isle_p`; know-tier detail
+    capped `know_detail_cap`; rehearsal never flips
+    rk — `know_upgrade_null` (P1395).
+  - **Backfill contract (§6.388):** `backfill:true`
+    skeletons are gist-class only
+    (`backfill_detail_null`, P1397) and never satisfy
+    ledger-OBSERVED (`backfill_obs_null`, P1396) —
+    seeded pasts drive behavior, not footage.
+  - **Meta-gap contract (§6.389):** promoted
+    SelfModel starts `meta_gap_init` over-confident on
+    the ambient era; decays at `promote_calib_d` —
+    confabulation substrate, not a bug.
+  - **Witness contract (§6.390):** thin-era
+    `ambient:true` edges resurface TOLD-tier at
+    `ambient_wit_gain`; unwritten fields stay
+    unwritten.
+  - **Island contract (§6.391):** `demote()` keeps
+    all records (`demote_keep_null`, P1401);
+    re-promotion retrieves the dense island at
+    savings rates.
+  - **Guard contract (§6.392):** minors need
+    `guardian:true` — `minor_promote_null` (P1404).
+  - **Locked boundaries game-systems must honor:**
+    `promote_rewind_null`, `promote_recast_null`,
+    `know_upgrade_null`, `backfill_obs_null`,
+    `backfill_detail_null`, `ambient_secret_null`,
+    `demote_keep_null`, `minor_promote_null`.
+  - **New params (§7):** 12 scalars + 8 locked
+    nulls; fields `era`,`rk`,`backfill`,`guardian`;
+    ops `promote`,`demote`.
+  - Probes P1392–P1404.
+- v5.75 additions (formal-model.md §§104–116 — the
+  epistemic layer):
+  - **Lattice contract (§6.378):** `display_tier`
+    on every emission ∈ {OBSERVED, TOLD, INFERRED,
+    UNKNOWN}; tier is kind-only — `tier_strength_null`
+    (P1391); merges max-tier; upgrades only via the
+    three named journaled ops — `prov_up_null` (P1382).
+  - **Crossover contract (§6.379):** serial-repro
+    survival ordering is hop-signed; hop-independent
+    SC/SI handling fails P1386.
+  - **Knows contract (§6.380):** `knows` returns
+    `{tier,conf,hops}|null` from one head only —
+    `knows_db_null` (P1383) bars ledger/other-store
+    reads; `null` is the ignorance primitive.
+  - **Meta contract (§6.381):** `knowsOf` returns a
+    probability, errors mandatory both directions —
+    `meta_omni_null` (P1384); output renders INFERRED.
+  - **Disclose contract (§6.382):** paired write —
+    `told_to` weak (`dest_E`), `heard_from` strong;
+    hearer capped TOLD — `tell_obs_null` (P1385);
+    `confide` re-mints `confidential`; leaks carry
+    `leak:true`+`disclosed_by` end-to-end.
+  - **Withheld contract (§6.383):** `withheld`
+    records idempotent per (A,F,B); evidence tier
+    travels `prov_chain`.
+  - **Repair contract (§6.384):** `repair` records
+    add, never erase — `repair_erase_null` (P1388);
+    integrity-kind gains at `repair_integ_mult`.
+  - **Promise contract (§6.385):** commitment mints
+    paired views; divergence grows, bounded
+    `promise_div_max`.
+  - **Locked boundaries game-systems must honor:**
+    `obs_label_null`, `prov_up_null`, `knows_db_null`,
+    `meta_omni_null`, `tell_obs_null`,
+    `repair_erase_null`, `tier_strength_null`.
+  - **New params (§7):** 13 scalars + 7 locked
+    nulls; record classes `withheld`, `repair`;
+    `display_tier` field; ops `knows`, `knowsOf`,
+    `disclose`, `discoverWithheld`, `acknowledge`.
+  - Probes P1380–P1391.
+- v5.74 additions (social-memory.md §§181–191 — the
+  intention layer):
+  - **Inference contract (§6.367):** `intent_inferred`
+    fields carry `provenance:"inferred"` permanently;
+    they bias gist/eval retrieval paths only —
+    `intent_fact_null` (P1366) bars them from every
+    verbatim/fact-class field. UI renders INFERRED.
+  - **Soft-token contract (§6.368):** `commit_soft`
+    mints `courtesy` records only — no debt edges, no
+    §6.139 absence binding, no breach path;
+    `soft_breach_null` (P1367). A revival *event*
+    carries its own eval; silence stays silent.
+  - **Advice contract (§6.369):** `advice` records
+    reweight decision-relevant recall order at
+    `advice_w` ≤ own prior; `advice_over_est` lives on
+    the advisor's metamodel — never a ledger fact.
+  - **Granter contract (§6.370):** `benfrank_gain`
+    applies only under `voluntary:true`;
+    `benfrank_vol_null` (P1369) — coerced favors buy
+    nothing.
+  - **Indirect-fear contract (§6.371):** `warned`/
+    witnessed legs mint avoidance evals at fractional
+    dose; `indirect_exceed_null` (P1370) caps the
+    stack strictly below direct experience;
+    `instruct_erase_null` — late threat info cannot
+    damp an acquired vicarious fear.
+  - **Polarization contract (§6.372):** `polar_gain`
+    writes stored valence once per bout when |L| >
+    gate; `polar_zero_null` (P1371) — a balanced room
+    produces bit-identical valences.
+  - **Boundary contract (§6.373):** `boundary:true`
+    needs world-supplied edge signals; absent them the
+    mechanism is inert — edges are never hallucinated
+    from content.
+  - **Punishment contract (§6.374):** `punish_trust`
+    pays only through the observer-side `prop` gate
+    reading the OBSERVER's offense record;
+    `punish_free_null` (P1373). No canonical
+    "was it fair" flag — proportionality stays
+    contested by design.
+  - **Roster contract (§6.375):** `rosterRecall` is
+    reconstruction, not lookup; `roster_exact_null`
+    (P1374) forces ≥1 error at set-size ≥5.
+  - **Humor contract (§6.376):** `humor_sat_null`
+    (P1375) — saturation collapses the gain to 1.0,
+    never below baseline.
+  - **Collective contract (§6.377):** `stereo_prior`
+    is an INFERRED eval fallback for thin member PMs,
+    decaying with individuation; `stereo_fact_null`
+    (P1376) keeps collective traits out of member
+    facts and out of `told_by` content.
+  - **Locked boundaries game-systems must honor:**
+    `intent_fact_null`, `soft_breach_null`,
+    `benfrank_vol_null`, `indirect_exceed_null`,
+    `instruct_erase_null`, `polar_zero_null`,
+    `punish_free_null`, `roster_exact_null`,
+    `humor_sat_null`, `stereo_fact_null`.
+  - **New params (§7):** 26 scalars + 10 locked
+    nulls; record classes `advice`, `courtesy`;
+    `edge` boundary anchors; `intent_inferred`
+    (INFERRED-provenance) field; op `rosterRecall`;
+    `PersonModel.lastIntent`; `collective:true`
+    PersonModel kind.
+  - Probes P1366–P1379.
+- v5.73 additions (individual-differences.md §§143–163
+  — the medical-history layer):
+  - **Dyslexia contract (§6.351):** taxes land on
+    name/verbatim/auditory and `order`-class fields
+    only; `dys_comp_p` mints offload notes, never
+    boosts strength. `dys_gist_null`/`dys_sem_null`
+    (P1352): the record keeps full strength.
+  - **Deafness contract (§6.352):** `deaf_sign`
+    reweights channels; heard mints only under
+    `heard_vicariously`; sampling R=−1.0 vs `hear`.
+    `deaf_total_null` (P1353): equal record strength
+    at matched salience.
+  - **Vision contract (§6.353):** effort + cue legs
+    compound; `vis_corrected` rescues 0.5 of (a)+(b),
+    social drag decays slower. `dual_sensory` is
+    additive, uncapped. `vis_gist_null` (P1354).
+  - **Stroke contract (§6.354):** step writes to the
+    forward-step `age_eff` ledger once; slope leg is
+    control-layer only; `stroke_side` haircut is a
+    one-time field-completeness pass on pre-event
+    records of the locked material class.
+    `stroke_sem_null`/`stroke_pro_null` (P1355).
+  - **Epilepsy contract (§6.355):** `seizure:true`
+    mints a true zero-record window ±`ep_gap_min`;
+    `aed_burden` rides §5.139 TOT machinery.
+    `ep_ret_null` (P1356): pre-gap records clean;
+    material haircuts with `stroke_side` cap 0.6.
+  - **HAND contract (§6.356):** legs ordered
+    speed>att>epi by construction; `on_art` halves;
+    complaint surface under-reports.
+    `hiv_sem_null` (P1357).
+  - **Post-viral contract (§6.357):** dose order
+    persistent > hospitalized > resolved > none;
+    recovery decays at `pv_recover_tau`, never
+    switches; `pv_var_k` scales by infection era.
+    `pv_sudden_null`/`pv_complaint_null` (P1358):
+    complaint-vs-objective corr ≤0.4.
+  - **CFS contract (§6.358):** `cfs_fatigue` declines
+    legs WITHIN a bout; cross-day record strength
+    unaffected. `cfs_ep_null` (P1359); complaint
+    premium ≥2×.
+  - **Reversible-deficiency contract (§§6.359–6.360):**
+    `b12`/`thyroid` legs die on treatment flags at
+    their taus toward rescue fractions; `b12_ret_null`
+    (P1360); `thy_sub_null` (P1361) caps stage-1
+    legs ≤0.05. Reversible-cause attention taxes
+    share `rev_state_cap` (0.5 stacked).
+  - **Air contract (§6.361):** cumulative exposure
+    accrues `age_eff` slope; `aqi_day`>150 is a
+    same-day attention tax that resets. All
+    environmental slopes share `exposure_slope_cap`.
+    `air_loc_null`/`air_ind_null` (P1362).
+  - **SAD contract (§6.362):** `sad_state` writes
+    weight into the §4.86 `depr` overlay only.
+    `sad_direct_null` (P1363): overlay off → zero
+    legs; mediation is the model.
+  - **Postop contract (§6.363):** event-minted,
+    age-gated, tau-recovering; `postop_resid_p` tail
+    keeps a 1.0 age_eff step. `postop_young_null`
+    (P1364): no mint under 50.
+  - **Vitamin contract (§6.364):** `multivit` damps
+    `beta_episodic` slope ≥60 only. `mv_exec_null`/
+    `mv_level_null` (P1365).
+  - **Refusal contracts (§§6.365–6.366):** `fast_*`
+    and `glp1_*` param namespaces are locked at 0.0 —
+    parameter-level bans with revisit triggers, not
+    biology claims (P1365).
+  - **Locked boundaries game-systems must honor:**
+    `dys_gist_null`, `dys_sem_null`,
+    `deaf_total_null`, `vis_gist_null`,
+    `stroke_sem_null`, `stroke_pro_null`,
+    `ep_ret_null`, `hiv_sem_null`, `pv_sudden_null`,
+    `pv_complaint_null`, `cfs_ep_null`,
+    `b12_ret_null`, `thy_sub_null`, `air_loc_null`,
+    `air_ind_null`, `sad_direct_null`,
+    `postop_young_null`, `mv_exec_null`,
+    `mv_level_null`, `fast_*`/`glp1_*` bans.
+  - **New params (§7):** 34 scalars + 8 authored
+    traits + 11 states/flags + 2 caps
+    (`rev_state_cap`, `exposure_slope_cap`) + 17
+    locked nulls + field class `order`.
+  - Probes P1352–P1365.
+- v5.72 additions (false-memory.md §§129–139 — the
+  social-credit layer):
+  - **Credibility contract (§6.340):** `cred_est` is a
+    perceiver-side PersonModel scalar fed by emitted
+    peripheral-detail density; it may only enter
+    `sourceCredibility` on later adoptions.
+    `triv_acc_null` (P1341): density-rich emissions are
+    bit-identical in accuracy to sparse ones.
+  - **Distrust contract (§6.341):** `md_state` accrues
+    ONLY on disconfirmed contradictions where an own
+    field lost; `d` moves external adoption up and
+    own-account emission down. `md_str_null` (P1342):
+    the own record is untouched — trait leg DEBATED
+    (Otgaar 2023).
+  - **Secondhand contract (§6.342):** only
+    `source:"told"` records may convert, only after
+    `sh_vivid_gate`, and `witnessed` requires a second
+    teller. `sh_free_null` (P1343): experienced records
+    are permanently ineligible.
+  - **Generation contract (§6.343):** `selfgen_mult`
+    multiplies `self_guess` candidates only.
+    `sg_ext_null` (P1344): supplied candidates carry
+    no bonus.
+  - **Conformity contract (§6.344):** the normative leg
+    writes `conform_public` on emissions — never the
+    record; conversion requires ≥2 public retells at
+    p_info·0.5. `conf_priv_null` (P1345): said ≠
+    believed.
+  - **Confidence contract (§6.345):** `conf_emit` is a
+    REPORT field — INFERRED surface for UI; it feeds
+    credibility perception only. `conf_cross_null`
+    (P1346): cross-person confidence carries no
+    accuracy rank.
+  - **Correction contract (§6.346):** corrections
+    propagate at `corr_reach_mult` with `corr_seen_p`
+    exposure-biased audience. `corr_equal_null`
+    (P1347): correction reach strictly < original
+    reach — residue is invariant.
+  - **Metamemory contract (§6.347):** `ret_pred` is
+    minted biased high, lags the true curve, and is
+    read by planning only. `meta_store_null` (P1348):
+    never feeds strength/decay/adoption.
+  - **Contagion contract (§6.348):** all adoption legs
+    use `(contag_floor+(1−contag_floor)·cred)` for
+    credibility. `contag_zero_null` (P1349): cred=0
+    still contaminates at floor.
+  - **Commitment contract (§6.349):** `public:true`
+    emissions (audience ≥`commit_aud_min` or broadcast)
+    freeze emitted fields vs contradiction for
+    `commit_freeze_hl`. `commit_priv_null` (P1350):
+    private emissions freeze nothing.
+  - **Contribution contract (§6.350):** `joint:true`
+    records emit inflated self-share; partner shares
+    decay faster; emitted shares never normalized.
+    `contrib_sum_null` (P1351): the >100% sum is the
+    finding — `s_true` is ledger-only, never emitted.
+  - **Locked boundaries game-systems must honor:**
+    `triv_acc_null`, `md_str_null`, `sh_free_null`,
+    `sg_ext_null`, `conf_priv_null`, `conf_cross_null`,
+    `corr_equal_null`, `meta_store_null`,
+    `contag_zero_null`, `commit_priv_null`,
+    `contrib_sum_null`.
+  - **New params (§7):** 22 scalars + 3 authored traits
+    (`mem_distrust`, `meta_mem`, `conf_trait`) + 1 knot
+    curve (`md_yield_w(age_eff)`) + 11 locked nulls +
+    fields (`md_state`, `conform_public`,
+    `sh_migrated`, `corr_seen`, `ret_pred`, `cred_est`,
+    contribution fields on `joint:true`).
+  - Probes P1341–P1351.
+- v5.70 additions (age-decline.md §§153–162 — what still
+  works, what lies about it, what bends last):
+  - **Automaticity contract (§4.84):** `freq_count` is a
+    field class set at mint; `auto_freq_flat` exempts it
+    from age encode legs only — not from decay,
+    interference, or drift. `auto_loc_null` (P1321):
+    where/when fields must ride normal age legs.
+  - **Self-reference contract (§4.85):** `selfrel_keep`
+    scales the `w_self` term only; `selfrel_third_null`
+    (P1323) — other-referential encode gets nothing.
+  - **Depression contract (§4.86):** `depr` is a world-
+    supplied overlay state; all three legs (`dep_enc_tax`,
+    `dep_ogm`, `dep_neg_skew`) must remit on
+    `dep_remit_tau` when it clears. `dep_sem_null`
+    (P1324): semantic mints ±3% — effort-only.
+  - **Odor-ID contract (§4.87):** `odor_id_eff` is a
+    profile state on its own knots, applied to
+    `sense:"odor"` cue strength at encode only;
+    `odor_sem_null` (P1325): `ecue_name_att` untouched.
+  - **Idea-density contract (§4.88):** `idea_dens` deposits
+    at profile mint only; `idea_late_null` (P1326) —
+    late-life verbal richness must not move reserve.
+  - **Awareness contract (§5.145):** `aware_eff` multiplies
+    report confidence/hedge behavior only;
+    `aware_perf_null` (P1327): S/R slopes identical — the
+    prodrome lies on the monitoring layer.
+  - **Semantic-bend contract (§4.89):** `sem_bend` adds to
+    beta_semantic late, ×2 under terminal|prodrome;
+    `sem_bend_healthy_null` (P1328): never exceeds 0.4×
+    the episodic leg at any knot.
+  - **Transaction contract (§§4.90+5.146):**
+    `fin_num_hl` taxes numeric-detail fields on
+    `kind:"transact"`; `fin_conf_keep` floors emitted
+    confidence — accuracy falls, confidence holds.
+    `fin_decl_null` (P1329): declarative price facts
+    exempt.
+  - **Cohort contract (§4.91):** `cohort_shift` translates
+    every `age_eff` knot lookup per profile;
+    `cohort_within_null` (P1330): within-cohort age slope
+    must remain — translate, never flatten.
+  - **Locked boundaries game-systems must honor:**
+    `auto_loc_null`, `choicesup_val_neutral_null`,
+    `selfrel_third_null`, `dep_sem_null`,
+    `odor_sem_null`, `idea_late_null`, `aware_perf_null`,
+    `sem_bend_healthy_null`, `fin_decl_null`,
+    `cohort_within_null`.
+  - **New params (§7):** 10 scalars + 5 knot curves + 2
+    authored profile scalars + 1 state + 1 field class +
+    2 record fields + 1 report scalar + 10 locked nulls.
+  - Probes P1321–P1330.
+- v5.69 additions (age-development.md §§126–135 — the
+  lifespan's retrieval shapes):
+  - **TOT contract (§5.139):** `tot:true` terminates a
+    name-field bout only — `tot_sem_null` (P1311) requires
+    full semantic availability through the block;
+    `tot_resolved` fires on spontaneous resolution, never
+    on forced re-emit of the same bout.
+  - **Destination contract (§5.140):** `told_to` edges
+    mint only on retell emissions; the novelty check
+    reads them, nothing else writes them.
+    `dest_src_null` (P1312): `heard_from` accuracy must
+    stay on normal source slopes — a build that taxes
+    both directions fails the direction split.
+  - **Era-sense contract (§5.141):** `sense` is a cue tag
+    the world supplies; `ecue_name_null` (P1313) —
+    `odor_named:true` attenuates by `ecue_name_att`;
+    the era re-aim changes weighting, never mints.
+  - **RIF contract (§5.142):** suppression is bounded by
+    `rif_w`·overlap and hits only unpracticed
+    cue-sharing competitors — `rif_item_null` (P1314).
+  - **Part-cue contract (§5.143):** `partcue_w` rides
+    `rif_amp` — same inhibitor, no second parameter;
+    `partcue_free_null` (P1315): supplied fields unmoved.
+  - **Eval-frame contract (§4.80):** `eval:true` is a
+    context flag; `stereo_val` is authored trait state.
+    `stereo_impl_null` (P1316): incidental-channel mints
+    must be identical under eval framing.
+  - **Savings contract (§4.81):** the discount applies at
+    RE-ENCODE mint only — `savings_recall_null` (P1317):
+    the latent trace's own S never rises.
+  - **Own-age contract (§4.82):** identity fields only —
+    `ownage_sem_null` (P1318): semantic facts mint
+    Δage-flat.
+  - **Divided-encode contract (§4.83):** `da_enc_age` is
+    U-shaped; `da_ret_over_null` (P1319) — encode leg
+    exceeds the §5.132 retrieval leg at every knot.
+  - **FOK-noise contract (§5.144):** `fok_noise` perturbs
+    the bout-enter decision with zero mean shift;
+    `fok_store_null` (P1320): stored S untouched.
+  - **Locked boundaries game-systems must honor:**
+    `tot_sem_null`, `dest_src_null`, `ecue_name_null`,
+    `rif_item_null`, `partcue_free_null`,
+    `stereo_impl_null`, `savings_recall_null`,
+    `ownage_sem_null`, `da_ret_over_null`,
+    `fok_store_null`.
+  - **New params (§7):** 23 scalars + 6 knot curves + 1
+    trait + 1 edge field + 1 state + 10 locked nulls.
+  - Probes P1311–P1320.
+- v5.68 additions (retrieval-cues.md §§108–112 — the cue's
+  crowd, clock, and breath):
+  - **Co-witness contract (§5.134):** the completeness leg
+    applies only to fields both parties plausibly encoded —
+    `cowit_fac` never mints; unshared assertions ride the
+    §5.119 `supplied:true` channel into §6.3 and nowhere
+    else. `cowit_free_null` (P1303): discussion with zero
+    novel supplied fields must leave held-field accuracy
+    within ±2% of control — the cue's benefit is
+    completeness, its cost is the adoption gate; there is no
+    third route.
+  - **Place-era contract (§5.135):** `placePeakDay` is
+    derived from the visit ledger, never stored on records
+    and never editable by the memory layer. `era_return_gain`
+    fires on the first revisit after `era_gap` only —
+    subsequent visits re-age the peak. `place_now_null`
+    (P1305): a uniformly-visited place emits encodeDays per
+    base rates; era weighting must not manufacture nostalgia
+    without absence.
+  - **Sleepless-search contract (§5.136):** `sdret_*` keys
+    off `sleepHours24` at retrieval time — a state read, not
+    a record flag (the encode-side `sleepdep_flag` is
+    untouched). `sdret_over_null` (P1306): the retrieval
+    leg must stay smaller than the encode leg; builds that
+    invert the ratio fail outright.
+  - **Own-name contract (§5.137):** `ownname_ret_p` bypasses
+    `fok_pre`/`bout_enter` (`ownname_gate_null`, P1308) and
+    emits `name_overheard`; the speaker-identification fork
+    may fail open — emission of the event does not require
+    identifying the speaker. Rel-gated via `ownname_close`;
+    ambient NPCs never run this leg.
+  - **Warmth contract (§5.138):** `warmth` is per-bout EMA
+    state, never persisted and never logged as evidence.
+    `warmth_conf_null` (P1310): corr(warmth, emitted-field
+    confidence) must stay ≈0 — it may extend the search, it
+    may not certify the product.
+  - **Locked boundaries game-systems must honor:**
+    `cowit_free_null`, `place_now_null`, `sdret_over_null`,
+    `ownname_gate_null`, `warmth_conf_null`.
+  - **New params (§7):** 19 scalars + 5 locked nulls +
+    derived `placePeakDay` + bout state `warmth` + emission
+    `name_overheard`.
+  - Probes P1301–P1310.
+
+- v5.67 additions (forgetting-curves.md §§51–55 — the shape
+  parameters are functions):
+  - **Ridgeline contract (§6.323):** `lag_mult` reads
+    `T_hor = min(τ_eff, 1/needRate)` — never `recordAge`;
+    `lag_opt_ratio` is fallback-only for unknown horizons.
+    `lag_flat_null` — a horizon-constant ratio build must
+    fail P1291's two-horizon optimum. The retell policy is
+    untouched (cue-driven; `spacing_opt_null` stands).
+  - **Fitness contract (§6.324):** `fitness:true` is a
+    world-side appraisal flag — the memory layer never
+    derives it from valence/arousal (`fitness_redux_null`,
+    P1293); the gain applies once, post w-terms.
+  - **Disuse contract (§6.325):** `disuseDays` resets only
+    on successful use or enacted recall — reading about the
+    craft doesn't count (`skill_clock_null`, P1295). The
+    `vac_fail_base` roll fires on first enactment only.
+  - **Crossover contract (§6.326):** `emo_del_gate` acts on
+    the *retrieval projection* E_r — stored E is unchanged
+    (`emo_instant_null`, P1297). The gate never taxes
+    non-arousal E shares below `emo_imm_tax`.
+  - **Deadline contract (§6.327):** `mon_rate` applies to
+    uncued armed intentions only — event-cued intentions
+    ride their trigger; every armed intention terminates
+    as fired or `missed:true` within `dueDay + pm_grace`
+    (`deadline_mute_null`, P1299). Self-cue fires are
+    rehearsal legs — they may surface in inner monologue,
+    never in the event ledger.
+  - **Generation-slope contract (§6.328):** `gen_tau_mult`
+    is mint-fixed per record (set at encode when
+    `speaker:self`/`selfacted` is true) — not re-derived at
+    decay time (`gen_intercept_null`, P1300).
+  - **Locked boundaries game-systems must honor:**
+    `lag_flat_null`, `fitness_redux_null`,
+    `skill_clock_null`, `emo_instant_null`,
+    `deadline_mute_null`, `gen_intercept_null`.
+  - **New params (§7):** 20 scalars + 6 locked nulls +
+    event flag `fitness:true` + record flag `selfacted` +
+    `disuseDays` + intention `missed:true` + derived `T_hor`.
+  - Probes P1291–P1300.
+
+- v5.66 additions (encoding-mechanics.md §§123–127 — the
+  backward-looking encoder):
+  - **Retro-reward contract:** the sweep fires only on
+    reward events carrying `r ≥ rew_thresh` AND positive PE
+    (§98); targets are records minted BEFORE the event
+    within `post_rew_win` (`rew_ant_only_null`); tagged
+    records benefit only via the next consolidation leg
+    (`rew_inst_null` — same-day recall shows zero effect,
+    P1282). `rew_tagged` is a bookkeeping flag — it must
+    never feed retrieval weights or report confidence.
+  - **Blink contract:** refractory is mint-time only and
+    forward-only — it taxes events INSIDE `blink_win`,
+    never the trigger (`blink_self_null`, P1285), and a
+    trigger minted while itself inside a prior blink still
+    opens its own window (refractory chains are legal).
+    Content-blind: no relatedness test — that's `emo_blink`.
+  - **PI-run contract:** `{lastMintTag, run_n}` is per-char
+    snapshot-persisted state updated at mint only;
+    `pi_rel_gain` fires on genuine `categoryTag` changes
+    only (`pi_relabel_null`, P1287). The attenuation is an
+    E-side term — it must NOT also feed the retention-side
+    competition pools (no double PI).
+  - **Birth-vantage contract:** `perspBirth` is set once at
+    mint and immutable (`persp_birth_null`, P1289);
+    §5.39 emission may still flip presentation, and
+    `persp_birth_bias` is the ONLY channel by which the
+    tag reaches output. Absent tag → field, legacy.
+  - **Boundary-ante contract:** the graded sweep targets
+    the CLOSING segment only (`bound_ante_null`, P1290);
+    `bound_bridge` may add the seam link but never adds
+    strength to incoming-segment records.
+  - **Locked boundaries game-systems must honor:**
+    `rew_inst_null`, `rew_ant_only_null`, `blink_self_null`,
+    `pi_relabel_null`, `persp_birth_null`, `bound_ante_null`.
+  - **New params (§7):** 18 scalars + 6 locked nulls +
+    1 record field (`perspBirth`) + 1 record flag
+    (`rew_tagged`) + per-char run state.
+  - Probes P1281–P1290.
+
+- v5.65 additions (formal-model.md §§92–103 — the deferral
+  algebra, the version lattice, the equivalence contract):
+  - **Eval-timing contract (FM§92/§95):** every op in the §38
+    catalog carries `evalClass` ∈ {AT_EVENT, DEADLINE(Δ),
+    ON_READ, NEVER_SKIP} (§16.1 table); `ON_READ` legality
+    requires the semigroup condition — pure `t_elapsed` maps
+    that commute with all ops that can land in the deferred
+    window. Reads are projections: `lazy_write_null` — a read
+    never mutates stored fields, never bumps `lastAccessDay`,
+    never accrues §5.9 practice. `evaluatedAt` watermark;
+    power-law decay is NOT multiplicatively separable —
+    deferred evaluation must re-project elapsed total, never
+    compound (P1246).
+  - **Owed-work contract (FM§94):** `DEADLINE` ops missing
+    `consol_deadline_h` convert to `OwedEntry`s, drain at next
+    `sleep` before fresh legs at `owed_yield` 0.5
+    (`owed_full_null` — the miss is a wound, not a
+    postponement); `owed_cap` 64, overflow sheds oldest-first
+    journaled (`oplog_drop_null` applies). Thin-mode queues
+    accrue but drain only on upgrade.
+  - **Migration contract (FM§96–97):** snapshots carry
+    `specVersion`; each version ships a `Delta` record
+    (§16.2); `migrate` composes along ancestor edges (P1250).
+    Laws: A1 additive-only (existing-field semantics narrow
+    only; changes via `semchg` named branches with declared
+    grandfathered probes); A2 `null_unlock_null` — locked
+    nulls are monotone; A3 `hash_version_null` — `specVersion`/
+    `legacy`/`evaluatedAt`/journal metadata excluded from
+    `canonHash` (`hash_domain_ver:"v2"`); A4
+    `migrate_silent_null` — zero behavioral delta outside the
+    branch registry. `opLog` entries carry `writer_ver`;
+    cross-version replay is replay-equivalent modulo declared
+    deltas.
+  - **Equivalence contract (FM§98–99):** every optimization/
+    refactor/degradation declares `=_state` | `≈_obs` |
+    `≈_mom` | `≈_d(ε)`; `equiv_claim_null` — a path may not
+    claim more than its ops' legality proves. Thin/ambient
+    mode is `≈_d(ambient_err_bound)` = 0.15 on §21 composites
+    per 30 dark-days; dark-interval mints are lost (sparse,
+    never backfilled-dense).
+  - **Locked boundaries game-systems must honor:**
+    `lazy_write_null`, `owed_full_null`, `null_unlock_null`,
+    `hash_version_null`, `migrate_silent_null`,
+    `equiv_claim_null`, `eval_skip_null`.
+  - **New params (§7):** 7 scalars/enums + 7 locked nulls —
+    all pop/harness scope, zero per-character.
+  - Probes P1245–P1256.
+- v5.64 additions (social-memory.md §§166–175 — the room
+  keeps the books):
+  - **New op class + flags (world/behavior-supplied):**
+    `seen:` co-presence events (same place+time, no
+    interaction — the familiar-stranger minting path);
+    `actorStatus` [0,1] on social events; `sync:true`
+    (co-timed shared activity); `tease:true` (negative
+    surface + benign intent marker); `moral:true`
+    content tag (fairness/betrayal/harm frames);
+    `face_trait` appearance-proxy fields on `met`/`seen`.
+    All snapshot-additive; absent = mechanism inert.
+  - **New record/PM fields:** `PersonModel.firstlook
+    {sketch, conf}`; `via:"witnessed"` (third arm,
+    ordering 1.0 self > 0.6 witnessed > 0.4 hearsay);
+    `vic_snub:true` self-records; `pm_eval_raw` leg on
+    `eval_tag` for age < `soc_abstract_age`.
+  - **Reach-vs-truth contract:** `moremo_*` moves
+    transmission reach only (`moremo_acc_null`);
+    `selfsaid_gain` moves retention only
+    (`selfsaid_echo_null`); `obs_*`/`seen:` move PM
+    fields only (`obs_standing_null`, `fs_identity_null`)
+    — no observer leg mints canonical facts.
+  - **Locked boundaries game-systems must honor:**
+    `firstlook_mut_null`, `fs_identity_null`,
+    `vic_exceed_null`, `obs_standing_null`,
+    `moremo_acc_null`, `sync_trait_null`,
+    `tease_benign_null`, `selfsaid_echo_null`,
+    `hh_trait_null`.
+  - **New params (§7):** 21 scalars + 9 locked nulls;
+    emissions `firstlook_mint`, `fs_met`, `vic_snub`,
+    `tease_gap`; `personEval` read-only gains the `via`
+    arm.
+  - Probes P1231–P1244.
 - v5.52 additions (social-memory.md §§151–160 — the credulity
   layer):
   - **World/behavior-supplied flags:** `exclusion:true` on social
@@ -19354,6 +27191,229 @@ not resolved (DEBATED magnitude). P509/P511.
     latency profile is the Thomas 2003 signature (P1175).
   - **New params (§7):** 21 scalars + 4 locked nulls +
     7 field/state additions. Probes P1166–P1175.
+
+- v5.59 additions (age-development X — AD§§112–125, spec
+  §§4.64–4.69, §§5.121–5.123, §6.281):
+  - **Ambient-edge contract:** `hyperbind_p(age_eff)` mints
+    `ambient:true` edges at encode for below-attention-floor
+    co-occurrences; edges are weak cues AND source-leak
+    channels; `attn:"ambient"` on the event collapses
+    minting to young rate (`hyperbind_aware_null` — P1176).
+  - **Binding-dev contract:** edge-field E takes
+    `bind_dev_mult(encodeAge)` (0.4@4 → 1.0@13); content
+    fields take NO leg — the item/binding dissociation is
+    mandatory at P1177.
+  - **Nap contract:** encodeAge < `nap_req_age` records
+    consolidate ONLY with a sleep episode ≥ `nap_min` within
+    `nap_win`; else pinned ≤ `nap_cap` and die next sleep;
+    `nap_req_soft` widens the window to 6; semantic minting
+    ungated (`nap_cont_null` — P1178).
+  - **Chronotype contract:** profile `chronotype` drifts
+    morningward with `chron_age_shift` plus adolescent
+    evening dip; `sync_pen_enc`/`sync_pen_ret` apply at off-
+    peak hours, age-amplified; `sync_pm_pen` on evening
+    intentions ≥65 (P1179).
+  - **Verbatim-halflife contract:** `verb_hl_mult(encodeAge)`
+    scales the verbatim field class only — gist fields keep
+    adult clocks (P1181's dissociation is the test).
+  - **Reserve contract:** profile `reserve` ∈[0,1] shifts
+    old-side `age_eff` knots by `reserve_delay` and
+    STEEPENS post-`reserve_cliff` decline by `reserve_steep`
+    (compressive pricing, DEBATED — P1182's post-cliff leg
+    is the falsifiable part); child legs and skill fields
+    untouched (`reserve_skill_null`).
+  - **Dyadic contract:** `crosscue_w`·min(1,`shared_years`/15)
+    ·`intimacy` on partner-supplied cues; `collab_inhib`
+    shrinks with `transact_years_gain`; partner removal must
+    measurably degrade shared-topic recall (P1183 — the
+    widow cost is a REQUIRED observable).
+  - **Familiarity contract:** `fam_rely` converts "know"
+    emissions at `fam ≥ fam_floor` into remembered-style
+    reports with an attribution-error channel; familiarity
+    strength itself is age-flat below 80 (`fam_age_null` —
+    P1184).
+  - **DF-leak contract:** `df_old_leak` applies to LIST-
+    method suppression only; the item-method arm must stay
+    age-flat (P1185) — control of a set, not the brake.
+  - **Dediff contract:** `dediff_w` coarsens simOp mask
+    granularity → between-record merges; within-record
+    fidelity NEVER touched (`dediff_item_null` — P1180).
+  - **Locked boundaries game-systems must honor:**
+    `hyperbind_aware_null`, `nap_cont_null`,
+    `reserve_skill_null`, `fam_age_null`, `dediff_item_null`.
+  - **New params (§7):** 17 scalars + 5 locked nulls +
+    5 knot functions + 4 field/state additions. Probes
+    P1176–P1185.
+
+- v5.60 additions (age-decline X — AD§§139–152, spec
+  §§4.70–4.73, §§5.124–5.126, §§6.282–6.284):
+  - **Strategy contract:** `strat_spont(age_eff)` scales
+    elaborative E components only (`w_emo`/`w_nov` passive
+    legs untouched); a `study:true` affordance raises
+    `strat_spont_eff` to ≥ `strat_instruct_floor`;
+    instruction NEVER degrades vs spontaneous
+    (`strat_teach_null` — P1186).
+  - **Proactive contract:** `proac_mult` applies to
+    sustained-monitoring channels (pm_self, eaves_intent,
+    vigilance hold, pending_cand refresh); reactive paths
+    (cue-driven retrieval, pm_focal, recognition) take NO
+    leg (`reac_null` — P1187).
+  - **Effort contract:** `effort_disc` discounts bout
+    entry/attn top-up vs payoff; `relevance_rescue` exempts
+    the top relevance band (P1188).
+  - **Belief contract:** `memself`·`belief_tax_max` taxes
+    strategy and effort channels only; decay tables and S
+    are off-limits (`belief_decay_null` — P1189 audits the
+    decay table itself).
+  - **Slip contract:** `slip_p` mints floor-encoded
+    `slip:true` routine records; failed self-checks emit
+    `slip_check` verify intents; `pm_focal`/habitual
+    intentions exempt (`slip_intent_null` — P1190).
+  - **PI contract:** `pi_n`/`pi_w` within-day same-context
+    interference, ≥60% cleared per sleep pass, boundary
+    events reset the cell; §130 `spacing_age_null`
+    untouched — massed ≠ spaced (P1191).
+  - **Calendar contract:** `tele_*` compresses EMITTED
+    elapsed estimates only; stored timestamps bit-identical
+    (P1192 invariant); `pot_report` has zero direct age
+    term — density-derived (P1193).
+  - **Order contract:** `order_hl_mult` lands between item
+    and source legs (source < order < item mandatory);
+    `order_confused` emissions carry intact item fields
+    (P1194).
+  - **Hindsight contract:** `hind_mult` inflates
+    `knew_prior` ONLY when the prior-belief field is below
+    `theta`; live fields immune at all ages
+    (`hind_recall_null` — P1195).
+  - **Locked boundaries game-systems must honor:**
+    `strat_teach_null`, `reac_null`, `belief_decay_null`,
+    `slip_intent_null`, `hind_recall_null`.
+  - **New params (§7):** 11 scalars + 5 locked nulls +
+    8 knot functions + 6 field/state additions. Probes
+    P1186–P1195.
+
+- v5.61 additions (emotional-memory X — EM§§126–135, spec
+  §§4.74–4.77, §§5.127–5.130, §§6.285–6.287):
+  - **Reception contract:** `hearAccount`/`observe` with
+    `arousal ≥ recep_thresh` AND `scope:"remote"` mints a
+    `reception:true` companion record — frame fields
+    (bearer/place/activity) hot, remote content stays
+    `hearsay` forever (`recep_content_null` — P1196);
+    `discussEvent` adds `recep_share_gain` to the frame.
+  - **Attention-gate contract:** `w_emo` and
+    `emo_consol_gain` scale by `emo_attn_floor(age_eff)`
+    +attention; §2.2 blink and §4.9 conditioning are
+    EXEMPT (`emo_attn_blink_null` — P1197).
+  - **Labeling contract:** `labeled:true` events mint
+    cooled arousal tags (`label_dampen`·`emo_gran`);
+    CondEntry acquisition unaffected (`label_som_null` —
+    P1198). World-builder supplies the flag from utterance
+    content.
+  - **Open-arc contract:** `unresolv_thresh` mints
+    `unresolved:true` on unclosed emotional events;
+    intrusion premium until `closed:true`, decaying
+    `closure_decay`/day post-resolution; neutral
+    interruptions immune (`unresolv_neutral_null` —
+    P1199). World supplies `closed:true` on resolution
+    events.
+  - **Centrality contract:** `central:true` records inject
+    as appraisal cues into ambiguous new events
+    (`central_lens_w`), anchor landmark dating, and draw
+    rehearsal — but write ZERO content fields into other
+    records (`lens_fact_null` — P1200).
+  - **Attribution contract:** `mood_source` on C discounts
+    `mood_bleed` (and §6.287's resistance) by `attrib_disc`
+    when the source is salient + unrelated (P1202).
+  - **Motivational ecology contract:** discrete tags carry
+    `motiv` ∈{approach,avoid,ambivalent}; anger rehearses
+    (`approach_rehearse`), fear intrudes-not-told, envy
+    runs the private loop (`envy_intrude`, suppressed
+    emission). Emotion enum += {envy, pride} (P1203).
+  - **Foil contract:** recognition-mode foils get
+    `emo_foil_bias`·arousal_foil false-alarm weight,
+    positive leg age-rising (`emo_foil_pos_leg`); recall
+    mode immune (`foil_recall_null` — P1201).
+  - **Telescoping-brake contract:** `tele_emo_resist`
+    attenuates `tele_shift` by record arousal — report-
+    side only, P1192's stored-timestamp invariant
+    inherited (P1204).
+  - **Regulation-dents contract:** `reg_choice_knee` picks
+    distraction vs reappraisal; distraction suppresses draw
+    for `distract_dur` with the stored tag bit-identical
+    (`distract_tag_null`); reappraisal drifts stored
+    valence `reapp_tag_k`/bout (P1205).
+  - **Locked boundaries game-systems must honor:**
+    `recep_content_null`, `emo_attn_blink_null`,
+    `label_som_null`, `unresolv_neutral_null`,
+    `lens_fact_null`, `foil_recall_null`,
+    `distract_tag_null`.
+  - **New params (§7):** 15 scalars + 7 locked nulls +
+    4 knot functions + 7 field/state additions. Probes
+    P1196–P1205.
+
+- v5.62 additions (false-memory X — FM§§114–125, spec
+  §§4.78–4.79, §§5.131–5.133, §§6.288–6.294):
+  - **Inference contract:** unobserved fields with
+    gistImplied ≥ `infer_thresh` mint `inferred:true` at
+    `infer_mint_p`·script_strength, strength
+    ×`infer_str_mult`, source:none — never verbatim
+    confidence (`infer_verb_null` — P1206).
+  - **Script contract:** unwitnessed typical script slots
+    mint at `script_mint_p` rising with
+    `script_mint_delay_k`·log(age); atypical tags never
+    fill (`script_atyp_null` — P1207).
+  - **Collective-gist contract:** reconstruction of weak
+    fields pulls toward population-mode value at
+    `cgist_w`·sharedSchema — game-systems/world must
+    supply `sharedSchema(char, mode)` and a population
+    mode per shared-schema field; idiosyncratic fields
+    immune (`cgist_personal_null` — P1208).
+  - **DA-retrieval contract:** `attn_ret` < `da_ret_thresh`
+    cuts src_check drive by `da_ret_src_lax`; familiarity
+    bit-identical (`da_fam_null` — P1209).
+  - **Fame-lag contract:** source < `fame_src_floor` AND
+    age ≥ `fame_lag` may re-date to generic-old at
+    `fame_p`·`fame_age_leg`; fresh records immune
+    (`fame_fresh_null` — P1210).
+  - **Stress-gist contract:** encode-time stress ≥
+    `stress_gist_thresh` raises gist-lure adoption
+    (`stress_gist_gain`) AND verbatim decay
+    (`stress_verb_loss`); verbatim never gains
+    (`stress_verb_null` — P1211).
+  - **RES contract:** successful recall arms `res_flag`
+    for `res_hl`; adopt premium ×(1+`res_boost`
+    ·`res_age_leg`); un-recalled fields flat
+    (`res_nt_null`); §6.243 warning composes on top
+    (P1212).
+  - **Plausibility contract:** whole-event implant scales
+    `plaus`^`plaus_exp`; `photo:true` lifts plaus_eff,
+    `vouched:true` multiplies rate; nothing mints below
+    `plaus_floor` (`plaus_floor_null` — P1213). World
+    supplies `plaus` from biography fit.
+  - **Feedback contract:** `feedback` emissions move
+    reported confidence (+`fb_conf_gain` / −`fb_disc_gain`)
+    and quality self-report only; stored content identical
+    (`fb_acc_null` — P1214).
+  - **Sensitization contract:** `source_sensitize` /
+    `fm_sensitize` ops un-believe minted/suggested records
+    at `sens_src_k`/`sens_fm_k`; veridical records
+    untouched (`sens_true_null` — P1215).
+  - **Slant contract:** `audience_tuned:true` retells
+    drift own record `slant_k`/bout at reconsolidation,
+    gist-congruent only (`slant_contra_null` — P1216).
+  - **Action-imagination contract:** `planned`/`imagined`
+    action records mint `performed` variants at
+    `act_imag_k`/bout capped `act_imag_cap`; no intent
+    record, no channel (`act_imag_intent_null` — P1217).
+  - **Locked boundaries game-systems must honor:**
+    `infer_verb_null`, `script_atyp_null`,
+    `cgist_personal_null`, `da_fam_null`,
+    `fame_fresh_null`, `stress_verb_null`, `res_nt_null`,
+    `plaus_floor_null`, `fb_acc_null`, `sens_true_null`,
+    `slant_contra_null`, `act_imag_intent_null`.
+  - **New params (§7):** 22 scalars + 12 locked nulls +
+    2 knot functions + 8 field/state additions. Probes
+    P1206–P1217.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -19804,6 +27864,109 @@ battery's job is to prove it, not to fit the famous shape.
 
 Probes P1156–P1157 in validation-design.md §226.
 
+### 14.9 Consequence-continuity contracts (new in v5.77)
+
+The Astra direction makes three things load-bearing that
+the battery previously treated as emergent niceties:
+unequal knowledge, honest provenance, and demonstrated
+longitudinal persistence. This section is all
+harness/contract — no psychology moved.
+
+**(a) Dyad-pair bookkeeping.** Every shared event
+(conversation, promise, witnessed act) mints records in
+each participant's store stamped with a common `pairId`;
+encoding, decay, and retrieval run independently per
+head — a promise lives in two heads with two decay
+clocks. Variance partition per Kenny's Social Relations
+Model (Kenny & La Voie 1984): across dyad batteries,
+actor-variance share ≥ `srm_actor_min` 0.2 — identical
+paired recalls (shared truth collapsed to one store) or
+uncorrelated noise both fail.
+
+**(b) Breach/repair fixture.** A standard missed-
+commitment scenario (collaborator skips a shared meal
+prep; Astra §3's own test) is declared once and reused:
+`scenario_arm` ∈ {admit, deny, control}; each run ships
+a matched `untouched_arm` comparison run with the
+intervention withheld (Astra §5: preserve untouched
+comparison runs). Two causal-wiring gates, both locked
+nulls: `memless_behav_null` — deleting the breach
+record must collapse the disappointment signature
+(avoidance/cooperation shift) in the probed window; a
+signature that survives deletion is scripted, not
+remembered. `repair_script_null` — voluntary repair
+must lift repair-rate ≥ `repair_margin` 0.2 over the
+untouched arm AND must vanish in a memory-lesioned arm;
+repair that fires identically without memory is a rule,
+not a repair.
+
+**(c) Deception scar.** Schweitzer, Hershey & Bradlow
+2006 (OBHDP 101:1): trust after breach + consistent
+trustworthy acts recovers; after breach + denial it
+asymptotes below — even with promise and apology.
+Two-arm longitudinal probe: deny-arm trust trajectory
+must level ≥ `deception_asym` 0.15 below admit-arm at
+`persist_probe_days` horizon; a promise accelerates
+recovery in both arms but does not close the gap.
+CONSENSUS-adjacent (single well-powered lab paradigm;
+direction replicated in trust literatures) — the dose
+is our modeling choice, flagged HYPOTHESIS.
+
+**(d) Provenance audit.** Every memory-backed surface
+emission carries `display_tier` (§6.378 lattice);
+absent tier = `label_gap_null` failure. Periodic audit:
+human-tier reference labels vs emitted labels,
+Cohen's κ ≥ `kappa_prov_min` 0.80 (Cohen 1960); INFERRED
+content rendered as fact is a verdict-fail under the
+existing `infer_verb_null`/`prov_up_null` lattice —
+this probe audits the *surfaces*, where v5.75 audited
+the store.
+
+**(e) Persistence measurement.** Longitudinal probes
+report reliability, not just means: trait-level memory
+measures per character across `persist_probe_days` 21
+sim-days must reach ICC(2,k) ≥ `icc_persist_min` 0.60
+(Shrout & Fleiss 1979 — the six-form choice is
+pre-registered; pooling characters is banned,
+§14.8's artifact discipline extends to time). Revised
+priorities count only if the goal-weight shift
+persists ≥ `priority_persist_d` 7 sim-days; within-
+person momentary variance must remain ≫ trait variance
+(Fleeson 2001 — the sim may not collapse to trait
+determinism to fake stability).
+
+**(f) Two-clock honesty.** Accelerated replay
+(Astra §5's fast clock) may compress quiet periods but
+skips zero commitment checkpoints: every prospective-
+memory cue scheduled inside the window must fire or
+expire by its own rule — `ffwd_checkpoint_null`.
+McDaniel, Einstein, Graham & Rall 2004: interruptions,
+not delays, break delayed intentions — a fast clock
+that silently drops cues manufactures amnesia.
+
+**(g) Coverage gate.** Registry cross-check: every
+locked-null param and every §6.x contract must have
+≥1 live probe; coverage < `cover_gate_min` 0.9 fails
+the suite. Spec-only machinery is infrastructure, not
+demonstrated behavior — this gate is the battery's
+answer to the spec→wired gap.
+
+| param | default | notes |
+|---|---|---|
+| persist_probe_days | 21 | harness — longitudinal window per probe |
+| icc_persist_min | 0.60 | pop — ICC(2,k) floor, Shrout & Fleiss 1979 |
+| kappa_prov_min | 0.80 | harness — provenance label-audit κ (Cohen 1960) |
+| pair_recall_mde | 0.30 | pop — min detectable dyad divergence (Cohen's d) |
+| repair_margin | 0.20 | pop — repair-rate lift over untouched arm |
+| deception_asym | 0.15 | pop — deny-vs-admit trust asymptote gap (Schweitzer 2006 dose = HYPOTHESIS) |
+| priority_persist_d | 7 | pop — sim-days a revised priority must persist |
+| srm_actor_min | 0.20 | pop — min actor-variance share in dyad partition |
+| cover_gate_min | 0.90 | harness — locked-null/contract live-probe coverage |
+| untouched_arm | true | harness — matched no-intervention run mandatory |
+| memless_behav / repair_script / ffwd_checkpoint / label_gap | 0.0 each | locked nulls — §14.9b,d,f |
+
+Probes P1405–P1418 in validation-design.md §264.
+
 ## 15. Composition, context, and surface annex (new in v5.18)
 
 Machinery for formal-model.md Part VII. All pop/harness params — no
@@ -19873,3 +28036,158 @@ of the param→verdict Jacobian over the full trait joint (P744).
 | theta_unbounded / e_overbound / surf_mint / ctx_oracle | 0.0 each | locked nulls — §52/§55/§54 |
 
 Probes P733–P744 in validation-design.md §133.
+
+## 16. Deferral, migration, and equivalence annex (new in v5.65)
+
+Machinery for formal-model.md Part XI. All harness/contract — no
+psychology moved this version.
+
+### 16.1 The deferral catalog (op `evalClass` column)
+
+| op family | evalClass |
+|---|---|
+| encode/mint ops (encode, phantom, transplant, conjunction, firstlook_mint, fs_met, vic_snub) | AT_EVENT |
+| interference writes, merges, genericization | AT_EVENT |
+| decay R(t), res_flag/discount_tag expiry, ctx persistence survival, R→K conversion | ON_READ |
+| sleep consolidation legs, nap gate, grief onset, menop stage transitions | DEADLINE(consol_deadline_h) |
+| §5.9 reboost, suppress_k, firstlook conf growth | AT_EVENT at present |
+| beliefStatus FSM, canonical-ledger writes, journal appends, tier redaction | NEVER_SKIP |
+| census/maintenance tick-digests | DEADLINE(tick), owed at yield 1.0 |
+
+P1247 enforces: every catalog op + every §6.x leg carries a declared
+class; `eval_skip_null` — NEVER_SKIP appears in no deferred path at
+any degradation level.
+
+### 16.2 The delta record + branch registry
+
+```
+Delta = { added:{field→default}, renamed:{old→new},
+          removed:[field]→legacy, semchg:[{field,branchId}],
+          locked_new:[param], params_changed:[key] }
+Branch = { branchId → {oldFn, newFn, grandfathered:[probeIds],
+                       diffProbe, rationale, source} }
+```
+
+Laws A1–A4 per FM§96: additive-only (narrowing only), locked-null
+monotonicity (`null_unlock_null`), hash-domain exclusion
+(`hash_domain_ver:"v2"` excludes specVersion/legacy/evaluatedAt/
+journal metadata), silent-delta ban (`migrate_silent_null`).
+`migrate_strict:"enforce"` gates `deriveParams` and the probe
+registry on declared deltas. Probes P1250–P1253.
+
+### 16.3 Equivalence classes
+
+`=_state` (canonHash bit-identical under CRN) / `≈_obs` (identical
+present-output distribution) / `≈_mom` (§21 composites within
+recov_tol 0.10 + probe CIs) / `≈_d(ε)` (declared divergence bound —
+thin mode: `ambient_err_bound` 0.15/30 dark-days). Each code path
+declares its class; `equiv_claim_null` makes over-claiming a probe
+failure (P1254). Probes P1245–P1256.
+
+## 17. Durability, promotion, and wiring annex (new in v5.87)
+
+Machinery for formal-model.md Part XIII. All harness/contract — the
+psychology it references (CLS consolidation, EVLN, goal disengagement)
+is cited there; this annex is the implementable residue.
+
+### 17.1 Field classes
+
+Every field carries `fieldClass ∈ {DURABLE, DERIVED, EPHEMERAL}` in a
+declared registry. `canonHash` domain = DURABLE exactly. Laws:
+L-P1 round-trip `=_state`; L-P2 DERIVED never serialized
+(`persist_derived_null`). See FM§117 table for the family map.
+
+### 17.2 The daylog and the barrier
+
+Record field `consolidated:false` at mint; the record lives in
+`daylog` (volatile) until the sleep-barrier op — evalClass
+DEADLINE(`consol_deadline_h`), owed at yield 1.0 per §16.1. At the
+barrier each daylog record promotes with P weighted by E and salience
+tags, expectation `cls_write_frac`. Retrieval write-back lands at the
+next barrier with P=`reconsol_rewrite_p` inside `consol_window_h` of
+retrieval. Restart pre-barrier loses daylog — locked
+`daylog_durable_null` — the hippocampal-amnesia leg.
+
+### 17.3 `resident_tier`
+
+`{main, promoted, ambient}` on the character record. Promoted draws
+all psych params from the §76 prior (`prom_quality_null` — KS-audited),
+runs the full op set including PromiseView and the provenance lattice;
+degraded only in census cadence (`prom_cadence_mult`) and replay
+(`prom_shadow_null` — §71 shadow-past banned, §72 sampler allowed).
+Eligibility: `interactions_with_mains ≥ prom_elig_n` within
+`prom_elig_days`, counted from the ledger; viewer metrics excluded
+(`prom_camera_null`).
+
+### 17.4 The consequence battery
+
+CB-0..CB-3 per FM§120. Required scaffolding: `origin:{char,script}`
+on every repair-path op (`script_repair_null`); `goal` records carry
+`status:{active,abandoned}` and `goal_sub` is a first-class record
+kind (`goal_resurrect_null`); breach records are never deletable
+(`breach_erase_null`). CB arms must span ≥1 barrier + ≥1 resume and
+run on mains AND promoted residents.
+
+### 17.5 The wiring ledger
+
+`wire_status ∈ {SPEC_ONLY, PARTIAL, WIRED}` per section with the
+FM§121 predicate; `wireCov = |WIRED|/|sections|` journaled per commit;
+monotone (`wire_regress_null`).
+
+### 17.6 New params (v5.87 block — all pop/harness, 9 locked nulls)
+
+`cls_write_frac` 0.6 · `consol_window_h` 6 · `reconsol_rewrite_p` 0.7
+· `prom_cadence_mult` 4 · `prom_elig_n` 12 · `prom_elig_days` 30 ·
+`cb_disappoint_days` 30 · `goal_sub_p` 0.6 · `goal_grief_days` 21 ·
+nulls: `persist_derived_null`, `daylog_durable_null`,
+`prom_quality_null`, `prom_shadow_null`, `prom_camera_null`,
+`breach_erase_null`, `script_repair_null`, `goal_resurrect_null`,
+`wire_regress_null`. Probes P1517–P1528.
+
+## 18. Validation-surface annex (new in v5.89)
+
+Harness/contract residue of validation-design.md §§288–291 (VA-CONT,
+VA-PROV, VA-IMP, VA-CAL). The psychology is cited there; these are the
+emitter contracts the probes consume.
+
+### 18.1 Residue reporting
+
+Every op that references a prior record emits `residue_ref:{recordId,
+channel}` with `channel ∈ {retell, affect, goal, distancing,
+selfreport}`. CB interventions tag their mint `cb_origin:{t0_id}` so
+probes can follow the causal chain; the hidden tap exposes
+`conditionedAffect` val and `retrievalCount` for channel scoring.
+`residue_zero_null` — a CB arm that produces a zero-residue cohort is a
+fail, not a clean run.
+
+### 18.2 Provenance audit hook
+
+`prov_audit_sample(k, seed)` — validation-only: draws k emitted display
+claims, recomputes `tier()` (provenance lattice, OBSERVED > TOLD >
+INFERRED > UNKNOWN) from each chain, and returns the emitted-vs-
+recomputed diff. Emitters must attach `display_tier` to every
+memory-backed claim; severity classes S1/S2/S3 per VD§289.
+`prov_label_null` — S1 (INFERRED-as-OBSERVED) count is hard-zero;
+`audit_blind_null` — injected mis-tiers must be caught ≥95%.
+
+### 18.3 Implicit boundary
+
+`impl_str` mints ONLY as a decayed product of an encoded record —
+`implicit_orphan_null`: injected impl_str on an unencoded record must
+produce no behavioral shift. Affect shift at recall-floor is the
+intended Korsakoff leg (P1550), never suppressed as "leakage".
+
+### 18.4 Confidence reporting
+
+`conf_bin_report()` — validation-only: emits `(conf_out, accuracy)`
+pairs per recall for decile binning. `conf_perfect_null` — accuracy in
+the conf ≥0.9 bin must be <1.0 at n≥200 (Roediger & DeSoto 2014:
+confident errors are human); a perfect top bin fails as a database
+tell.
+
+### 18.5 New params/nulls (v5.89 block — harness only)
+
+`prov_audit_k` 200 · `audit_catch_min` 0.95 · `residue_tail_min` 0.05 ·
+nulls: `residue_zero_null`, `residue_mono_null`, `prov_label_null`,
+`audit_blind_null`, `implicit_orphan_null`, `conf_perfect_null`.
+Probes P1541–P1552.

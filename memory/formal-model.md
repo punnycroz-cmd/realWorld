@@ -3769,3 +3769,1160 @@ report into a journal query. Zero new per-character params,
 zero new record content fields, zero new mechanisms: this part
 specifies what the existing machine *owes the outside world* —
 an honest surface, a bounded tail, and a legible history.
+
+---
+
+# Part XI — v117 deepening pass: the deferral algebra, the version lattice, and the equivalence contract (P1245–P1256)
+
+Parts I–X hardened *what* the machine computes; this part hardens
+*when* it computes it, *how it survives its own upgrades*, and *what
+"the same memory" means* across optimizations. Three holes remained:
+
+(a) **Evaluation timing was implicit.** §1 said decay must be written
+as `R(t_elapsed)` — a function of elapsed time — but never said which
+ops *may* be deferred to read time, which *must* run at event time,
+and what happens to ops whose natural deadline (first sleep) is
+missed. Every implementation decision about lazy vs eager evaluation
+was ungoverned — the exact class of decision that silently turns a
+psychology into a database.
+
+(b) **`migrate` was a stub.** §30 declared
+`migrate(snap, fromVersion)` in three sentences; the spec has since
+crossed 60+ version bumps (v5.64 at this writing) each asserting
+"snapshot-additive; absent = legacy" — a discipline enforced by
+convention, not by any stated law. The additive-only rule, locked-null
+monotonicity, hash-domain exclusions, and semantics-changed branches
+now get formal standing.
+
+(c) **"Equivalent" had no teeth.** §47 defined canonical form and
+`bit-identical` vs `fp_tol`; §31's degradation ladder promised
+"expected values unchanged"; §48's fast/slow split licensed
+approximations — but no equivalence *relation* was ever defined, so no
+optimization could state what it preserves and no probe could test
+the claim.
+
+## 92. Eval-timing classes — every op has a legal schedule
+
+Every op in the §38 catalog is assigned exactly one class, declared
+in the op catalog itself (new column, P1247 enforces completeness):
+
+| class | semantics | examples |
+|---|---|---|
+| `AT_EVENT` | must run at the event's ledger position; deferral changes the result | interference pair writes (§4.2 asymmetry is order-dependent), CondEntry extinction counters, `firstlook_mint`, source-sensitize marks |
+| `DEADLINE(Δ)` | must run within Δ of its trigger or fall to the owed queue (§94) | sleep-consolidation legs (`consol_deadline_h`), nap gates, grief-onset state mints |
+| `ON_READ` | may be evaluated lazily at first demand after its interval; result identical by §93 | decay `R(t_elapsed)`, `rk_*` remember→know conversion, field-level `res_flag` expiry, `ctx_tau` persistence survival |
+| `NEVER_SKIP` | no degradation level may drop it | canonical-ledger writes, `beliefStatus` FSM transitions, journal appends, `present` tier redaction |
+
+**The semigroup condition (lazy legality).** An op `f(state, Δt)`
+may be class `ON_READ` iff it is a *pure elapsed-time map*:
+`f(f(s, Δt₁), Δt₂) = f(s, Δt₁ + Δt₂)` for all reachable `s` and all
+splits of the interval, AND `f` commutes with every op that can land
+inside the interval. Decay `R(t) = E_adj·(1+t/τ)^(−β) + floor`
+satisfies the first clause trivially — it is a function of `t`
+alone, not of evaluation count (Rubin & Wenzel 1996's
+scale-invariance is what makes this *also* psychologically
+defensible: the same law fits at minute and year scales).
+Interference fails the second clause — a rival encoded at `t+ε`
+inside a lazily-skipped window must see the pre-decay strength it
+actually competed against; evaluate the pair eagerly or the
+asymmetry inverts [CONSENSUS-level math, HYPOTHESIS as policy].
+
+**Corollary (the read is pure).** `ON_READ` ops evaluate into a
+*projection*, never into the store: `lazy_write_null` — a read that
+lands no mutating op leaves every stored field bit-identical,
+including `strength` (the stored value is the last-materialized one;
+the projected value is `R(now − evaluatedAt)`). Materialization —
+writing the projected value back — happens only when a mutating op
+needs the current value as input, and the write is journaled as part
+of that op, not as a free-standing "decay op" (which would violate
+§86 attribution: `attrib_null` counts every delta; a decay write with
+no author would fail P1120). Record field added:
+`evaluatedAt: worldDay` — snapshot-additive, excluded from the
+canonical-hash domain (§96, `hash_domain_ver:"v2"`).
+
+## 93. The lazy-eager equivalence theorem
+
+**Claim.** For any schedule that evaluates each `ON_READ` op at any
+point ≥ its interval start and ≤ first demand, and runs every
+`AT_EVENT`/`DEADLINE`/`NEVER_SKIP` op at its legal position, the
+observable sequence of `present()` outputs is `=_state`-equivalent
+to the eager-every-tick baseline — *provided* no mutating op lands
+inside a deferred window while reading the un-materialized value.
+
+The proviso is the theorem's teeth. Formal restatement: let
+`m(o)` be the materialization point of op `o`; legality requires
+`m(o) ≤` every op whose read-set intersects `o`'s write-set since
+`o`'s trigger. The op catalog already carries read/write sets (§38)
+— lazy legality is a *static* check over the catalog plus a dynamic
+watermark check (`evaluatedAt ≥ last-intersecting-write`), not a
+testing hope. Two failure modes this kills:
+
+- **Double decay.** Two reads at `t₁ < t₂` must not compound:
+  read 2 projects `R(t₂ − evaluatedAt)` off the materialized
+  `R(t₁ − createdDay)` — because power-law decay is NOT multiplicatively
+  separable in this parametrization (`R(a+b) ≠ R(a)·R(b)`), compounding
+  would silently over-forget. The watermark makes the second read a
+  fresh projection of elapsed total, never a delta on a delta (P1246).
+  This is the single most likely bug in a naive lazy implementation —
+  exponential decay forgives the error (it *is* separable), power-law
+  does not, and §1 already committed to power-law.
+- **Phantom rehearsal.** A scan that "checks" a record without
+  surfacing it must not accrue retrieval practice (§5.9) or bump
+  `lastAccessDay` — reads are projections; only ops in the catalog
+  write. `lastAccessDay` updates on *retrieval ops*, not on reads.
+
+## 94. The owed-work queue — deadlines that fire late
+
+`DEADLINE(Δ)` ops that miss their window do not vanish — human
+consolidation degrades with delay, it does not binary-expire
+(Gais, Lucas & Born 2006 — sleep within ~3 h of encoding shields
+cued recall vs the same sleep delayed a full day; Talamini,
+Nieuwenhuis, Takashima & Jensen 2008, *Learn. Mem.* 15:233 — the
+sleep-wake ordering asymmetry: 24 h sleep→wake beats wake→sleep
+because consolidation quality depends on trace stability *at sleep
+onset*, i.e. the debt is real but discounted, not cancelled;
+Ellenbogen et al. 2006 — slept memories resist next-day
+interference, the shield is conferred by the sleep that happened,
+not the sleep owed).
+
+```
+OwedEntry = { opId, triggerDay, deadlineDay, payloadRef,
+              class:"owed", yield: owed_yield }
+```
+
+- On trigger+`consol_deadline_h` (36 h awake-time default —
+  ~1.5 missed nights; HYPOTHESIS sizing off Gais 2006's first-night
+  gradient), an un-run deadline op converts to an `OwedEntry` in the
+  per-character `owedQueue` (snapshot-persisted, journal-visible).
+- The queue drains at the next `sleep` event, *before* that sleep's
+  fresh consolidation legs, at yield `owed_yield` (0.5 — sized so the
+  wake-first arm of Talamini 2008, ≈half the sleep-first benefit,
+  is the model's price for the miss). `owed_full_null` (locked): an
+  owed op never lands at full yield — missing the window is a wound,
+  not a postponement.
+- Bounded: `owed_cap` 64 entries; overflow sheds *oldest first* in
+  §31 ladder order, each shed journaled (`oplog_drop_null` already
+  forbids silent loss — the journal entry IS the not-silent part).
+- Ambient-mode interaction: a thin-mode character's owed queue
+  keeps accrual (the character was awake, sleep debt is a state,
+  not a compute artifact) but drains only on upgrade — declared
+  behavioral delta, §99.
+
+## 95. The deferral catalog — every existing op, classified
+
+Retroactive classification of the §38 op catalog (the table lives in
+the spec annex §16.1; summary here):
+
+| op family | class | why |
+|---|---|---|
+| encode/mint (`encode`, `phantom`, `transplant`, `conjunction`, `firstlook_mint`, `fs_met`, `vic_snub`) | AT_EVENT | mints are ordered against the ledger; a deferred mint would compete against the wrong rivals |
+| interference writes, merges, genericization | AT_EVENT | order-dependent asymmetry (§4.2); also fails the commute clause |
+| decay `R(t)`, `res_flag`/`discount_tag` expiry, ctx persistence survival, R→K conversion | ON_READ | pure `t_elapsed` maps; the workhorses of the lazy license |
+| sleep consolidation legs, nap gate, `grief` onset, `menop` stage transitions | DEADLINE | psychologically windowed; owed-queue fallback |
+| reboost (§5.9), suppress (`suppress_k`), `firstlook` conf growth | AT_EVENT at the `present` op | write-back already declared synchronous (§83); deferral would reorder practice vs suppression |
+| `beliefStatus` FSM, canonical-ledger writes, journal appends, tier redaction | NEVER_SKIP | legal-truth layer; §39 non-interference depends on it |
+| census/maintenance tick-digests | DEADLINE(tick) | harness ops; owed at yield 1.0 (harness debt, not psychological debt — owed_yield applies to consolidation legs only) |
+
+**Rule for future ops:** an op without a declared class fails P1247
+— the catalog row is the spec's forcing function so that "can this
+be lazy?" is never answered ad hoc in a game-systems code review.
+
+## 96. The version lattice — `migrate` gets its laws
+
+§30 promised `migrate(snap, fromVersion)`; this section defines it.
+Spec versions form a **lattice ordered by ancestry** (the git
+merge-base order of `sf/memory` releases — v5.64 ⊒ v5.63 ⊒ …);
+`migrate` is defined on every ancestor edge and **composes**:
+
+```
+migrate(s, v_a→v_c) = migrate( · , v_b→v_c) ∘ migrate(s, v_a→v_b)
+```
+
+for every intermediate `v_b` on the path. Compositionality is a
+*probe* (P1250), not a hope: hash-level equality of the two routes
+on fuzzed snapshots.
+
+**The delta record.** Every version bump ships a machine-readable
+`delta` block (this doc's §7 blocks have been the prose form;
+§16.2 makes it a schema):
+
+```
+Delta = { added:  {field → default},
+          renamed:{old → new},        // alias table, versioned
+          removed:[field],            // → `legacy` verbatim archive
+          semchg: [{field, branchId}],// named migration branch (§97)
+          locked_new:[param],         // nulls locked THIS version
+          params_changed:[key] }      // defaults moved (rare, logged)
+```
+
+**Lattice laws:**
+
+- **A1 additive-only:** `semchg` on a *stored record field* is
+  forbidden below the root — semantics of existing fields may only
+  *narrow* (locked nulls tighten; legs may gain a locked-off arm).
+  Behavioral changes to existing fields go through `params_changed`
+  or new fields, never through silent reinterpretation. This is the
+  formal content of every "snapshot-additive; absent = legacy" line
+  since v0.9 — now it's a law with a probe (P1251).
+- **A2 locked-null monotonicity:** `locked_new` is a monotone set —
+  a param locked at version `v` is locked in every descendant;
+  `null_unlock_null` (locked): no delta may carry a negative
+  `locked_new` entry. Rationale: the corpus's locked nulls are where
+  the *evidence* lives (a bible asking for migraine-driven decline
+  gets Rist 2012, not a dial); unlocking re-opens a decided question
+  without new evidence. New evidence = new param, new section.
+- **A3 hash-domain exclusion:** `canonHash` (§47) computes over the
+  canonical *psychological* state only; `specVersion`, `legacy`,
+  `evaluatedAt`, journal metadata, and all M-tier/harness state are
+  excluded (`hash_domain_ver:"v2"`). Two snapshots identical except
+  bookkeeping hash equal — otherwise every version bump would look
+  like mass forgetting (P1253). `hash_version_null` (locked):
+  version bookkeeping never enters the hash domain.
+- **A4 migrate is total and default-honest:** `migrate` on any
+  ancestor version yields a state where absent fields stand at their
+  declared defaults and `deriveParams` produces the identical
+  parameter vector an un-migrated character would get — defaults are
+  semantics, not serialization accidents (`migrate_silent_null`:
+  migrate produces zero behavioral delta outside §97's declared
+  grandfather list; P1251).
+
+**Journal versioning.** `opLog` entries carry `writer_ver`; replay
+across a migrate boundary replays old entries under their own
+version's op semantics *then* runs `migrate` on the result —
+replay-equivalence (P1119) holds within a version; across versions
+it holds modulo the declared delta (§97). A replay that drifts
+outside the delta is a `ver_replay` violation (P1251 leg).
+
+## 97. The named-branch registry — semantics changes are declared, not discovered
+
+The one legal escape from A1: a `semchg` entry names a `branchId`
+registered in the **branch registry** — a versioned table mapping
+`branchId → {oldFn, newFn, grandfathered:[probeIds], rationale}`.
+Each branch must declare:
+
+- which probes change verdict under the new semantics (the
+  *grandfather list* — e.g., a re-fit `β` table legitimately moves
+  decay-curve probes; they are re-baselined, not failed);
+- a `diffProbe` demonstrating old-vs-new on a fixed script — the
+  branch's own evidence;
+- rationale + source, same standard as any §6 mechanism.
+
+Branches are how the spec corrects itself without gaslighting its
+snapshots: a character whose records were written under v5.52
+semantics carries them into v5.65 with the *content* intact and the
+*interpretation* current — which is, not incidentally, how human
+reconsolidation treats old memories (the trace persists; the
+retrieval frame is today's — Nader & Hardt 2009's update framing,
+already §4's reconsolidation basis, applied here to the *model's own*
+past) [HYPOTHESIS — the analogy is ours].
+
+## 98. The equivalence contract — three relations, one declaration
+
+Every optimization, refactor, or degradation level must declare
+which relation it preserves. Define, for a candidate change `C`:
+
+- **`=_state` (bit-identical):** `hash(S_C) = hash(S)` after every
+  step under CRN. Preserved by: lazy evaluation of `ON_READ` ops
+  (§93, with watermark legality), op reordering within §38 commute
+  classes, journal compaction, snapshot round-trips, `migrate` along
+  pure-additive edges.
+- **`≈_obs` (output-identical):** identical distribution over all
+  `present()` outputs across all reachable contexts and seeds —
+  `=_state` on every projected surface, interior allowed to differ
+  (e.g., materialization timing inside a legal window: stored
+  `evaluatedAt` differs, every surface identical). Test: CRN-paired
+  runs diffed on present outputs, not on snapshots.
+- **`≈_mom` (moment-bounded):** composite observables (§21) within
+  `recov_tol` (0.10) AND probe-level rates within their declared
+  CIs (§32.2). Preserved by: L2 sampled interference (sampling moves
+  variance, not expectation — the §31 promise now has a formal
+  object), ambient cadence scaling, census approximation.
+- **`≈_d(ε)` (bounded divergence):** anything else must carry a
+  declared `ε` — max divergence on the §21 composites between the
+  degraded and reference arm over a stated horizon. The ONLY class
+  allowed to sit here: the thin/ambient downgrade (§99) and
+  explicitly-licensed approximations (§48) — and each must publish
+  its measured `ε`, not just claim one.
+
+`equiv_claim_null` (locked): no code path may claim `=_state` whose
+ops fail the §92 semigroup check or whose writes escape the journal —
+the claim is auditable, not vibes (P1254 runs the declared class's
+test; a path claiming more than it preserves fails on its own
+declaration).
+
+## 99. The ambient bound — what thin mode is allowed to cost
+
+§31 L3/L4 and the world track's `observation tiers`
+(watched/shadowed/dark) leave a formal gap: what error does a
+character accumulate while thin? Now bounded:
+
+- While at L3+, a character's store evolves by the deferred subset:
+  decay projects on read (free, `=_state`), owed queue accrues
+  (drains at yield `owed_yield` on upgrade-sleep), mints and
+  interference writes **do not happen** — events that would have
+  minted records in a dark character are *lost*, and this loss is
+  the declared delta: `ambient_err_bound` 0.15 on §21 composites per
+  30 dark-days, measured by P1255 as the L3-vs-L0 paired-arm
+  divergence.
+- Human-truth justification: a character unobserved by the sim is
+  *living thin days* — thin encoding is the fiction-consistent read
+  (routine, unremarked days genuinely leave sparse traces — the
+  reminiscence literature's "calendar effect": uneventful intervals
+  produce few anchor memories; Robinson 1986, already in-corpus for
+  temporal distribution). The bound exists so "thin" stays honest:
+  an ambient character may not come back *smarter* about its dark
+  period (`ambient_know_null`-class behavior already implied by
+  `fs_identity_null`-style observer locks; the bound quantifies the
+  honest direction — sparse, never confabulated-dense).
+- On upgrade: the owed queue drains, the journal marks the dark
+  interval with a `gap` digest (§86 machinery, same class as
+  possession gaps §6), and composites re-converge within the bound —
+  thin mode is a *debt instrument*, not a different psychology.
+
+## 100. Interaction notes
+
+- **With §83 write-back:** `present`'s reboost/suppress legs are
+  `AT_EVENT`-at-present — a deferred suppression would let a shadowed
+  competitor win a later recall it should have lost. Journal ordering
+  was already the transaction order (§88); the class declaration just
+  makes the timing obligation explicit.
+- **With §31 ladder:** the ladder's shed order is now *derived*, not
+  listed: at each level, shed ops in reverse class-strictness order
+  (`ON_READ` first — deferral is free; `DEADLINE` → owed queue;
+  `AT_EVENT` sampled per L2; `NEVER_SKIP` never). L4's "decay +
+  consolidation only" is the fixed point: at L4 every sheddable op is
+  already shed.
+- **With §48 fast/slow split:** licensed approximations declare
+  `≈_d(ε)`; the split's "slow path exists" clause is what keeps the
+  bound finite — an approximation with no exact fallback can't
+  declare ε it never measures.
+- **With §70–73 cold start:** shadow-past replay runs at synthetic
+  versions = current spec; `synth` journal entries carry
+  `writer_ver` like everything else; a synth replayed across a
+  migrate is still `synth:true` (the flag survives migrate — it's
+  provenance, not semantics).
+- **With §86 journal:** `owedQueue` conversions and sheds are
+  journaled ops; `evaluatedAt` watermark writes are journaled inside
+  their forcing op only (a watermark is bookkeeping, `attrib_null`
+  still holds — the *value* delta belongs to the op).
+
+## 101. New params (spec §7 v5.65 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| consol_deadline_h | 36 | pop (hours) | P1248 — miss window → owed |
+| owed_yield | 0.5 | pop — HYPOTHESIS (Talamini 2008 wake-first ≈ half) | P1248 |
+| owed_cap | 64 | harness | P1249 — overflow sheds journaled |
+| ambient_err_bound | 0.15 | pop — HYPOTHESIS (composite divergence / 30 dark-days) | P1255 |
+| backlog_order | "ledger" | pop (enum) | P1245 — deferred-op order = ledger order |
+| hash_domain_ver | "v2" | pop (table ver) | P1253 — bookkeeping excluded |
+| migrate_strict | "enforce" | harness (enum) | P1250/P1251 — delta registry gate |
+| lazy_write_null | 0.0 | locked null | P1246 — reads never mutate |
+| owed_full_null | 0.0 | locked null | P1248 — owed never lands whole |
+| null_unlock_null | 0.0 | locked null | P1252 — locks are monotone |
+| hash_version_null | 0.0 | locked null | P1253 — bookkeeping ∉ hash |
+| migrate_silent_null | 0.0 | locked null | P1251 — no undeclared delta |
+| equiv_claim_null | 0.0 | locked null | P1254 — claim ≤ proof |
+| eval_skip_null | 0.0 | locked null | P1247 — NEVER_SKIP never defers |
+
+14 entries, **0 per-character** — the Part X pattern holds (timing,
+versioning, and equivalence are substrate infrastructure; a bible
+dial for "how lazy is this character's decay evaluation" would be
+the database failure mode in miniature).
+
+## 102. Formal/consistency probes (P1245–P1256)
+
+- **P1245 lazy-eager equality (MUST):** same ledger, same seeds —
+  decay/R→K/expiry evaluated per-tick vs on-demand → identical
+  `canonHash` at every present boundary; deferred ops in
+  `backlog_order` — the §93 theorem executed as a fuzzer.
+- **P1246 no double decay (MUST — locked null):** two reads at
+  t₁<t₂, no intervening write → second projection equals
+  `R(t₂−createdDay)` computed once, not `R` compounded;
+  `lazy_write_null` — reads leave store bit-identical.
+- **P1247 catalog completeness (MUST — locked null):** static scan —
+  every op in the §38 catalog + every op added by §§6.x legs carries
+  a declared eval class; `eval_skip_null` — no `NEVER_SKIP` op
+  appears in any deferred path at any ladder level.
+- **P1248 owed yield (MUST — dose-lock):** scripted 40-h-awake arm
+  vs slept-on-time arm, same diet: owed-drained consolidation lands
+  at `owed_yield` ± CI of the on-time leg; never 0, never 1
+  (`owed_full_null`). Talamini 2008 ordering reproduced: sleep→wake
+  arm > wake→sleep arm on identical 24-h retention.
+- **P1249 owed overflow honesty (MUST):** `owed_cap` forced overflow
+  → sheds oldest-first, each shed journaled; queue never exceeds
+  cap, never silently empties.
+- **P1250 migrate composes (MUST):** fuzzed v_old snapshots: direct
+  `migrate(v_a→v_c)` vs stepwise through `v_b` → identical
+  `canonHash`; run on every version edge in the corpus.
+- **P1251 additive-only + silent-migrate (MUST — two locked nulls):**
+  migrated snapshots produce `deriveParams` output identical to
+  fresh-derived; probe battery on a migrated state differs from
+  un-migrated only on §97 grandfather lists; `migrate_silent_null`
+  — undeclared behavioral delta is a spec violation, found by the
+  battery not by users.
+- **P1252 lock monotonicity (MUST — locked null):** static scan of
+  delta records across history — `locked_new` sets are monotone
+  increasing; any negative entry fails the build;
+  `null_unlock_null`.
+- **P1253 hash domain (MUST — locked null):** mutate `specVersion`,
+  `legacy`, `evaluatedAt`, journal metadata on a fixed state →
+  `canonHash` unchanged; `hash_version_null`.
+- **P1254 equivalence declarations (SHOULD):** for each code path
+  declaring an equivalence class, run the class's test (CRN snapshot
+  diff for `=_state`, present-output diff for `≈_obs`, composite
+  moments for `≈_mom`); `equiv_claim_null` — over-claiming fails on
+  the declaration itself.
+- **P1255 ambient bound (SHOULD):** paired CRN arms — character dark
+  30 days at L3 vs L0; §21 composites diverge ≤ `ambient_err_bound`;
+  dark-interval mints are absent (sparse), never backfilled-dense;
+  owed queue drains on upgrade-sleep at `owed_yield`.
+- **P1256 eval-timing fuzz (OBSERVE):** randomize legal evaluation
+  schedules across the corpus; publish the spread of §21 composites —
+  measures how much the harness's legality constraints actually bind;
+  expected ≈0 under `=_state` classes, nonzero only where `≈_d` is
+  declared. Report, don't gate.
+
+Registry: P1–P1256. v117 suite: P1245–P1247, P1249–P1253 MUST (the
+locked-null class again — evaluation timing and version drift are
+where a correct psychology silently becomes a database); P1248
+dose-locked MUST; P1254–P1255 SHOULD; P1256 OBSERVE.
+
+## 103. Summary for game-systems
+
+Three deliverables, all contract. **The deferral algebra**
+(§§92–95): every op has a declared eval-timing class — `AT_EVENT`,
+`DEADLINE(Δ)`, `ON_READ`, `NEVER_SKIP` — and lazy evaluation is
+*legal*, not merely possible, exactly where the semigroup condition
+holds (pure `t_elapsed` maps + commute with everything that can land
+in the window). Reads are projections; `evaluatedAt` is the
+watermark; the owed queue is where missed consolidation goes to be
+paid at `owed_yield` — a character who stays up two nights doesn't
+lose the memories, it pays for them. **The version lattice**
+(§§96–97): `migrate` composes along ancestor edges, deltas are
+machine-readable, locks are monotone, bookkeeping never enters the
+hash — sixty version bumps of "snapshot-additive; absent = legacy"
+become four laws with probes. **The equivalence contract**
+(§§98–99): `=_state` / `≈_obs` / `≈_mom` / `≈_d(ε)` — every
+optimization declares its class and the declaration is testable;
+thin mode is a bounded debt instrument (`ambient_err_bound`), and
+dark days leave sparse traces rather than none because that is what
+uneventful days do to people too. Zero new psychology, zero new
+per-character params, zero new content fields — this part specifies
+*when the machine may think, how it survives its authors, and what
+it means for two implementations to be the same mind.*
+
+---
+
+# Part XII — v129 deepening pass: the epistemic layer — the provenance lattice, the knows() contract, and the disclosure algebra (P1380–P1391)
+
+Parts I–XI hardened *what the machine computes, when, and how it
+survives its authors*. What remains unformalized is the property the
+product was named for: **who knows what, who thinks others know, and
+how the gap moves.** The mechanisms exist in pieces — `told_by`
+provenance (§6.3+), serial reproduction (§6.12), destination memory
+(§5.140), common-ground overreach (§6.21), confidentiality decay
+(§6.22), inferred-intent provenance (§6.367) — but no *epistemic
+contract* binds them: no declared semantics for "character A knows
+fact F," no rule for what the observation UI may display as seen
+versus inferred, no op for the act of telling, and no record for
+discovering that someone held out on you. This part supplies that
+layer. It is the Astra production-3 mandate made formal: unequal
+knowledge as an attractor of the dynamics, not a scripting flag; and
+an OBSERVED/INFERRED labeling algebra the art track can render
+without ever reading a hidden field.
+
+## 104. The two axes — knowing is not one number
+
+Every memory record already carries *credibility* quantities —
+`strength`, `conf_out`, `beliefStatus` — governing whether it
+surfaces and how firmly it's held. This part declares the second,
+independent axis: **provenance** — how the knower came to have it.
+The axes must not be conflated:
+
+- **Recall axis** (strength/confidence): governs *whether* the
+  character retrieves the content at all. Continuous, decays.
+- **Provenance axis** (display tier): governs *what the outside
+  world is allowed to say about how the character knows*.
+  Discrete, ordered, strength-independent.
+
+A faint witnessed glimpse and a vivid thirdhand rumor can hold
+identical strength and opposite provenance. Any system that lets
+strength bleed into the tier — "it's so detailed, show it as
+observed" — has rebuilt the database failure mode one level up.
+Locked `tier_strength_null` (P1391): no recall-axis quantity may
+enter the tier function.
+
+## 105. The provenance lattice — `tier()` as a join-semilattice
+
+Declare a four-element total order on **display tiers**:
+
+```
+OBSERVED > TOLD > INFERRED > UNKNOWN
+```
+
+with pure function `tier(rec)`:
+
+| record kind | tier | UI face |
+|---|---|---|
+| `witnessed`, `self` | OBSERVED | "seen/did" — may link footage |
+| `told_by` | TOLD | "heard" — renders hop count when `prov_chain` intact |
+| `inferred`, `imagined` | INFERRED | "figured/suspected" — badge always |
+| absent | UNKNOWN | not renderable as knowledge at all |
+
+Join and meet, used by the machinery:
+
+- **Merge join:** when two records merge (§6.x merge paths), the
+  merged record takes `max(tier)` of its parents *by this order
+  alone*. Content fields merge as before; provenance follows the
+  strongest evidence, never the strongest memory.
+- **Upgrade is closed.** The only legal tier upgrades are the
+  named ops: `absorb` (§6.23, gated hearCount≥3 + richness +
+  journaled), `witness` (a real observed event), `reality_flip`
+  (§6.9, imagined→witnessed through the reality-monitoring gate).
+  Decay, rehearsal, retelling, and merging perform **zero** tier
+  upgrades. Locked `prov_up_null` (P1382).
+- **Downgrade is real.** Source decay (§6.10) may strip the
+  `heard_from` edge off a `told_by` record — the content stays
+  TOLD but renders "heard it somewhere," unattributed. Tiers
+  don't decay; *attribution* does. This distinction is what makes
+  "I'm pretty sure, don't ask me who said so" renderable.
+- **Meet for common knowledge:** `commonTier(A, B, F) =
+  min(tier_A(F), tier_B(F))` — a fact is mutually OBSERVED only
+  when both sides hold witnessed records. A co-present event one
+  party merely heard about later is TOLD-common, and the
+  asymmetry is *retained per side*, never averaged.
+
+## 106. The chain crossover — hop-count signs the drift
+
+§6.12 already carries the serial-reproduction operators
+(`si_dropoff·exp(−chainPos/chain_sc_thresh)` for
+stereotype-inconsistent items; `assimilation_gain` per-hop schema
+pull). What was informal is the *sign flip*: Kashima 2000 (*PSPB*
+26:594 — verified: 5-person chains) found stereotype-inconsistent
+items reproduced **more** than consistent items early in chains,
+with consistent items dominating by the end; Lyons & Kashima 2003
+(*JPSP* 85:989) showed SI progressively screened out over 4-person
+chains, sharedness of the stereotype amplifying the pull. Both
+effects are already latent in the spec's operators — this part
+declares the crossover as a testable constant:
+
+```
+S_si(h) = si_early_gain · si_dropoff · exp(−h/chain_sc_thresh)
+S_sc(h) = 1 − (1 − sc_retain)·exp(−h·assimilation_gain/0.05)
+        // rises toward 1 as schema pull compounds
+h* ≈ chain_crossover_h (3):  S_si(h) > S_sc(h) for h < h*,
+                             S_si(h) < S_sc(h) for h > h*
+```
+
+`chain_crossover_h` (3) is a HYPOTHESIS-tagged population constant:
+Kashima's chains show the ordering and the endpoint dominance, not
+a precise crossing index; P1386 gates only the *order* (early SI
+advantage, late SC advantage), leaving the exact h* observable.
+Locked `chain_flat_null` is NOT added — the crossover is a claim,
+and a hop-independent implementation is a probe failure, not a
+parameter choice.
+
+## 107. `knows()` — the isolation contract
+
+```
+knows(charId, factKey) -> {tier, conf, hops} | null
+```
+
+Semantics: a **recognition-mode recall** (§5.6) constrained to the
+`factKey` content-hash family, returning the retrieved record's
+tier, calibrated confidence, and `prov_chain` depth. `null` is not
+an error — it is "this character does not have this fact," produced
+by ordinary retrieval failure: never encoded, decayed below floor,
+interference-blocked, or cue-mismatched.
+
+Three rules make this an epistemic primitive rather than a lookup:
+
+1. **Isolation.** `knows` reads exactly one character's stores.
+   Locked `knows_db_null` (P1383): the canonical ledger, other
+   characters' records, and the world's own event stream are
+   unreachable from inside `knows`. The *world* knows the storm
+   drain was blocked; `knows(mara, drain_fact)` returning `null`
+   is how a secret — or simple ignorance — exists at all.
+2. **Fallibility is the point.** `knows` inherits every recall
+   failure mode. A fact the character *has* may still return
+   `null` on a bad cue day — that is "they'd know if you reminded
+   them," and the reminder is a world event, not a retry flag.
+3. **Tier travels.** The returned `tier` is the §105 tier — the
+   caller learns not just whether but *how* the character knows,
+   which is what dialogue needs to write "you saw it?" versus
+   "you heard?".
+
+## 108. `knowsOf()` — meta-knowledge as a noisy channel
+
+```
+knowsOf(A, B, factKey) -> p in [0,1]
+```
+
+A's model of whether B knows F — never a boolean, because human
+meta-knowledge is wrong in both directions. Composed as a noisy-OR
+over A's evidence edges (all read from A's stores only):
+
+```
+p = 1 − Π_i (1 − w_i·ev_i)
+    ev_told_to   = strength of A's told_to:{B} edge on F's family,
+                   decayed by §5.140 dest machinery (w = meta_dest_w 0.6)
+    ev_copres    = 1 if A holds a witnessed record co-locating B at
+                   F's event (w = meta_copres_p 0.7 — Clark common
+                   ground, §6.21)
+    ev_shared    = shared_with overlap on F's content hash
+                   (w = common_ground_conf, existing)
+    ev_rumor     = A heard that B heard (told_B_knows flag, w = 0.4)
+```
+
+The asymmetry is load-bearing and already paid for by §5.140:
+`told_to` edges encode at `dest_E` < `heard_from` strength, so
+A's "did I tell B?" decays faster than B's "who told me?" — the
+teller forgets the audience before the audience forgets the teller
+(Gopie & MacLeod 2009 — verified destination < source). Locked
+`meta_omni_null` (P1384): no implementation may make `knowsOf`
+exact in either direction — false "they know" (repeat-telling to
+an already-informed audience) and false "they don't" (the
+unremembered disclosure) are both mandatory failure modes.
+`knowsOf` feeds two consumers: dialogue ("I thought you knew"),
+and the UI's plausible-knowledge hints — which must render INFERRED
+always, since meta-knowledge is inference by construction.
+
+## 109. `disclose()` — the asymmetric write
+
+```
+disclose(A, B, factRef, mode)   mode ∈ tell | confide | blurt
+```
+
+The act of telling, specified once as a paired asymmetric write —
+the primitive every rumor, confession, and promise transmission
+reduces to:
+
+- **Pre-gate (confidentiality):** if A's record on `factRef` is
+  `confidential:true`, §6.22's `P(respect)` rolls first. On leak,
+  the write proceeds but B's mint carries `leak:true` +
+  `disclosed_by:A` — the trail that lets the owner later run
+  §110's discovery. The prohibition decays (`secret_str`), the
+  content doesn't — "wait, was that a secret?" stays emergent.
+- **A-side write:** a `tell` event record (E by normal encoding)
+  plus a `told_to:{B}` edge at `dest_E` — deliberately weak.
+  `confide` additionally tags A's record `still_confidential`
+  (the secret persists; the circle widened).
+- **B-side write:** a `told_by` record at hearer E plus
+  `heard_from:{A}` edge at normal source strength. `confide` sets
+  `confidential:true` on B's copy with `secret_str = E_B` — the
+  secrecy obligation is re-minted per holder, fresh. `blurt` adds
+  an arousal tag and skips the confidentiality gate (public
+  setting ⇒ no P(respect) roll — you can't leak what's already
+  out).
+- **Tier cap:** B's record lands TOLD and can never exceed TOLD
+  from this op — B *heard it*. Upgrading to OBSERVED requires a
+  real witnessed event or the gated §6.23 absorption. Locked
+  `tell_obs_null` (P1385 leg): disclosure never mints a witnessed
+  record on the hearer side.
+
+The theorem this makes structural: **unequal knowledge is an
+attractor.** Every disclosure writes one strong edge (hearer→teller)
+and one weak edge (teller→hearer); time erodes the weak one first;
+the population drifts toward states where "who told whom" is
+genuinely unrecoverable — not a bug state to repair but the human
+equilibrium the sim exists to produce.
+
+## 110. `discoverWithheld()` — the meta-event record
+
+```
+discoverWithheld(A, factRef, B) -> withheld record
+```
+
+When A learns F *and* obtains evidence that B knew F earlier and
+didn't disclose: mints a `withheld` record — content "B held F
+back," `target:B`, valence `withheld_valence` (−0.4), strength by
+normal encoding of the discovery event. Idempotent: a second
+discovery of the same withholding merges into the existing record
+(strength bump), never double-mints — being told twice that B hid
+it stings more, it isn't two betrayals.
+
+The memory-side substrate for the trust arc Astra demands: the
+`withheld` record is what later recall surfaces when A weighs B's
+credibility (feeds `PersonModel[B].credibility` at `withheld_cred`
+−0.15), and it is a *record*, so it decays, distorts, and can be
+misattributed like everything else — "I'm sure it was Dev who knew"
+is a legal reconstruction. Honest provenance: the record's
+`prov_chain` carries the discovery evidence; if A only *inferred*
+the withholding, the record's evidence field is INFERRED-tier and
+the UI may not show it as fact. (Empirical basis: thin direct
+literature on memory-for-withholding; grounded in the betrayal/
+violation-of-expectation affect literature — HYPOTHESIS tag on the
+valence/credibility doses; the *mechanism* — a typed meta-record —
+is the deliverable.)
+
+## 111. `acknowledge()` — repair that doesn't erase
+
+```
+acknowledge(A, B, eventRef, kind)   kind ∈ competence | integrity
+```
+
+Voluntary repair — the apology, the acknowledgment, the showing-up-
+next-day. Mints paired `repair` records: A gets "I made it right
+with B about X"; B gets "A made it right with me about X," each
+`repair_of:eventRef`-linked to the breach/withheld/missed-commitment
+record. Two laws:
+
+- **Nothing is deleted.** Locked `repair_erase_null` (P1388): the
+  breach record persists at full provenance; repair is additive
+  evidence, not redaction. Retrieval of the breach later surfaces
+  the linked repair at `repair_link_p` (0.6) — the memory arrives
+  with its epilogue attached, most of the time.
+- **Repair is partial and kind-gated.** `repair_eval_gain` (0.1)
+  applies to B's `PersonModel[A]` eval edge, multiplied by
+  `repair_integ_mult` (0.4) when `kind:integrity` — apologies
+  repair competence failures better than integrity failures
+  (Kim, Ferrin, Cooper & Dirks 2004, *JAP* 89:104 — DEBATED dose,
+  CONSENSUS ordering). A remembered disappointment with a repair
+  edge is *different* knowledge than one without — it is not a
+  smaller disappointment.
+
+## 112. `PromiseView` — paired records, divergent halves
+
+Formalize what §6.368's soft/formal split left informal: every
+commitment event mints **two records from one utterance** —
+`promiser_view` on the speaker, `promisee_view` on the hearer —
+each a first-class record with its own E draw, decay track, and
+distortion path. The asymmetry is self-referential: each side's
+encoding boosts its *own role* at `promise_self_boost` (0.15) —
+the promiser's record foregrounds "I committed" (act-gist), the
+promisee's foregrounds the *terms* (what was owed). Grounding:
+Ross & Sicoly 1979 (*JPSP* 37:322 — self-serving contribution
+recall, CONSENSUS direction); the specific promiser/promisee
+divergence magnitude is HYPOTHESIS.
+
+Consequence, stated as a bound rather than a hope: define
+`promise_div(Δt) = |recall_promisee(terms) − recall_promiser(terms)|`;
+the model must produce `E[promise_div]` increasing in lag, bounded
+by `promise_div_max` (0.4). Promises remembered differently is not
+a special feature — it is the independent-decay of paired records
+plus a self-role skew, and P1389 gates the ordering while
+reporting the magnitude.
+
+## 113. The display contract — what the UI may show
+
+Every memory-backed emission now carries `display_tier` from §105,
+and the rule set is closed:
+
+| emission | rule |
+|---|---|
+| catch-up "verified change" | ledger-OBSERVED events only; links footage |
+| character knowledge card | tier badge on every fact (SEEN / TOLD n / INFERRED) |
+| motive/intent surfaces | `intent_inferred` provenance ⇒ INFERRED, always (§6.367) |
+| who-plausibly-knows hints | `knowsOf` output ⇒ INFERRED, always |
+| withheld/repair records | tier of the *evidence*, not of the accusation |
+| UNKNOWN | renders as absence — never a placeholder fact |
+
+Locked `obs_label_null` (P1381): no path from INFERRED or TOLD to
+an OBSERVED render exists outside the three named upgrade ops.
+This is the primitive set the art track asked for: honesty as a
+*type*, not a style guide.
+
+## 114. New params (spec §7 v5.75 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| si_early_gain | 1.2 | pop — HYPOTHESIS (Kashima 2000 ordering) | P1386 |
+| sc_retain | 0.7 | pop — HYPOTHESIS (endpoint SC dominance) | P1386 |
+| chain_crossover_h | 3 | pop — HYPOTHESIS (crossing index, OBSERVE on value) | P1386 |
+| meta_dest_w | 0.6 | pop | P1384/P1385 |
+| meta_copres_p | 0.7 | pop (Clark common-ground overreach, §6.21) | P1384 |
+| meta_rumor_w | 0.4 | pop | P1384 |
+| withheld_valence | -0.4 | pop — HYPOTHESIS | P1390 |
+| withheld_cred | -0.15 | pop — HYPOTHESIS | P1390 |
+| repair_eval_gain | 0.1 | pop — DEBATED dose (Kim et al. 2004) | P1388 |
+| repair_integ_mult | 0.4 | pop — ordering CONSENSUS, dose DEBATED | P1388 |
+| repair_link_p | 0.6 | pop — HYPOTHESIS | P1388 |
+| promise_self_boost | 0.15 | pop — Ross & Sicoly direction CONSENSUS | P1389 |
+| promise_div_max | 0.4 | pop bound — HYPOTHESIS | P1389 |
+| obs_label_null | 0.0 | locked null | P1381 |
+| prov_up_null | 0.0 | locked null | P1382 |
+| knows_db_null | 0.0 | locked null | P1383 |
+| meta_omni_null | 0.0 | locked null | P1384 |
+| tell_obs_null | 0.0 | locked null | P1385 |
+| repair_erase_null | 0.0 | locked null | P1388 |
+| tier_strength_null | 0.0 | locked null | P1391 |
+
+20 entries, **0 per-character** — the epistemic layer is substrate:
+every character shares the lattice; diversity enters through the
+existing per-profile scalars (self-focus, conscientiousness in
+P(respect), neuroticism on withheld valence via existing trait
+weights). A "keeps secrets better" dial would be a trait on
+`secret_str` encoding, already reachable through E.
+
+## 115. Formal/consistency probes (P1380–P1391)
+
+- **P1380 lattice laws (MUST):** `tier` maps every record kind to
+  exactly one tier; merge satisfies join-semilattice laws
+  (associative, commutative, idempotent) over fuzzed record pairs;
+  `commonTier` symmetric.
+- **P1381 obs label integrity (MUST — locked null):** fuzzed
+  retell/disclose/infer/merge op streams — scan every emission:
+  OBSERVED render ⇔ witnessed/self kind at the ledger.
+  `obs_label_null`.
+- **P1382 upgrade closure (MUST — locked null):** tier upgrades
+  occur only inside `absorb`/`witness`/`reality_flip` and each is
+  journaled; decay/rehearsal/retell fuzzers show bit-identical
+  tiers. `prov_up_null`.
+- **P1383 knows isolation (MUST — locked null):** state where the
+  ledger holds F but the character store does not →
+  `knows(charId, F)` = `null`; state where the store holds F but
+  the ledger was rolled back → `knows` still returns the record.
+  `knows_db_null`.
+- **P1384 meta both directions (MUST — locked null):** scripted
+  scenes — (a) B knows F, A's `told_to` edge decayed →
+  `knowsOf(A,B,F)` may fall below threshold; (b) B does not know,
+  A over-infers from co-presence → above threshold. Both errors
+  must occur with nonzero rate. `meta_omni_null`.
+- **P1385 disclosure asymmetry (MUST — dose):** N scripted
+  `disclose` events, fixed lag: `told_to` hit-rate < `heard_from`
+  hit-rate (Gopie & MacLeod ordering), age gradient per
+  `dest_mult`; hearer tier = TOLD exactly (`tell_obs_null`).
+- **P1386 chain crossover (SHOULD):** serial chains over matched
+  SC/SI items — reproduced-item retention ordering: SI > SC for
+  h < `chain_crossover_h`, SC > SI beyond; report observed h*
+  vs 3 (value OBSERVE, ordering gated).
+- **P1387 secret leak timing (SHOULD):** `confidential` records
+  — P(respect) holds while `secret_str` fresh, leaks approach
+  content-fresh rates as it decays; `leak:true` mints carry
+  `disclosed_by` attribution end-to-end.
+- **P1388 repair preserves (MUST — locked null):**
+  `acknowledge` on a breach record leaves it bit-present with
+  intact provenance; `repair` records carry `repair_of` links;
+  eval gain gated by kind (integrity < competence).
+  `repair_erase_null`.
+- **P1389 promise divergence (SHOULD — HYPOTHESIS-tagged):**
+  paired-arm scripted commitments: `E[promise_div]` > 0 at 30-day
+  lag, promisee terms-recall ≥ promiser terms-recall ordering,
+  divergence ≤ `promise_div_max`.
+- **P1390 withheld idempotence (OBSERVE):** repeated
+  `discoverWithheld` on one (A,F,B) triple → single `withheld`
+  record, strength-bumped; evidence tier INFERRED when the
+  discovery was inference-only.
+- **P1391 tier purity (MUST — locked null):** manipulate
+  strength/confidence/hearCount on fixed-kind records →
+  `display_tier` invariant. `tier_strength_null`.
+
+Registry: P1–P1391. v129 suite: P1380–P1385, P1388, P1391 MUST
+(the locked-null class plus the two ordering results the product
+stands on — disclosure asymmetry and label integrity); P1386,
+P1387, P1389 SHOULD; P1390 OBSERVE.
+
+## 116. Summary for game-systems
+
+Four deliverables, all contract. **The provenance lattice**
+(§§104–106): a four-tier join-semilattice (`OBSERVED > TOLD >
+INFERRED > UNKNOWN`) on a second axis that strength can never
+touch — merges take max-tier, upgrades are closed to three named
+journaled ops, and the Kashima crossover is declared as a
+testable hop-count sign flip rather than left as prose.
+**The epistemic queries** (§§107–108): `knows()` is a
+recognition-mode recall with a locked isolation boundary —
+ignorance is `null`, fallibility included — and `knowsOf()` is a
+noisy-OR over the character's own evidence edges, wrong in both
+directions by construction. **The disclosure algebra**
+(§§109–112): `disclose` writes the teller side weak and the
+hearer side strong so unequal knowledge is an attractor;
+`discoverWithheld` mints the "you knew" meta-record;
+`acknowledge` repairs without erasing, kind-gated;
+`PromiseView` makes promises-remembered-differently a theorem of
+paired independent decay. **The display contract** (§113): every
+emission carries `display_tier`; OBSERVED requires witnessed
+provenance at the ledger — the labeling primitive the observation
+UI needs, enforced by probe rather than by convention. Zero new
+per-character params: the lattice is shared; the diversity was
+already in the heads.
+
+# Part XIII — v141 deepening pass: the durability partition, the promotion law, and the consequence battery (P1517–P1528)
+
+This part answers the production-3 charge head-on. Astra's review said
+infrastructure is not demonstrated longitudinal development: much of the
+profile machinery is spec-only, and nothing yet *proves* that a remembered
+disappointment, a voluntary repair, or a revised priority persists across
+simulated days. Parts I–XII built mechanisms and contracts; this part
+builds the three things that were still informal:
+
+1. **The durability partition** — a formal statement of what survives a
+   day boundary / a serialize→resume, and a psychologically motivated
+   split between volatile daylog and consolidated store (complementary
+   learning systems, McClelland, McNaughton & O'Reilly 1995).
+2. **The promotion law** — what "supporting residents with persistent
+   memory of the same quality as the mains" means as a theorem, not a
+   promise.
+3. **The consequence battery** — the Astra meal test turned into named,
+   falsifiable, longitudinal probes, plus a wiring ledger that makes
+   "spec→wired gap" an auditable number that can only move one way.
+
+## 117. The durability partition — DURABLE / DERIVED / EPHEMERAL
+
+Every field in the record store, PersonModel, MetaModel, dyad store, and
+queue set is assigned to exactly one of three classes:
+
+| class | definition | members (by family) |
+|---|---|---|
+| DURABLE | survives serialize→deserialize and day boundary; covered by `canonHash` | record `strength`, `createdDay`, `lastAccessDay`, `kind`, `prov` tier, all §6.x minted fields (`forgiven`, `vindicated`, `scope_cred`, `role`, `leak`, `repair_of`, …), EMA accumulators (`responsiveness`, `dependence`), owed-work queue contents, journal tail |
+| DERIVED | recomputable on read from DURABLE + now; NEVER stored | `R(t)` evaluated strength, `tier()` joins, `netRecall` output, `knows()`/`knowsOf()` results, `present()` projections, display_tier |
+| EPHEMERAL | may be lost at any yield; never minted into records | presentation caches, cue-index accelerators, in-flight op scratch |
+
+Two laws.
+
+**L-P1 (round-trip):** for any reachable state s,
+`deserialize(serialize(s)) =_state s` (canonHash bit-identical under
+CRN, FM§16.3). Probe P1518.
+
+**L-P2 (no derived persistence):** storing a DERIVED value in a
+DURABLE field is a violation — it will silently diverge from
+recomputation the moment inputs move. Locked null
+`persist_derived_null` (P1518): audit scans the serialized image for
+any field whose value is a function of `now` or of other records.
+
+This is the contract that makes "persists across simulated days" a
+well-formed claim: a quantity persists iff it is DURABLE and every op
+that reads it either recomputes DERIVED views or reads the DURABLE
+substrate. [HYPOTHESIS — systems formalization; no literature claim.]
+
+## 118. Consolidation as commit — the daylog and the sleep barrier
+
+The partition gets a psychological face from complementary learning
+systems: a fast, volatile hippocampal store that holds the day's
+episodes and a slow neocortical store written during sleep
+(McClelland, McNaughton & O'Reilly 1995 *Psych. Rev.* 102:419 —
+CONSENSUS as computational theory; McGaugh 2000 *Science* 287:248 —
+consolidation is real and time-dependent). The model gains:
+
+- **`daylog`** — minted records carry `consolidated:false` and live in
+  a volatile buffer until the next sleep-deadline op
+  (DEADLINE(`consol_deadline_h`), catalog §16.1). They are readable
+  within the day — a character remembers this morning — but are NOT
+  DURABLE. Locked `daylog_durable_null` (P1519): a restart before the
+  sleep barrier loses the daylog. This is correct behavior, not a bug:
+  it is the hippocampal-amnesia leg, and it gives "the day that never
+  got slept on" a real semantics.
+- **Selective commit.** At the barrier, each daylog record is promoted
+  with probability weighted by encoding strength and salience tags —
+  `cls_write_frac` (0.6) expected fraction; high-E and emotional items
+  preferentially consolidated (Born & Wilhelm 2012 *Psych. Res.*
+  76:141 — sleep consolidates *tagged*, future-relevant content;
+  CONSENSUS direction, dose HYPOTHESIS).
+- **Reconsolidation rewrite.** A retrieved record becomes labile again
+  and its updated copy is only committed at the next barrier
+  (`reconsol_rewrite_p` 0.7; Nader, Schafe & LeDoux 2000 *Nature*
+  406:722 — restabilization window of hours, `consol_window_h` 6;
+  DEBATED for human episodic memory — the phenomenon replicates but
+  boundary conditions are contested, Hupbach et al. and Hardt et al.
+  vs. replications-of-null in Schiller & Phelps 2011 review). The
+  consequence we bank on is narrower and safer: **retrieval writes go
+  through the same commit barrier as new mints**, so every cross-day
+  probe exercises a real write path, never a no-op.
+
+This is what "remembered disappointment persists across days" decomposes
+into mechanically: mint → daylog → barrier commit → DURABLE substrate →
+derived reads at lag.
+
+## 119. The promotion law — `resident_tier`
+
+`resident_tier ∈ {main, promoted, ambient}`. The product mandate
+(Astra §4) is that 2–4 recurring supporting residents get "persistent
+memory of the same quality as the mains." Formalized:
+
+- **Same-quality means same distribution, not same copy.** Promoted
+  residents draw every psych parameter from the §76 population prior —
+  identical `deriveParams` machinery, identical per-profile scalars.
+  Locked `prom_quality_null` (P1522): no parameter may be frozen,
+  narrowed, or mean-shifted relative to mains. A KS test over param
+  draws must show promoted ⊂ main prior.
+- **The difference is compute, not psychology.** Promoted residents
+  may defer census/maintenance digests at `prom_cadence_mult` (4×) and
+  run no shadow-past replay (§71) — era-density sampler (§72) only —
+  `prom_shadow_null` locked. Ambient bound §99 applies at the
+  promoted level: `ambient_err_bound` measured against a full-fidelity
+  twin.
+- **The full op set is non-negotiable.** encode, decay, retell,
+  disclose, PromiseView, provenance lattice, daylog/barrier — all run
+  on promoted records. A resident who cannot form a divergent promise
+  view is not promoted.
+
+Promotion follows recurring relationships, not camera time: eligibility
+is `interactions_with_mains ≥ prom_elig_n` over `prom_elig_days`,
+computed from the ledger — never from viewer attention metrics
+(`prom_camera_null` locked; the archive/follow layer must not steer
+world internals, marketing-v189 rule extended inward).
+
+## 120. The consequence battery — CB-0 through CB-3
+
+Four scripted longitudinal scenarios, each a falsifiable acceptance
+test the running model must pass. None prescribes a character's
+choice; each measures whether consequence *persists*.
+
+- **CB-0 round-trip (the substrate).** Every CB arm must span ≥1 sleep
+  barrier and ≥1 serialize→resume; post-resume `=_state` required.
+- **CB-1 remembered disappointment (the meal test).** A publicly
+  commits to a shared meal; B no-shows. Measures at lag t∈{1,7,30}d:
+  (a) breach record DURABLE with intact prov; (b) B's next promise to
+  A priced lower on A's `scope_cred` (§6.427) — the remembered
+  discount; (c) avoid-channel propensity elevated vs. matched-control
+  arm where the commitment was fulfilled; (d) an `acknowledge` reduces
+  eval but never erases (`repair_erase_null` reuse). Locked
+  `breach_erase_null`: no leg may delete the breach to make the
+  discount stop. This is Schweitzer, Hershey & Bradlow 2006 (*OBHDP*
+  101:1 — violated promises lower trust and recovery is partial and
+  asymmetric; CONSENSUS direction) and Kim et al. 2004 as already
+  wired in §109.
+- **CB-2 voluntary repair (non-prescription).** Post-breach, responses
+  are classified on the EVLN taxonomy — voice, loyalty, neglect, exit
+  (Rusbult, Zembrodt & Gunn 1982 *J. Exp. Soc. Psych.*; Hirschman
+  1970 — CONSENSUS as descriptive taxonomy). The probe asserts two
+  things only: every repair-path op carries `origin:"char"`, and the
+  observed EVLN distribution is reported. Locked `script_repair_null`:
+  a harness mint of an `acknowledge`/`apology` op (origin `"script"`)
+  fails the probe. The engine must not prescribe either reaction —
+  that is the Astra condition, made auditable.
+- **CB-3 revised priorities (goal disengagement).** A character
+  abandons a self-chosen project. Required: `goal` record gets
+  `status:abandoned` and a `goal_sub` substitute-goal record may mint
+  with probability `goal_sub_p` (0.6) reflecting reengagement capacity
+  (Wrosch, Scheier, Miller, Schulz & Carver 2003 *PSPB* 29:1494 —
+  disengagement + reengagement are separable, both adaptive;
+  CONSENSUS). Attention/effort budget must measurably reallocate.
+  Ruminative intrusions on the abandoned goal stay elevated for
+  `goal_grief_days` (21) then decay — the bittersweet tail is human,
+  not a leak (Klinger 1975 on current-concern persistence).
+  `goal_resurrect_null` locked: abandonment never silently reopens.
+
+## 121. The wiring ledger — `wireCov()`
+
+Every spec section §x carries `wire_status ∈ {SPEC_ONLY, PARTIAL,
+WIRED}` with a machine-checkable predicate:
+
+```
+WIRED ⇔ ∃ probe p exercising every op of §x end-to-end through the
+          production tick path (no harness shim for the op under test)
+PARTIAL ⇔ some ops wired, rest harness-only
+SPEC_ONLY ⇔ no end-to-end probe
+```
+
+`wireCov = |WIRED| / |sections|`. Locked `wire_regress_null` (P1527):
+a merge that moves any section WIRED→PARTIAL→SPEC_ONLY fails audit.
+The ledger is additive metadata on the spec — it changes nothing
+psychologically; it makes the gap Astra flagged a number that can only
+shrink. [HYPOTHESIS — process formalization.]
+
+## 122. Interaction notes
+
+- The daylog is where §5.84 mind-pops and §6.421 secret-pops are born:
+  intrusive candidates draw from fresh daylog preferentially
+  (pre-sleep salience, CONSISTENT with existing `sec_pop_boost`).
+- `PromiseView` halves are minted at the commitment event → daylog;
+  divergent decay then runs on DURABLE post-barrier. CB-1's 30-day
+  lag exercises the full chain.
+- The deferral catalog (§16.1) gains one line: `daylog→DURABLE
+  barrier commit` is DEADLINE(`consol_deadline_h`), owed at yield like
+  other sleep legs.
+- `netRecall`, `knows`, `present` outputs are DERIVED: they are never
+  in the serialized image; this is what keeps P1518 honest.
+
+## 123. New params (spec §7 v5.87 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| cls_write_frac | 0.6 | pop — DEBATED dose (Born & Wilhelm 2012) | P1520 |
+| consol_window_h | 6 | pop — DEBATED (Nader et al. 2000 window) | P1521 |
+| reconsol_rewrite_p | 0.7 | pop — DEBATED | P1521 |
+| prom_cadence_mult | 4 | harness | P1523 |
+| prom_elig_n | 12 | harness (recurring-relationship bar) | P1523 |
+| prom_elig_days | 30 | harness | P1523 |
+| cb_disappoint_days | 30 | harness (lag grid endpoint) | P1524 |
+| goal_sub_p | 0.6 | pop — HYPOTHESIS (Wrosch 2003 direction) | P1526 |
+| goal_grief_days | 21 | pop — HYPOTHESIS | P1526 |
+| persist_derived_null | 0.0 | locked null | P1518 |
+| daylog_durable_null | 0.0 | locked null | P1519 |
+| prom_quality_null | 0.0 | locked null | P1522 |
+| prom_shadow_null | 0.0 | locked null | P1523 |
+| prom_camera_null | 0.0 | locked null | P1523 |
+| breach_erase_null | 0.0 | locked null | P1524 |
+| script_repair_null | 0.0 | locked null | P1525 |
+| goal_resurrect_null | 0.0 | locked null | P1526 |
+| wire_regress_null | 0.0 | locked null | P1527 |
+
+18 entries, **0 per-character** — this part is substrate and contract.
+Diversity still enters through the existing per-profile scalars
+(sleepFactor modulates `cls_write_frac` indirectly via E; neuroticism
+lifts `goal_grief_days` through existing trait weights).
+
+## 124. Formal/consistency probes (P1517–P1528)
+
+- **P1517 partition completeness (MUST):** every field in the record
+  store / PM / MetaModel / dyad / queues carries a declared class in
+  {DURABLE, DERIVED, EPHEMERAL}; `canonHash` domain = DURABLE exactly.
+- **P1518 round-trip + no derived persistence (MUST — locked null):**
+  serialize→deserialize at fuzzed mid-tick points → `=_state`; audit
+  of serialized image finds zero DERIVED-valued fields.
+  `persist_derived_null`.
+- **P1519 daylog volatility (MUST — locked null):** scripted restart
+  pre-barrier loses `consolidated:false` records; post-barrier restart
+  loses nothing. `daylog_durable_null`.
+- **P1520 selective commit ordering (SHOULD):** daylog with E-mixed
+  items → promoted fraction ≈ `cls_write_frac`; high-E promotion rate
+  > low-E (ordering gated, value OBSERVE).
+- **P1521 reconsolidation path (OBSERVE — DEBATED class):**
+  retrieved-then-slept records show committed write-back vs
+  unretrieved controls; effect confined to `consol_window_h`.
+- **P1522 promotion quality (MUST — locked null):** promoted-resident
+  param draws KS-indistinguishable from main prior over `deriveParams`
+  samples; every CB arm passes on promoted residents.
+  `prom_quality_null`.
+- **P1523 promotion compute + eligibility (SHOULD):** promoted tick
+  cost ≤ main × declared bound; eligibility counts ledger
+  interactions, camera/follow metrics provably unread
+  (`prom_camera_null`); no shadow-replay ops in promoted journals
+  (`prom_shadow_null`).
+- **P1524 CB-1 remembered disappointment (MUST — the meal test):**
+  breach arm vs fulfilled arm, lags {1,7,30}d across ≥2 barriers +
+  1 resume: `scope_cred` discount persists and decays on R(t), never
+  zeroed without `acknowledge`; breach record bit-present throughout
+  (`breach_erase_null`).
+- **P1525 CB-2 voluntary repair (MUST — locked null):** N post-breach
+  runs — all repair-path ops carry `origin:"char"`; EVLN distribution
+  reported, no mode mandated; scripted repair injection fails by
+  construction. `script_repair_null`.
+- **P1526 CB-3 revised priorities (SHOULD):** abandonment → budget
+  reallocation measurable at 7d; `goal_sub` mints at ~`goal_sub_p`;
+  intrusions elevated ≤`goal_grief_days` then decay; abandoned record
+  never reopens (`goal_resurrect_null`).
+- **P1527 wiring monotone (MUST — locked null):** every WIRED section
+  names ≥1 end-to-end probe; `wireCov` nondecreasing across the
+  journal. `wire_regress_null`.
+- **P1528 battery independence (OBSERVE):** CB-1/2/3 arms pass/fail
+  independently under single-param perturbation — no shared confound
+  lever.
+
+Registry: P1–P1528. v141 suite: P1517–P1519, P1522, P1524, P1525,
+P1527 MUST (the locked-null class plus the two product-bearing
+results — the meal test and non-prescribed repair); P1520, P1523,
+P1526 SHOULD; P1521, P1528 OBSERVE.
+
+## 125. Summary for game-systems
+
+Three deliverables, all contract with a psych spine. **The durability
+partition** (§§117–118): fields are DURABLE, DERIVED, or EPHEMERAL;
+round-trip is `=_state`; and the durable write has a mechanism — a
+volatile daylog committed selectively at the sleep barrier, so
+"persisted across days" always exercises a real path (CLS theory gives
+the split; reconsolidation is marked DEBATED and only the safe leg —
+commit-on-write-back — is banked on). **The promotion law** (§119):
+same quality = same parameter distribution + full op set; the
+difference is compute and cadence only; eligibility comes from the
+ledger, never the camera — two locked nulls keep it honest. **The
+consequence battery** (§120): CB-0 through CB-3 turn remembered
+disappointment, voluntary repair, and revised priorities into named
+falsifiable probes spanning barriers and resumes; `script_repair_null`
+is the clause that makes "the engine must not prescribe either
+reaction" testable. **The wiring ledger** (§121): `wireCov()` is the
+spec→wired gap as a monotone number. Zero new per-character params —
+again the diversity was already in the heads; this version wired the
+ground under them.
