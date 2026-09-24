@@ -1448,6 +1448,93 @@ function sfPropShadow(g, x, y, h, r){
             `rgba(26,36,64,${0.10 + 0.18 * SF_SUN.day})`);
 }
 
+/* v83: the roof-prop catalog — ONE deterministic list of flat-roof
+   furniture shared by the baked top-down sprite AND the street-view
+   projection, so the water tank seen from above is the same one rising
+   over the parapet. Entries carry bake-canvas px (cx,cy on the lifted
+   roof plane; x0/y0/w/d for rect props) AND world meters (mx,my /
+   mx0,my0,mw,md). Memoized per sun sector on the building record. */
+function sfRoofCatalog(b){
+  const q = SF_SUN.q | 0;
+  if(b._rcat && b._rcatQ === q) return b._rcat;
+  const out = [];
+  const pad = Math.ceil(44 + (b.hPx + 14) *
+    Math.max(Math.abs(SF_SUN.x), Math.abs(SF_SUN.y)) * 1.1);
+  const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
+  const hBase = Math.ceil(b.by1 - b.by0);
+  const hPx = Math.ceil(b.hPx);
+  const isShop = !!(b.name) || phash(b.i, 5, 1303) < 0.12;
+  const roofArea = Math.abs(b._area) * SF_PXM * SF_PXM;
+  if(b.px && roofArea > 900 &&
+     sfRoofKind(b, isShop, roofArea) === 'flat'){
+    const P = b.px.map(p => [p[0] - b.bx0 + pad, p[1] - b.by0 + pad + hPx]);
+    const toM = (cx, cy) => [(cx - pad + b.bx0) / SF_PXM,
+                             (cy - pad + b.by0) / SF_PXM];
+    const push = (k, cx, cy, x0, y0, w, d, res) => {
+      const [mx, my] = toM(cx, cy);
+      const e = { k, cx, cy, mx, my, res: !!res };
+      if(w != null){
+        const [mx0, my0] = toM(x0, y0);
+        e.x0 = x0; e.y0 = y0; e.w = w; e.d = d;
+        e.mx0 = mx0; e.my0 = my0; e.mw = w / SF_PXM; e.md = d / SF_PXM;
+      }
+      out.push(e); return e;
+    };
+    // decks — the same gates/rects the bake paints (shop sun deck 1370,
+    // residential rear deck 3200); umbrella anchor stored for the street
+    if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
+      const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
+      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
+      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
+      if([[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const e = push(22, dx0 + dw / 2, dy0 + dh / 2, dx0, dy0, dw, dh, false);
+        const [ux, uy] = toM(dx0 + dw * 0.3, dy0 + dh * 0.35);
+        e.ux = ux; e.uy = uy;
+      }
+    }
+    if(!isShop && roofArea > 1900 && phash(b.i, 12, 3200) < 0.5){
+      const dw = Math.round((wPx - pad * 2) * (0.3 + phash(b.i, 13, 3201) * 0.18));
+      const dh = Math.round(hBase * (0.3 + phash(b.i, 14, 3202) * 0.2));
+      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 15, 3203));
+      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 16, 3204));
+      if(dw > 12 && dh > 8 &&
+         [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const e = push(22, dx0 + dw / 2, dy0 + dh / 2, dx0, dy0, dw, dh, true);
+        const [ux, uy] = toM(dx0 + dw * 0.3, dy0 + dh * 0.35);
+        e.ux = ux; e.uy = uy;
+      }
+    }
+    // furniture scatter — identical hashes to the old inline loop
+    const nItem = Math.min(9, Math.floor(roofArea / 950) + 1);
+    for(let k = 0; k < nItem; k++){
+      let cx = 0, cy = 0, inside = false;
+      for(let a2 = 0; a2 < 6 && !inside; a2++){
+        cx = Math.round(pad + (wPx - pad * 2) * phash(b.i, k + a2 * 31, 1360));
+        cy = Math.round(pad + hBase * phash(k + a2 * 31, b.i, 1361));
+        inside = sfPtInPoly(P, cx, cy + hPx);
+      }
+      if(inside) push(Math.floor(phash(b.i, k, 1369) * 21), cx, cy).ix = k;
+    }
+    /* penthouse pop-up — the Mission's rear roof additions: a raised box
+       ~2.4m over the deck, biased to the rear (north) half of the lot,
+       with its own parapet and a sun-cast shadow on the tar below. */
+    if(!isShop && roofArea > 1700 && phash(b.i, 71, 3600) < 0.32){
+      const pw = Math.round((wPx - pad * 2) * (0.30 + phash(b.i, 72, 3601) * 0.14));
+      const ph2 = Math.round(hBase * (0.30 + phash(b.i, 73, 3602) * 0.14));
+      const px0 = Math.round(pad + (wPx - pad * 2 - pw) * phash(b.i, 74, 3603));
+      const py0 = Math.round(pad + (hBase - ph2) * phash(b.i, 75, 3604) * 0.55);
+      if(pw > 13 && ph2 > 9 &&
+         [[px0, py0], [px0 + pw, py0], [px0, py0 + ph2], [px0 + pw, py0 + ph2]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx)))
+        push(21, px0 + pw / 2, py0 + ph2 / 2, px0, py0, pw, ph2);
+    }
+  }
+  b._rcat = out; b._rcatQ = q;
+  return out;
+}
+
 function sfBldCanvas(b, wet){
   // v12: ridge + chimney headroom; v14: pad also swallows the longest cast
   // shadow the current sun can throw (hPx · cot(elevation) in any dir);
@@ -1473,6 +1560,11 @@ function sfBldCanvas(b, wet){
   // canvas y = pad + hPx + (py - by0)
   const P = b.px.map(q => [q[0] - b.bx0 + pad, q[1] - b.by0 + pad + hPx]);
   const n = P.length;
+  /* v79: roof-life anchors — canvas-px positions of furniture that gets a
+     live animated overlay in the top view (smoke, fan spin, laundry,
+     pigeons). Recorded during the bake so the moving element sits exactly
+     on the prop that causes it; consumed by sfRoofLife in 32_sf_render. */
+  const live = [];
   // signed area for winding
   let area = 0;
   for(let i = 0; i < n; i++){
@@ -1496,7 +1588,7 @@ function sfBldCanvas(b, wet){
   // halo, a mid falloff, then the umbra core — the same physics the sun's
   // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
-  const shA = 0.08 + 0.24 * SF_SUN.day; // fades to nothing under cloud/night
+  const shA = 0.08 + 0.30 * SF_SUN.day; // fades to nothing under cloud/night
   // v23: true swept silhouette — every footprint edge extruded along the
   // sun-throw plus the displaced cap, all in ONE path so the penumbra
   // never double-darkens; tint is cool sky-lit shade, not warm mud
@@ -2044,43 +2136,17 @@ function sfBldCanvas(b, wet){
         paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 1, '#c8d8e0');
       }
     };
-    // shop roofs sometimes get a railed sun deck with planks + umbrella
-    if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
-      const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
-      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
-      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
-      // v13: deck must sit fully inside the footprint, not over a notch
-      const deckIn = [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
-        .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx));
-      if(deckIn) sfDeckPaint(dx0, dy0, dw, dh, false);
-    }
-    /* v22: residential roof decks — the Mission's rear-roof build-outs.
-       Half of big flat residential roofs get a plank deck with railing,
-       chairs and planters (same painter as the shop deck, warm umbrella).
-       Gate + salts must match the street-view railing pass in 32_sf_render
-       so the parapet railing you see from the street is this deck's rail. */
-    if(!isShop && roofArea > 1900 && phash(b.i, 12, 3200) < 0.5){
-      const dw = Math.round((wPx - pad * 2) * (0.3 + phash(b.i, 13, 3201) * 0.18));
-      const dh = Math.round(hBase * (0.3 + phash(b.i, 14, 3202) * 0.2));
-      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 15, 3203));
-      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 16, 3204));
-      const deckIn = dw > 12 && dh > 8 &&
-        [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
-          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx));
-      if(deckIn) sfDeckPaint(dx0, dy0, dw, dh, true);
-    }
-    const nItem = Math.min(9, Math.floor(roofArea / 950) + 1);
-    for(let k = 0; k < nItem; k++){
-      // v13: items must sit INSIDE the footprint — retry the hash a few
-      // times, skip if the roof keeps refusing (narrow/L-shaped lots)
-      let cx = 0, cy = 0, inside = false;
-      for(let a2 = 0; a2 < 6 && !inside; a2++){
-        cx = Math.round(pad + (wPx - pad * 2) * phash(b.i, k + a2 * 31, 1360));
-        cy = Math.round(pad + hBase * phash(k + a2 * 31, b.i, 1361));
-        inside = sfPtInPoly(P, cx, cy + hPx);
-      }
-      if(!inside) continue;
-      const kind = Math.floor(phash(b.i, k, 1369) * 21); // v58: +3 kinds
+    /* v83: all placement now comes from sfRoofCatalog — the same entries
+       the street view projects, so a deck/tank/penthouse seen from above
+       is the same object rising over the parapet from the street. */
+    const rcat = sfRoofCatalog(b);
+    for(const e of rcat)
+      if(e.k === 22) sfDeckPaint(e.x0, e.y0, e.w, e.d, e.res);
+    for(const e of rcat){
+      if(e.k >= 21) continue; // penthouse paints after the mural
+      const cx = e.cx, cy = e.cy, kind = e.k, k = e.ix;
+      if(kind === 2 || kind === 3 || kind === 9 || kind === 10 || kind === 12)
+        live.push({ k: kind, x: cx, y: cy }); // v79: animated overlay anchor
       if(kind === 0){ // mushroom vent
         sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
@@ -2296,6 +2362,115 @@ function sfBldCanvas(b, wet){
                   1.4, 1, ROOF[2]);
       }
     }
+    /* v79: rooftop murals — the Mission paints its ceilings too (the
+       real district has several painted roofs the alley murals spilled
+       onto). Over half of the big flat roofs get a sunburst or a diagonal
+       serape field; the whole motif is footprint-clipped so paint never
+       runs over a parapet. */
+    if(roofArea > 1200 && phash(b.i, 55, 3500) < 0.55){
+      const mx = Math.round(wPx / 2 + (phash(b.i, 56, 3501) - 0.5) * wPx * 0.3),
+            my = Math.round(pad + hBase * (0.35 + phash(b.i, 57, 3502) * 0.3));
+      const mr = Math.round(Math.min(wPx - pad * 2, hBase) *
+                            (0.30 + phash(b.i, 58, 3503) * 0.14));
+      const corners = [[mx - mr, my - mr], [mx + mr, my - mr],
+                       [mx - mr, my + mr], [mx + mr, my + mr]];
+      if(mr > 8 && corners.every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const MURAL = ['#d8542e', '#e8a832', '#2e8a8a', '#c84878',
+                       '#3858a8', '#7a4a9a', '#e0d8c0'];
+        const c0 = MURAL[Math.floor(phash(b.i, 59, 3504) * 3)],
+              c1 = MURAL[3 + Math.floor(phash(b.i, 60, 3505) * 3)],
+              c2 = MURAL[Math.floor(phash(b.i, 61, 3506) * MURAL.length)];
+        if(phash(b.i, 62, 3507) < 0.5){
+          // serape field: diagonal stripes running with the roof pitch
+          const dir = phash(b.i, 63, 3508) < 0.5 ? 1 : -1;
+          g.save();
+          g.beginPath(); g.rect(mx - mr, my - mr, mr * 2, mr * 2); g.clip();
+          g.lineWidth = 4;
+          for(let s2 = -mr * 2; s2 < mr * 2; s2 += 7){
+            g.strokeStyle = (Math.round(s2 / 7) % 2) ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx + s2, my - mr);
+            g.lineTo(mx + s2 + dir * mr * 2, my + mr);
+            g.stroke();
+          }
+          // sun disc center — the Mission's favorite motif
+          paEllipse(g, mx, my, mr * 0.42, mr * 0.34, c2);
+          paEllipse(g, mx, my, mr * 0.3, mr * 0.24, c1);
+          paEllipse(g, mx, my, mr * 0.14, mr * 0.11, c0);
+          g.restore();
+        } else {
+          // sunburst: ray fan from a low center — reads from the air
+          const nRay = 10;
+          for(let k2 = 0; k2 < nRay; k2++){
+            const a0 = -Math.PI * (k2 / (nRay - 1)) * 0.9 - 0.05;
+            g.fillStyle = k2 % 2 ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx, my + mr * 0.3);
+            g.lineTo(mx + Math.cos(a0) * mr, my + mr * 0.3 + Math.sin(a0) * mr * 1.3);
+            g.lineTo(mx + Math.cos(a0 - 0.1) * mr, my + mr * 0.3 + Math.sin(a0 - 0.1) * mr * 1.3);
+            g.closePath(); g.fill();
+          }
+          paEllipse(g, mx, my + mr * 0.3, mr * 0.34, mr * 0.26, c2);
+          g.strokeStyle = c2; g.lineWidth = 2;
+          g.strokeRect(mx - mr, my - mr * 0.75, mr * 2, mr * 1.5);
+        }
+        live.push({ k: 9, x: mx, y: my }); // pigeons love a painted roof
+      }
+    }
+    /* v83: penthouse pop-up — the Mission's rear roof addition, a raised
+       half-story box standing on the flat roof: sun-keyed walls, two
+       sashes on the bright face, its own parapet cap, and a real cast
+       shadow sliding along the solar vector on the tar below. Painted
+       last so it sits over furniture and roof murals like the real
+       build-out does. */
+    for(const e of rcat){
+      if(e.k !== 21) continue;
+      const px0 = e.x0, py0 = e.y0, pw = e.w, pd = e.d, phH = 9;
+      // cast shadow thrown across the roof deck
+      g.fillStyle = `rgba(30,38,62,${(0.10 + 0.18 * SF_SUN.day).toFixed(3)})`;
+      g.beginPath();
+      g.moveTo(px0, py0 + pd); g.lineTo(px0 + pw, py0 + pd);
+      g.lineTo(px0 + pw + phH * SF_SUN.x, py0 + pd + phH * SF_SUN.y);
+      g.lineTo(px0 + phH * SF_SUN.x, py0 + pd + phH * SF_SUN.y);
+      g.closePath(); g.fill();
+      // walls: the box's footprint is (px0..px0+pw, py0..py0+pd) on the
+      // roof plane; its cap is the same rect lifted phH. Walls bridge
+      // the two — south face + both side cheeks, each sun-keyed.
+      const sS = clamp(SF_SUN.toY, -1, 1),                       // south face
+            sE = clamp(SF_SUN.toX, -1, 1);
+      g.fillStyle = sfSunWallCol(wallBase, sS);
+      g.fillRect(px0, py0 + pd - phH, pw, phH);
+      for(const [sx0, sgn] of [[px0, -1], [px0 + pw, 1]]){
+        g.fillStyle = sfSunWallCol(wallBase, sgn * sE);
+        g.beginPath();
+        g.moveTo(sx0, py0); g.lineTo(sx0, py0 + pd);
+        g.lineTo(sx0, py0 + pd - phH); g.lineTo(sx0, py0 - phH);
+        g.closePath(); g.fill();
+      }
+      // siding courses + windows on the south face
+      g.strokeStyle = 'rgba(30,24,18,0.12)'; g.lineWidth = 1;
+      for(let zz = py0 + pd - phH + 3; zz < py0 + pd - 1; zz += 3){
+        g.beginPath(); g.moveTo(px0, zz);
+        g.lineTo(px0 + pw, zz); g.stroke();
+      }
+      const nWin = Math.max(1, Math.floor(pw / 14));
+      for(let k2 = 0; k2 < nWin; k2++){
+        const wx = px0 + pw * (k2 + 0.5) / nWin, wy = py0 + pd - phH * 0.45;
+        paR(g, wx - 2, wy - 2, 4, 5, TRIM);
+        paR(g, wx - 1.4, wy - 1.4, 2.8, 3.6, '#7a94a8');
+        paPX(g, wx - 1, wy - 1, '#d8e8f0');
+      }
+      // cap: own roof plane + parapet rim + a vent nub
+      paR(g, px0 - 1, py0 - phH - 1, pw + 2, pd + 1, shade(ROOF[3], wetF));
+      g.strokeStyle = TRIM; g.lineWidth = 1.5;
+      g.strokeRect(px0 - 1, py0 - phH - 1, pw + 2, pd + 1);
+      paR(g, px0 + pw * 0.2, py0 - phH + pd * 0.3, 3, 3, ROOF[1]);
+      paEllipse(g, px0 + pw * 0.2 + 1, py0 - phH + pd * 0.3, 1.4, 1, ROOF[5]);
+      // eave shadow where the cap overhangs the south wall
+      g.strokeStyle = 'rgba(20,14,8,0.25)'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(px0, py0 + pd - phH + 1);
+      g.lineTo(px0 + pw, py0 + pd - phH + 1); g.stroke();
+    }
   }
   } else {
     /* ---- v12: pitched roofscape (gable / mansard / hip) ----
@@ -2391,6 +2566,27 @@ function sfBldCanvas(b, wet){
           for(let yy = rA; yy <= rB; yy++) paPX(g, rx, yy - hPx - rise, shingle[5]);
           for(let yy = rA; yy <= rB; yy += 2) paPX(g, rx + 1, yy - hPx - rise + 1, shade(shingle[1], 0.9));
         }
+        /* v83: widow's-walk iron cresting — Mission Italianate rows still
+           carry their cast-iron ridge rails: a dark crested band standing
+           on the ridge with finial knobs at the gable ends. Same gate
+           salt the street view reads, so the crested roofline agrees. */
+        if(!isShop && phash(b.i, 76, 3610) < 0.45){
+          const ic = 'rgba(36,30,27,0.92)', icL = shade(TRIM, 1.1);
+          if(RF.alongX){
+            rl(rA + 2, ry - 1, rB - 2, ry - 1, ic);
+            for(let u = rA + 3; u < rB - 2; u += 4) paPX(g, u, ry - 2, ic);
+            paEllipse(g, rA + 1, ry - 2, 1.6, 1.6, icL);
+            paEllipse(g, rB - 1, ry - 2, 1.6, 1.6, icL);
+            paPX(g, rA + 1, ry - 4, '#e8d8a8');
+            paPX(g, rB - 1, ry - 4, '#e8d8a8');
+          } else {
+            const rx = RF.cx;
+            for(let yy = rA + 2; yy <= rB - 2; yy++)
+              paPX(g, rx - 1, yy - hPx - rise, ic);
+            paEllipse(g, rx, rA + 1 - hPx - rise, 1.6, 1.6, icL);
+            paEllipse(g, rx, rB - 1 - hPx - rise, 1.6, 1.6, icL);
+          }
+        }
       }
     } else if(rk === 'mansard'){
       // 2. mansard: steep shingle skirt rising to a setback flat deck
@@ -2475,6 +2671,12 @@ function sfBldCanvas(b, wet){
       paNoise(g, pad, pad, wPx - pad * 2, hBase + pad,
               [shingle[1], shingle[5]], 0.06, 1395 + b.i);
       paEllipse(g, apex[0], apex[1], 2.2, 1.4, shingle[5]); // cap
+      // v83: apex finial on crested Victorians (same gate as the ridge rail)
+      if(!isShop && phash(b.i, 76, 3610) < 0.45){
+        rl(apex[0], apex[1] - 1, apex[0], apex[1] - 4, 'rgba(36,30,27,0.92)');
+        paEllipse(g, apex[0], apex[1] - 4.5, 1.4, 1.4, shade(TRIM, 1.1));
+        paPX(g, apex[0], apex[1] - 6, '#e8d8a8');
+      }
       if(wet) paEllipse(g, apex[0], apex[1], 3.5, 2, 'rgba(190,214,238,0.25)');
     }
 
@@ -2507,6 +2709,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 9, shade('#8a5a48', wetF));
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       } else if(k2 % 3 === 2){ // low-profile ridge vent
         rl(px3 - 4, ly3, px3 + 4, ly3, shingle[1]);
         rl(px3 - 4, ly3 - 1, px3 + 4, ly3 - 1, shingle[2]);
@@ -2515,6 +2718,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
         paR(g, px3 + 2, ly3 + 1, 5, 2, 'rgba(20,14,8,0.28)'); // drip shadow
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       }
     }
 
@@ -2624,7 +2828,7 @@ function sfBldCanvas(b, wet){
            Math.round(apY - 4), TRIM);
     paPX(g, T.cx, apY - 5, '#e8d8a8');
   }
-  return { c: S.c, ox: pad, oy: pad + hPx };
+  return { c: S.c, ox: pad, oy: pad + hPx, live };
 }
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 

@@ -22292,10 +22292,30 @@ function sfInitWorld(){
     VILLAGE_OBJECTS.push(o); sfPropIndex(o); occ.add(wx + ',' + wy);
     return o;
   };
+  /* ---- v86: the great lawn ----
+     Real Dolores Park is one big OPEN southwest-facing slope with the
+     canopy massed at the rims (the Church + Dolores allées, the north
+     grove by the rec center) — not a forest floor. Cells inside the
+     lawn ellipse take no canopy trees at all; the rim band between the
+     lawn edge and the park boundary takes them denser, clumped into
+     groves. Picnic sites concentrate on the lawn the way the real crowd
+     packs the sunny slope. Rect is the same hardcoded convention the
+     v17 decals use. */
+  const PARK_R = { x0: 250, y0: 118, x1: 360, y1: 304 };
+  const pkCx = (PARK_R.x0 + PARK_R.x1) / 2 - 10,
+        pkCy = (PARK_R.y0 + PARK_R.y1) / 2 + 15;
+  const inParkR = (wx, wy) =>
+    wx >= PARK_R.x0 && wx <= PARK_R.x1 && wy >= PARK_R.y0 && wy <= PARK_R.y1;
+  const lawnK = (wx, wy) => {   // <1 = inside the open lawn ellipse
+    const ex = (wx - pkCx) / 28, ey = (wy - pkCy) / 50;
+    return ex * ex + ey * ey;
+  };
   let nStreetTree = 0, nParkVeg = 0, nPathPalm = 0;
   for(let wy = 1; wy < SF_M.gh - 1; wy++){
     for(let wx = 1; wx < SF_M.gw - 1; wx++){
       const t = sfTile(wx, wy);
+      const lk = inParkR(wx, wy) ? lawnK(wx, wy) : 9,
+            rimBand = inParkR(wx, wy) && lk >= 1 && lk < 2.3;
       if(t === 11 && nStreetTree < 1500){
         // sidewalk cell with a street edge: curb-side pit tree
         let fx = 0, fy = 0;
@@ -22329,7 +22349,8 @@ function sfInitWorld(){
         // trees mature ~8m crowns (o.big), and trees clump into groves
         // the way Dolores Park's plantings actually mass on the slopes
         // v40: denser still — most park trees are now mature crowns
-        if(h1 > 0.955 && !occNear(wx, wy, 3) && !nearPath){
+        if(h1 > (rimBand ? 0.90 : 0.955) && lk > 1 &&
+           !occNear(wx, wy, 3) && !nearPath){
           const o = addVeg('sfTree', wx, wy,
                  (phash(wx, wy, 1667) - 0.5) * 10, (phash(wy, wx, 1668) - 0.5) * 10);
           o.big = phash(wx, wy, 3450) < 0.7 ? 1 : 0;
@@ -22386,7 +22407,8 @@ function sfInitWorld(){
           addVeg('sfShrub', wx, wy,
                  (phash(wx, wy, 1663) - 0.5) * 16, (phash(wy, wx, 1664) - 0.5) * 16);
           nParkVeg++;
-        } else if(h1 > 0.99 && !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
+        } else if(h1 > 0.99 && lk > 1 &&
+                  !occNear(wx, wy, 3) && !doorNear(wx, wy, 2)){
           // grove: up to 3 cypresses clustered around the seed cell
           const nCl = 1 + Math.floor(phash(wx, wy, 1675) * 3);
           for(let ci = 0; ci < nCl; ci++){
@@ -22668,7 +22690,12 @@ function sfInitWorld(){
            of abutting spreads, so a seeded site tries to pull in a
            neighbor blanket 40% of the time. */
         if(SF_PICNIC.length >= 1500) continue;
-        if(phash(wx, wy, 5330) > 0.115) continue;
+        /* v86: blankets pack the great lawn — nearly triple the site
+           density inside the lawn ellipse, thinning to the old scatter
+           everywhere else (a sunny afternoon reads as a patchwork of
+           spreads, which is what makes the slope read as a CITY park) */
+        const pcCap = (inParkR(wx, wy) && lawnK(wx, wy) < 1) ? 0.30 : 0.115;
+        if(phash(wx, wy, 5330) > pcCap) continue;
         if(occNear(wx, wy, 0)) continue;
         const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
                          sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
@@ -24782,6 +24809,93 @@ function sfPropShadow(g, x, y, h, r){
             `rgba(26,36,64,${0.10 + 0.18 * SF_SUN.day})`);
 }
 
+/* v83: the roof-prop catalog — ONE deterministic list of flat-roof
+   furniture shared by the baked top-down sprite AND the street-view
+   projection, so the water tank seen from above is the same one rising
+   over the parapet. Entries carry bake-canvas px (cx,cy on the lifted
+   roof plane; x0/y0/w/d for rect props) AND world meters (mx,my /
+   mx0,my0,mw,md). Memoized per sun sector on the building record. */
+function sfRoofCatalog(b){
+  const q = SF_SUN.q | 0;
+  if(b._rcat && b._rcatQ === q) return b._rcat;
+  const out = [];
+  const pad = Math.ceil(44 + (b.hPx + 14) *
+    Math.max(Math.abs(SF_SUN.x), Math.abs(SF_SUN.y)) * 1.1);
+  const wPx = Math.ceil(b.bx1 - b.bx0) + pad * 2;
+  const hBase = Math.ceil(b.by1 - b.by0);
+  const hPx = Math.ceil(b.hPx);
+  const isShop = !!(b.name) || phash(b.i, 5, 1303) < 0.12;
+  const roofArea = Math.abs(b._area) * SF_PXM * SF_PXM;
+  if(b.px && roofArea > 900 &&
+     sfRoofKind(b, isShop, roofArea) === 'flat'){
+    const P = b.px.map(p => [p[0] - b.bx0 + pad, p[1] - b.by0 + pad + hPx]);
+    const toM = (cx, cy) => [(cx - pad + b.bx0) / SF_PXM,
+                             (cy - pad + b.by0) / SF_PXM];
+    const push = (k, cx, cy, x0, y0, w, d, res) => {
+      const [mx, my] = toM(cx, cy);
+      const e = { k, cx, cy, mx, my, res: !!res };
+      if(w != null){
+        const [mx0, my0] = toM(x0, y0);
+        e.x0 = x0; e.y0 = y0; e.w = w; e.d = d;
+        e.mx0 = mx0; e.my0 = my0; e.mw = w / SF_PXM; e.md = d / SF_PXM;
+      }
+      out.push(e); return e;
+    };
+    // decks — the same gates/rects the bake paints (shop sun deck 1370,
+    // residential rear deck 3200); umbrella anchor stored for the street
+    if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
+      const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
+      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
+      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
+      if([[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const e = push(22, dx0 + dw / 2, dy0 + dh / 2, dx0, dy0, dw, dh, false);
+        const [ux, uy] = toM(dx0 + dw * 0.3, dy0 + dh * 0.35);
+        e.ux = ux; e.uy = uy;
+      }
+    }
+    if(!isShop && roofArea > 1900 && phash(b.i, 12, 3200) < 0.5){
+      const dw = Math.round((wPx - pad * 2) * (0.3 + phash(b.i, 13, 3201) * 0.18));
+      const dh = Math.round(hBase * (0.3 + phash(b.i, 14, 3202) * 0.2));
+      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 15, 3203));
+      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 16, 3204));
+      if(dw > 12 && dh > 8 &&
+         [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const e = push(22, dx0 + dw / 2, dy0 + dh / 2, dx0, dy0, dw, dh, true);
+        const [ux, uy] = toM(dx0 + dw * 0.3, dy0 + dh * 0.35);
+        e.ux = ux; e.uy = uy;
+      }
+    }
+    // furniture scatter — identical hashes to the old inline loop
+    const nItem = Math.min(9, Math.floor(roofArea / 950) + 1);
+    for(let k = 0; k < nItem; k++){
+      let cx = 0, cy = 0, inside = false;
+      for(let a2 = 0; a2 < 6 && !inside; a2++){
+        cx = Math.round(pad + (wPx - pad * 2) * phash(b.i, k + a2 * 31, 1360));
+        cy = Math.round(pad + hBase * phash(k + a2 * 31, b.i, 1361));
+        inside = sfPtInPoly(P, cx, cy + hPx);
+      }
+      if(inside) push(Math.floor(phash(b.i, k, 1369) * 21), cx, cy).ix = k;
+    }
+    /* penthouse pop-up — the Mission's rear roof additions: a raised box
+       ~2.4m over the deck, biased to the rear (north) half of the lot,
+       with its own parapet and a sun-cast shadow on the tar below. */
+    if(!isShop && roofArea > 1700 && phash(b.i, 71, 3600) < 0.32){
+      const pw = Math.round((wPx - pad * 2) * (0.30 + phash(b.i, 72, 3601) * 0.14));
+      const ph2 = Math.round(hBase * (0.30 + phash(b.i, 73, 3602) * 0.14));
+      const px0 = Math.round(pad + (wPx - pad * 2 - pw) * phash(b.i, 74, 3603));
+      const py0 = Math.round(pad + (hBase - ph2) * phash(b.i, 75, 3604) * 0.55);
+      if(pw > 13 && ph2 > 9 &&
+         [[px0, py0], [px0 + pw, py0], [px0, py0 + ph2], [px0 + pw, py0 + ph2]]
+          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx)))
+        push(21, px0 + pw / 2, py0 + ph2 / 2, px0, py0, pw, ph2);
+    }
+  }
+  b._rcat = out; b._rcatQ = q;
+  return out;
+}
+
 function sfBldCanvas(b, wet){
   // v12: ridge + chimney headroom; v14: pad also swallows the longest cast
   // shadow the current sun can throw (hPx · cot(elevation) in any dir);
@@ -24807,6 +24921,11 @@ function sfBldCanvas(b, wet){
   // canvas y = pad + hPx + (py - by0)
   const P = b.px.map(q => [q[0] - b.bx0 + pad, q[1] - b.by0 + pad + hPx]);
   const n = P.length;
+  /* v79: roof-life anchors — canvas-px positions of furniture that gets a
+     live animated overlay in the top view (smoke, fan spin, laundry,
+     pigeons). Recorded during the bake so the moving element sits exactly
+     on the prop that causes it; consumed by sfRoofLife in 32_sf_render. */
+  const live = [];
   // signed area for winding
   let area = 0;
   for(let i = 0; i < n; i++){
@@ -24830,7 +24949,7 @@ function sfBldCanvas(b, wet){
   // halo, a mid falloff, then the umbra core — the same physics the sun's
   // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
-  const shA = 0.08 + 0.24 * SF_SUN.day; // fades to nothing under cloud/night
+  const shA = 0.08 + 0.30 * SF_SUN.day; // fades to nothing under cloud/night
   // v23: true swept silhouette — every footprint edge extruded along the
   // sun-throw plus the displaced cap, all in ONE path so the penumbra
   // never double-darkens; tint is cool sky-lit shade, not warm mud
@@ -25378,43 +25497,17 @@ function sfBldCanvas(b, wet){
         paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 1, '#c8d8e0');
       }
     };
-    // shop roofs sometimes get a railed sun deck with planks + umbrella
-    if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
-      const dw = Math.round((wPx - pad * 2) * 0.4), dh = Math.round(hBase * 0.42);
-      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 4, 1371));
-      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 6, 1372));
-      // v13: deck must sit fully inside the footprint, not over a notch
-      const deckIn = [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
-        .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx));
-      if(deckIn) sfDeckPaint(dx0, dy0, dw, dh, false);
-    }
-    /* v22: residential roof decks — the Mission's rear-roof build-outs.
-       Half of big flat residential roofs get a plank deck with railing,
-       chairs and planters (same painter as the shop deck, warm umbrella).
-       Gate + salts must match the street-view railing pass in 32_sf_render
-       so the parapet railing you see from the street is this deck's rail. */
-    if(!isShop && roofArea > 1900 && phash(b.i, 12, 3200) < 0.5){
-      const dw = Math.round((wPx - pad * 2) * (0.3 + phash(b.i, 13, 3201) * 0.18));
-      const dh = Math.round(hBase * (0.3 + phash(b.i, 14, 3202) * 0.2));
-      const dx0 = Math.round(pad + (wPx - pad * 2 - dw) * phash(b.i, 15, 3203));
-      const dy0 = Math.round(pad + (hBase - dh) * phash(b.i, 16, 3204));
-      const deckIn = dw > 12 && dh > 8 &&
-        [[dx0, dy0], [dx0 + dw, dy0], [dx0, dy0 + dh], [dx0 + dw, dy0 + dh]]
-          .every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx));
-      if(deckIn) sfDeckPaint(dx0, dy0, dw, dh, true);
-    }
-    const nItem = Math.min(9, Math.floor(roofArea / 950) + 1);
-    for(let k = 0; k < nItem; k++){
-      // v13: items must sit INSIDE the footprint — retry the hash a few
-      // times, skip if the roof keeps refusing (narrow/L-shaped lots)
-      let cx = 0, cy = 0, inside = false;
-      for(let a2 = 0; a2 < 6 && !inside; a2++){
-        cx = Math.round(pad + (wPx - pad * 2) * phash(b.i, k + a2 * 31, 1360));
-        cy = Math.round(pad + hBase * phash(k + a2 * 31, b.i, 1361));
-        inside = sfPtInPoly(P, cx, cy + hPx);
-      }
-      if(!inside) continue;
-      const kind = Math.floor(phash(b.i, k, 1369) * 21); // v58: +3 kinds
+    /* v83: all placement now comes from sfRoofCatalog — the same entries
+       the street view projects, so a deck/tank/penthouse seen from above
+       is the same object rising over the parapet from the street. */
+    const rcat = sfRoofCatalog(b);
+    for(const e of rcat)
+      if(e.k === 22) sfDeckPaint(e.x0, e.y0, e.w, e.d, e.res);
+    for(const e of rcat){
+      if(e.k >= 21) continue; // penthouse paints after the mural
+      const cx = e.cx, cy = e.cy, kind = e.k, k = e.ix;
+      if(kind === 2 || kind === 3 || kind === 9 || kind === 10 || kind === 12)
+        live.push({ k: kind, x: cx, y: cy }); // v79: animated overlay anchor
       if(kind === 0){ // mushroom vent
         sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
@@ -25630,6 +25723,115 @@ function sfBldCanvas(b, wet){
                   1.4, 1, ROOF[2]);
       }
     }
+    /* v79: rooftop murals — the Mission paints its ceilings too (the
+       real district has several painted roofs the alley murals spilled
+       onto). Over half of the big flat roofs get a sunburst or a diagonal
+       serape field; the whole motif is footprint-clipped so paint never
+       runs over a parapet. */
+    if(roofArea > 1200 && phash(b.i, 55, 3500) < 0.55){
+      const mx = Math.round(wPx / 2 + (phash(b.i, 56, 3501) - 0.5) * wPx * 0.3),
+            my = Math.round(pad + hBase * (0.35 + phash(b.i, 57, 3502) * 0.3));
+      const mr = Math.round(Math.min(wPx - pad * 2, hBase) *
+                            (0.30 + phash(b.i, 58, 3503) * 0.14));
+      const corners = [[mx - mr, my - mr], [mx + mr, my - mr],
+                       [mx - mr, my + mr], [mx + mr, my + mr]];
+      if(mr > 8 && corners.every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const MURAL = ['#d8542e', '#e8a832', '#2e8a8a', '#c84878',
+                       '#3858a8', '#7a4a9a', '#e0d8c0'];
+        const c0 = MURAL[Math.floor(phash(b.i, 59, 3504) * 3)],
+              c1 = MURAL[3 + Math.floor(phash(b.i, 60, 3505) * 3)],
+              c2 = MURAL[Math.floor(phash(b.i, 61, 3506) * MURAL.length)];
+        if(phash(b.i, 62, 3507) < 0.5){
+          // serape field: diagonal stripes running with the roof pitch
+          const dir = phash(b.i, 63, 3508) < 0.5 ? 1 : -1;
+          g.save();
+          g.beginPath(); g.rect(mx - mr, my - mr, mr * 2, mr * 2); g.clip();
+          g.lineWidth = 4;
+          for(let s2 = -mr * 2; s2 < mr * 2; s2 += 7){
+            g.strokeStyle = (Math.round(s2 / 7) % 2) ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx + s2, my - mr);
+            g.lineTo(mx + s2 + dir * mr * 2, my + mr);
+            g.stroke();
+          }
+          // sun disc center — the Mission's favorite motif
+          paEllipse(g, mx, my, mr * 0.42, mr * 0.34, c2);
+          paEllipse(g, mx, my, mr * 0.3, mr * 0.24, c1);
+          paEllipse(g, mx, my, mr * 0.14, mr * 0.11, c0);
+          g.restore();
+        } else {
+          // sunburst: ray fan from a low center — reads from the air
+          const nRay = 10;
+          for(let k2 = 0; k2 < nRay; k2++){
+            const a0 = -Math.PI * (k2 / (nRay - 1)) * 0.9 - 0.05;
+            g.fillStyle = k2 % 2 ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx, my + mr * 0.3);
+            g.lineTo(mx + Math.cos(a0) * mr, my + mr * 0.3 + Math.sin(a0) * mr * 1.3);
+            g.lineTo(mx + Math.cos(a0 - 0.1) * mr, my + mr * 0.3 + Math.sin(a0 - 0.1) * mr * 1.3);
+            g.closePath(); g.fill();
+          }
+          paEllipse(g, mx, my + mr * 0.3, mr * 0.34, mr * 0.26, c2);
+          g.strokeStyle = c2; g.lineWidth = 2;
+          g.strokeRect(mx - mr, my - mr * 0.75, mr * 2, mr * 1.5);
+        }
+        live.push({ k: 9, x: mx, y: my }); // pigeons love a painted roof
+      }
+    }
+    /* v83: penthouse pop-up — the Mission's rear roof addition, a raised
+       half-story box standing on the flat roof: sun-keyed walls, two
+       sashes on the bright face, its own parapet cap, and a real cast
+       shadow sliding along the solar vector on the tar below. Painted
+       last so it sits over furniture and roof murals like the real
+       build-out does. */
+    for(const e of rcat){
+      if(e.k !== 21) continue;
+      const px0 = e.x0, py0 = e.y0, pw = e.w, pd = e.d, phH = 9;
+      // cast shadow thrown across the roof deck
+      g.fillStyle = `rgba(30,38,62,${(0.10 + 0.18 * SF_SUN.day).toFixed(3)})`;
+      g.beginPath();
+      g.moveTo(px0, py0 + pd); g.lineTo(px0 + pw, py0 + pd);
+      g.lineTo(px0 + pw + phH * SF_SUN.x, py0 + pd + phH * SF_SUN.y);
+      g.lineTo(px0 + phH * SF_SUN.x, py0 + pd + phH * SF_SUN.y);
+      g.closePath(); g.fill();
+      // walls: the box's footprint is (px0..px0+pw, py0..py0+pd) on the
+      // roof plane; its cap is the same rect lifted phH. Walls bridge
+      // the two — south face + both side cheeks, each sun-keyed.
+      const sS = clamp(SF_SUN.toY, -1, 1),                       // south face
+            sE = clamp(SF_SUN.toX, -1, 1);
+      g.fillStyle = sfSunWallCol(wallBase, sS);
+      g.fillRect(px0, py0 + pd - phH, pw, phH);
+      for(const [sx0, sgn] of [[px0, -1], [px0 + pw, 1]]){
+        g.fillStyle = sfSunWallCol(wallBase, sgn * sE);
+        g.beginPath();
+        g.moveTo(sx0, py0); g.lineTo(sx0, py0 + pd);
+        g.lineTo(sx0, py0 + pd - phH); g.lineTo(sx0, py0 - phH);
+        g.closePath(); g.fill();
+      }
+      // siding courses + windows on the south face
+      g.strokeStyle = 'rgba(30,24,18,0.12)'; g.lineWidth = 1;
+      for(let zz = py0 + pd - phH + 3; zz < py0 + pd - 1; zz += 3){
+        g.beginPath(); g.moveTo(px0, zz);
+        g.lineTo(px0 + pw, zz); g.stroke();
+      }
+      const nWin = Math.max(1, Math.floor(pw / 14));
+      for(let k2 = 0; k2 < nWin; k2++){
+        const wx = px0 + pw * (k2 + 0.5) / nWin, wy = py0 + pd - phH * 0.45;
+        paR(g, wx - 2, wy - 2, 4, 5, TRIM);
+        paR(g, wx - 1.4, wy - 1.4, 2.8, 3.6, '#7a94a8');
+        paPX(g, wx - 1, wy - 1, '#d8e8f0');
+      }
+      // cap: own roof plane + parapet rim + a vent nub
+      paR(g, px0 - 1, py0 - phH - 1, pw + 2, pd + 1, shade(ROOF[3], wetF));
+      g.strokeStyle = TRIM; g.lineWidth = 1.5;
+      g.strokeRect(px0 - 1, py0 - phH - 1, pw + 2, pd + 1);
+      paR(g, px0 + pw * 0.2, py0 - phH + pd * 0.3, 3, 3, ROOF[1]);
+      paEllipse(g, px0 + pw * 0.2 + 1, py0 - phH + pd * 0.3, 1.4, 1, ROOF[5]);
+      // eave shadow where the cap overhangs the south wall
+      g.strokeStyle = 'rgba(20,14,8,0.25)'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(px0, py0 + pd - phH + 1);
+      g.lineTo(px0 + pw, py0 + pd - phH + 1); g.stroke();
+    }
   }
   } else {
     /* ---- v12: pitched roofscape (gable / mansard / hip) ----
@@ -25725,6 +25927,27 @@ function sfBldCanvas(b, wet){
           for(let yy = rA; yy <= rB; yy++) paPX(g, rx, yy - hPx - rise, shingle[5]);
           for(let yy = rA; yy <= rB; yy += 2) paPX(g, rx + 1, yy - hPx - rise + 1, shade(shingle[1], 0.9));
         }
+        /* v83: widow's-walk iron cresting — Mission Italianate rows still
+           carry their cast-iron ridge rails: a dark crested band standing
+           on the ridge with finial knobs at the gable ends. Same gate
+           salt the street view reads, so the crested roofline agrees. */
+        if(!isShop && phash(b.i, 76, 3610) < 0.45){
+          const ic = 'rgba(36,30,27,0.92)', icL = shade(TRIM, 1.1);
+          if(RF.alongX){
+            rl(rA + 2, ry - 1, rB - 2, ry - 1, ic);
+            for(let u = rA + 3; u < rB - 2; u += 4) paPX(g, u, ry - 2, ic);
+            paEllipse(g, rA + 1, ry - 2, 1.6, 1.6, icL);
+            paEllipse(g, rB - 1, ry - 2, 1.6, 1.6, icL);
+            paPX(g, rA + 1, ry - 4, '#e8d8a8');
+            paPX(g, rB - 1, ry - 4, '#e8d8a8');
+          } else {
+            const rx = RF.cx;
+            for(let yy = rA + 2; yy <= rB - 2; yy++)
+              paPX(g, rx - 1, yy - hPx - rise, ic);
+            paEllipse(g, rx, rA + 1 - hPx - rise, 1.6, 1.6, icL);
+            paEllipse(g, rx, rB - 1 - hPx - rise, 1.6, 1.6, icL);
+          }
+        }
       }
     } else if(rk === 'mansard'){
       // 2. mansard: steep shingle skirt rising to a setback flat deck
@@ -25809,6 +26032,12 @@ function sfBldCanvas(b, wet){
       paNoise(g, pad, pad, wPx - pad * 2, hBase + pad,
               [shingle[1], shingle[5]], 0.06, 1395 + b.i);
       paEllipse(g, apex[0], apex[1], 2.2, 1.4, shingle[5]); // cap
+      // v83: apex finial on crested Victorians (same gate as the ridge rail)
+      if(!isShop && phash(b.i, 76, 3610) < 0.45){
+        rl(apex[0], apex[1] - 1, apex[0], apex[1] - 4, 'rgba(36,30,27,0.92)');
+        paEllipse(g, apex[0], apex[1] - 4.5, 1.4, 1.4, shade(TRIM, 1.1));
+        paPX(g, apex[0], apex[1] - 6, '#e8d8a8');
+      }
       if(wet) paEllipse(g, apex[0], apex[1], 3.5, 2, 'rgba(190,214,238,0.25)');
     }
 
@@ -25841,6 +26070,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 9, shade('#8a5a48', wetF));
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       } else if(k2 % 3 === 2){ // low-profile ridge vent
         rl(px3 - 4, ly3, px3 + 4, ly3, shingle[1]);
         rl(px3 - 4, ly3 - 1, px3 + 4, ly3 - 1, shingle[2]);
@@ -25849,6 +26079,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
         paR(g, px3 + 2, ly3 + 1, 5, 2, 'rgba(20,14,8,0.28)'); // drip shadow
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       }
     }
 
@@ -25958,7 +26189,7 @@ function sfBldCanvas(b, wet){
            Math.round(apY - 4), TRIM);
     paPX(g, T.cx, apY - 5, '#e8d8a8');
   }
-  return { c: S.c, ox: pad, oy: pad + hPx };
+  return { c: S.c, ox: pad, oy: pad + hPx, live };
 }
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 
@@ -26001,6 +26232,7 @@ const SF_CAM = {
   director: false,
   x: 0, y: 0,        // director position, meters
   marks: {},         // v27: saved director shots — Shift+1..9 sets, 1..9 recalls
+  guides: true,      // v81: director frame guides (thirds grid + cross), H toggles
   _lastPawn: -1,
   _snap: true,       // v9: jump smoothed rig to targets next frame
 };
@@ -26092,8 +26324,15 @@ window.addEventListener('keydown', e => {
   if(e.code === 'KeyL'){
     SF_LENS.on = !SF_LENS.on;
     if(typeof showToast === 'function')
-      showToast(SF_LENS.on ? '◎ LENS rig — tilt-shift / depth of field'
+      showToast(SF_LENS.on ? '◎ LENS rig — metered optics / bokeh'
                            : 'Lens rig off — raw render');
+  }
+  // v77: J swaps the objective — rectilinear gate <-> fisheye element
+  if(e.code === 'KeyJ'){
+    SF_LENS.lens = SF_LENS.lens === 'fish' ? 'recti' : 'fish';
+    if(typeof showToast === 'function')
+      showToast(SF_LENS.lens === 'fish' ? '◉ FISHEYE element — barrel gate'
+                                      : 'Rectilinear gate');
   }
   // v27: G = cutaway (ghost whatever blocks the lens from the subject),
   //      T = track (director aims at the inspected pawn),
@@ -26115,6 +26354,12 @@ window.addEventListener('keydown', e => {
       sfCamSnap();
       if(typeof showToast === 'function') showToast('◎ TRACK — lens on subject');
     }
+  }
+  // v81: H toggles the director's frame guides (thirds grid + center cross)
+  if(e.code === 'KeyH' && SF_VIEW === 'street'){
+    SF_CAM.guides = SF_CAM.guides === false;
+    if(typeof showToast === 'function')
+      showToast(SF_CAM.guides ? '▦ GUIDES — thirds grid on' : 'Guides off');
   }
   if(/^Digit[1-9]$/.test(e.code) && SF_VIEW === 'street'){
     const n = +e.code.slice(5);
@@ -26167,7 +26412,9 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>WASD</kbd> Fly camera</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
     '<span><kbd>L</kbd> Lens</span>' +
+    '<span><kbd>J</kbd> Fisheye</span>' +
     '<span><kbd>G</kbd> Cutaway</span>' +
+    '<span><kbd>H</kbd> Guides</span>' +
     '<span><kbd>T</kbd> Track</span>' +
     '<span><kbd>1-9</kbd> Marks</span>';
   /* v54: spectator UI realignment — this is a broadcast console, never a
@@ -26216,7 +26463,12 @@ if(SF_MODE && typeof document !== 'undefined'){
    the pre-lens frame, and the lens pass itself is ~3 canvas blits. */
 const SF_LENS = { on: true, mode: 'flat', horizon: 0, camHF: 1, foc: 24,
                   frame: null, fg: null, blur: null, bg: null,
-                  noise: null, pat: null, saveCtx: null };
+                  noise: null, pat: null, saveCtx: null,
+                  // v77: metered exposure + real optics
+                  ev: 0,                 // smoothed exposure offset (stops)
+                  lens: 'recti',         // 'recti' | 'fish' — projection model
+                  probe: null, pg: null, // 20x12 metering probe
+                  mask: null, mg: null }; // bokeh depth-mask composite
 /* v51: world-space lens position, published once per street frame so any
    painter can answer view-dependent light questions (specular glass) —
    a glint is a property of the eye, not of the wall. */
@@ -26234,10 +26486,16 @@ function sfLensBegin(cw, ch){
     SF_LENS.fg = SF_LENS.frame.getContext('2d');
     SF_LENS.blur = document.createElement('canvas');
     SF_LENS.bg = SF_LENS.blur.getContext('2d');
+    SF_LENS.probe = document.createElement('canvas');
+    SF_LENS.probe.width = 20; SF_LENS.probe.height = 12;
+    SF_LENS.pg = SF_LENS.probe.getContext('2d', { willReadFrequently: true });
+    SF_LENS.mask = document.createElement('canvas');
+    SF_LENS.mg = SF_LENS.mask.getContext('2d');
   }
   if(SF_LENS.frame.width !== W || SF_LENS.frame.height !== H){
     SF_LENS.frame.width = W; SF_LENS.frame.height = H;
     SF_LENS.blur.width = W; SF_LENS.blur.height = H;
+    SF_LENS.mask.width = W; SF_LENS.mask.height = H;
     SF_LENS.pat = null;
   }
   SF_LENS.saveCtx = ctx;
@@ -26245,21 +26503,78 @@ function sfLensBegin(cw, ch){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return true;
 }
+/* v77: fisheye projection — a real short lens maps the world through
+   r' = f·tan⁻¹(r/f) instead of r' = f·r, so magnification is highest at
+   the optical center and squeezes toward the gate edge. Approximated
+   per scanline strip: each output row samples a source row scaled by
+   f(v) = 1 + k(1 − v²) — center rows pull a narrower source window
+   (magnified), edge rows near unity. J toggles the element. */
+function sfFishBlit(g2, F, W, H){
+  const k = 0.34, N = 56, sh = H / N;
+  for(let i = 0; i < N; i++){
+    const yd = i * sh;
+    const v = (yd + sh / 2 - H / 2) / (H / 2);
+    const f = 1 + k * (1 - v * v);
+    const sw = W / f, shS = sh / f * 1.06;
+    const ys = H / 2 + (yd + sh / 2 - H / 2) / f;
+    g2.drawImage(F, (W - sw) / 2, ys - shS / 2, sw, shS,
+                 0, yd, W, sh + 0.5);
+  }
+}
+
 function sfLensEnd(cw, ch){
   const g = SF_LENS.fg;
   ctx = SF_LENS.saveCtx;                 // back to the real canvas
   if(!g || !ctx) return;
   const F = SF_LENS.frame, B = SF_LENS.blur, bg = SF_LENS.bg;
+  const M = SF_LENS.mask, mg = SF_LENS.mg;
   const W = F.width, H = F.height;
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);    // device pixels
   ctx.imageSmoothingEnabled = true;
+  /* v77: ONE blurred plate per frame serves every soft-optics consumer —
+     the bokeh depth mask, the sun-in-gate veiling glare and the new
+     halation bloom all read the same defocused image instead of each
+     paying for their own blur. Radius scales with the gate, not the
+     effect: the optics don't know why they're defocused. */
+  let bOk = false;
+  if(B && typeof bg.filter !== 'undefined'){
+    bg.setTransform(1, 0, 0, 1, 0, 0);
+    bg.clearRect(0, 0, W, H);
+    bg.filter = `blur(${Math.max(3, Math.round(H * 0.014))}px)`;
+    bg.drawImage(F, 0, 0);
+    bg.filter = 'none';
+    bOk = true;
+  }
+  /* v84: the grade — the last thing light does is meet the eye. Every
+     pass before this painted light locally; nothing balanced the frame
+     as a whole. A gentle S-curve + saturation lift on the frame plate
+     keeps sun-struck pigment warm and lets skylit shade fall to cool
+     depth instead of neutral milk — the two-source daylight the scene
+     already computes, now readable at a glance. Strength rides the
+     real sun: overcast grades flatter, golden hour grades richer,
+     night barely touches. Applied ONLY to the world plate so the
+     optical stack after it (bokeh mask, ghosts, glare, droplets) and
+     the HUD stay ungraded chrome. */
+  {
+    const grK = (typeof isNight === 'function' && isNight()) ? 0.3
+              : (typeof SF_SUN !== 'undefined'
+                 ? 0.5 + SF_SUN.day * 0.5 : 0.5);
+    const warmK = typeof SF_SUN !== 'undefined' ? SF_SUN.warm : 0;
+    if(typeof ctx.filter === 'string')
+      ctx.filter = `contrast(${(1 + 0.20 * grK).toFixed(3)}) ` +
+                   `saturate(${(1 + 0.30 * grK).toFixed(3)}) ` +
+                   `brightness(${(1 + 0.02 * grK).toFixed(3)}) ` +
+                   `sepia(${(0.10 * warmK).toFixed(3)})`;
+  }
   // v36: dutch roll — pan-rate cants the gate a fraction of a degree;
   // settled cameras roll to zero so locked shots stay level
   if(SF_LENS.roll && Math.abs(SF_LENS.roll) > 0.0004){
     ctx.translate(W / 2, H / 2); ctx.rotate(SF_LENS.roll);
     ctx.drawImage(F, -W / 2, -H / 2);
     ctx.rotate(-SF_LENS.roll); ctx.translate(-W / 2, -H / 2);
+  } else if(SF_LENS.lens === 'fish'){
+    sfFishBlit(ctx, F, W, H);
   } else {
     /* v67: the plate lands clean — the camera-artifact stack (chromatic
        aberration, scanline DOF/tilt-shift, film grain) is gone. In a real
@@ -26269,6 +26584,73 @@ function sfLensEnd(cw, ch){
        band). The frame now stays optically honest so those physically-
        driven effects are the only softening the eye ever sees. */
     ctx.drawImage(F, 0, 0);
+  }
+  ctx.filter = 'none';   // v84: the grade ends where the world plate ends
+  /* v77: depth-keyed bokeh — the street camera finally USES its focus
+     distance. The follow-focus rig already publishes SF_LENS.foc (meters)
+     and camHF (lens height × focal factor), so the focal plane lands at
+     screen y_f = horizon + camHF/foc — the ground point the lens is
+     focused on. A depth mask built from that plane defocuses everything
+     beyond it: background near the horizon melts most, the foreground
+     past the subject softens gently, and the focal band stays tack
+     sharp. Aperture follows the real focal length (Z/X lens): a longer
+     lens throws a shallower plane, like glass does. Drawn BEFORE the
+     lens-surface passes — ghosts, droplets and glare live on the front
+     element and stay sharp. */
+  if(bOk && M && mg){
+    mg.clearRect(0, 0, W, H);
+    /* depth-keyed bokeh — the street camera finally USES its focus
+       distance. The follow-focus rig already publishes SF_LENS.foc
+       (meters) and camHF (lens height × focal factor), so the focal
+       plane lands at screen y_f = horizon + camHF/foc — the ground
+       point the lens is focused on. A depth band built from that plane
+       defocuses everything beyond it: background near the horizon melts
+       most, the foreground past the subject softens gently, and the
+       focal band stays tack sharp. Aperture follows the real focal
+       length (Z/X lens): a longer lens throws a shallower plane, like
+       glass does. */
+    if(SF_LENS.mode === 'street'){
+      const fov = (typeof SF_CAM !== 'undefined' && SF_CAM.fov) || 1;
+      const foc = Math.max(4, SF_LENS.foc);
+      // long focus (director aimed at distance) stops the aperture down —
+      // a 400m plane barely defocuses anything; a 5m portrait melts the
+      // street behind the subject
+      const bokeK = clamp(0.30 + (fov - 0.55) * 0.45, 0.15, 0.55) *
+                    clamp(120 / foc, 0.45, 1);
+      const hy = SF_LENS.horizon * dpr;
+      const yF = clamp(hy + (SF_LENS.camHF / foc) * dpr, hy + 2, H * 0.9);
+      // defocus is a DEPTH band, not a screen wash: the far field ends a
+      // short way below the horizon (standing subjects stay sharp), and
+      // only the nearest foreground past the plane softens
+      const yFar = Math.min(hy + 0.12 * H, yF);
+      const yNear0 = Math.max(yF + 0.18 * H, yFar + 1);
+      const gr = mg.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, `rgba(255,255,255,${bokeK})`);
+      gr.addColorStop(clamp(hy / H, 0.01, 0.6),
+                    `rgba(255,255,255,${bokeK * 0.75})`);
+      gr.addColorStop(clamp(yFar / H, 0.02, 0.9), 'rgba(255,255,255,0)');
+      gr.addColorStop(clamp(yNear0 / H, 0.05, 0.95), 'rgba(255,255,255,0)');
+      gr.addColorStop(1, `rgba(255,255,255,${bokeK * 0.22})`);
+      mg.fillStyle = gr;
+      mg.fillRect(0, 0, W, H);
+    }
+    /* edge falloff — every real objective resolves softer toward the
+       gate corners (field curvature + MTF roll-off). A radial band adds
+       gentle corner softness in EVERY mode; in street it stacks on the
+       depth band. This is what makes an aerial diorama frame read as a
+       photograph instead of a render. */
+    const rMax = Math.hypot(W, H) * 0.5;
+    const eg = mg.createRadialGradient(W / 2, H * 0.5, rMax * 0.52,
+                                       W / 2, H * 0.5, rMax * 1.02);
+    eg.addColorStop(0, 'rgba(255,255,255,0)');
+    eg.addColorStop(1, 'rgba(255,255,255,0.32)');
+    mg.globalCompositeOperation = 'lighter';
+    mg.fillStyle = eg;
+    mg.fillRect(0, 0, W, H);
+    mg.globalCompositeOperation = 'source-in';   // keep B only under mask
+    mg.drawImage(B, 0, 0);
+    mg.globalCompositeOperation = 'source-over';
+    ctx.drawImage(M, 0, 0);
   }
   /* v27: lens ghosts — internal element reflections of the sun disc.
      Real ghosts mirror about the optical center: each ghost sits on the
@@ -26316,13 +26698,7 @@ function sfLensEnd(cw, ch){
        the glare fades exactly as the disc leaves the gate.
        v67: the plate is built on demand — it only exists while the sun
        is in the gate, so clear off-axis frames pay nothing. */
-    if(B && typeof bg.filter !== 'undefined'){
-      const R = Math.max(3, Math.round(H * 0.007));
-      bg.setTransform(1, 0, 0, 1, 0, 0);
-      bg.clearRect(0, 0, W, H);
-      bg.filter = `blur(${R}px)`;
-      bg.drawImage(F, 0, 0);
-      bg.filter = 'none';
+    if(bOk){   // v77: reuses the shared defocused plate — no second blur
       ctx.globalCompositeOperation = 'screen';
       // v56: glare falls off quadratically — a dry clear afternoon stays
       // crisp off-axis instead of the whole frame milking over
@@ -26376,6 +26752,64 @@ function sfLensEnd(cw, ch){
     ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'source-over';
   }
+  /* v77: center-weighted metering — a real camera doesn't paint at a
+     fixed gain, it measures the frame. The plate is downsampled into a
+     20x12 probe; mean luminance drives an exposure offset toward
+     18%-gray-ish midtone (0.47) that adapts smoothly (~8 frames to
+     converge — a meter needle, not a snap). Positive EV screens light
+     back in, negative EV multiplies down, so a gray marine-layer morning
+     lifts its shadows while a hard noon keeps its highlights. */
+  if(SF_LENS.pg){
+    const pg = SF_LENS.pg;
+    pg.clearRect(0, 0, 20, 12);
+    pg.drawImage(F, 0, 0, 20, 12);
+    const dd = pg.getImageData(0, 0, 20, 12).data;
+    let lum = 0;
+    for(let i = 0; i < dd.length; i += 4)
+      lum += dd[i] * 0.2126 + dd[i + 1] * 0.7152 + dd[i + 2] * 0.0722;
+    lum /= (dd.length / 4) * 255;
+    const evT = clamp((0.46 - lum) * 0.9, -0.18, 0.18);
+    SF_LENS.ev += (evT - SF_LENS.ev) * 0.12;
+    const ev = SF_LENS.ev;
+    if(ev > 0.006){
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = `rgba(255,250,238,${ev * 0.4})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    } else if(ev < -0.006){
+      const gg2 = Math.round(255 * (1 + ev * 0.55));
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = `rgb(${gg2},${gg2},${gg2})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  /* v77: halation — bright light scatters inside the emulsion/glass and
+     bleeds a soft bloom around highlights. The shared defocused plate
+     screen-composited at low gain IS that scatter; strength follows
+     daylight (lamplight blooms less than sun) and drops under heavy
+     overcast where nothing in frame is truly hot. */
+  if(bOk){
+    const nK2 = typeof isNight === 'function' && isNight();
+    const covK = typeof sfCloudCover === 'function' ? sfCloudCover() : 0.3;
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = nK2 ? 0.035 : 0.025 + 0.03 * (1 - covK) *
+                      (typeof SF_SUN !== 'undefined' ? SF_SUN.day : 0.5);
+    ctx.drawImage(B, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  /* v77: micro-contrast — the plate soft-lighted over its own defocused
+     self is an unsharp mask: local contrast rises, large-scale tone
+     stays put. The physical parallel is acutance; the visible result is
+     brick, trim and pavement texture reading crisply through the haze. */
+  if(bOk){
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.globalAlpha = 0.12;
+    ctx.drawImage(F, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
   // lens vignette — light falls off toward the corners of the frame.
   // v67: eased back now that the plate is clean — a gentle natural-
   // light falloff, not a murk layer hiding grain.
@@ -26410,8 +26844,15 @@ const SF_WX = {
 };
 /* v9: shared aerial-perspective falloff — light scattered by the marine
    layer washes distant geometry toward the horizon color. */
+const SF_HAZE_MEMO = { fr: -1, m: new Map() };   // v82: haze per 2m depth
 function sfHazeA(fwd){
-  return Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
+  const k = Math.round(fwd * 0.5);
+  if(SF_HAZE_MEMO.fr !== SF_FRAME){ SF_HAZE_MEMO.m.clear(); SF_HAZE_MEMO.fr = SF_FRAME; }
+  const hit = SF_HAZE_MEMO.m.get(k);
+  if(hit !== undefined) return hit;
+  const v = Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
+  SF_HAZE_MEMO.m.set(k, v);
+  return v;
 }
 /* ---------------- v14: TRUE SUN — a real solar position drives every light
    The old constant shadow vector (sun frozen upper-left) is replaced by the
@@ -26469,10 +26910,10 @@ function sfSunFaceK(nx, ny){
 /* face color under the current sun: warm-lit when sunward, sky-cool fill
    when shaded, ambient grey when the sun is down or buried in the deck */
 function sfSunWallCol(base, k){
-  const lit = 0.58 + 0.5 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
+  const lit = 0.56 + 0.55 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
   if(SF_SUN.day > 0.22 && k > 0.18)
-    return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.58 * Math.min(1, k));
-  return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
+    return mix(shade(base, lit), '#ffd98e', SF_SUN.warm * 0.68 * Math.min(1, k));
+  return mix(shade(base, lit), '#6680b2', 0.30 * (1 - Math.max(0, k) * SF_SUN.day));
 }
 /* ---------------- v32: the Mediterranean turf calendar ----------------
    The Mission gets ~0mm of rain from June to October — lawn turf cures
@@ -26540,6 +26981,13 @@ function sfBldAtM(xm, ym){
 }
 function sfCanyonShade(xm, ym, selfI){
   if(SF_SUN.day < 0.08) return 0;
+  /* v82: the march is memoized per 4m cell per occluding self — the shade
+     height it returns varies on facade scale, so a cell far under a
+     parapet shadow length is exact-enough and identical per frame */
+  const k = (selfI + 2) * 1e6 + Math.round(xm * 0.25) * 1024 +
+            Math.round(ym * 0.25);
+  const hit = sfLFGet('cany', k);
+  if(hit !== undefined) return hit;
   const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
   const maxD = Math.min(80, 30 / tanEl);   // a 30m mass caps the reach
   // v39: occluder tops are ABSOLUTE heights — a mass sitting uphill on
@@ -26554,7 +27002,7 @@ function sfCanyonShade(xm, ym, selfI){
     const z = SF_BLD[bi].hPx / 4.2 + (sfElevM(ox, oy) - zProbe) - s * tanEl;
     if(z > zs){ zs = z; if(zs > 26) break; }
   }
-  return zs;
+  return sfLFSet('cany', k, zs);
 }
 /* v39: wire -> facade shadow solver. A conductor point W at height wz
    (the v20 catenary spans ride ~7m) casts along the sun ray; where that
@@ -26571,6 +27019,134 @@ function sfWireShadow(wx, wy, wz, x1, y1, ux, uy, nx, ny, L){
   const u = ((hx - x1) * ux + (hy - y1) * uy) / L;
   const z = wz - s * Math.tan(Math.max(0.02, SF_SUN.el));
   return { u, z, s };
+}
+/* ---------------- v80: the sun field --------------------------------
+   Every pass before this painted shadows LOCALLY — a building's bake can
+   only shade inside its own canvas pad, so a 20m rowhouse never throws
+   its real 40m evening shadow across the street, and nothing shades the
+   park. This replaces the patchwork with a sky-visibility FIELD: for
+   each half-cell ground sample we march a ray toward the sun through
+   building masses AND crown volumes (elevations are absolute, so the
+   Dolores bowl and Liberty Hill carry shade uphill/downhill correctly);
+   the result bakes into the terrain chunk as a cool skylight-only shade
+   layer plus a visibility-gated warm key. Crowns transmit a fraction of
+   the beam (species density), so a hard parapet umbra and a palm's
+   sieve shade differently. sfSkyVis doubles as the live query so pawns
+   and props standing in a shadow stop casting light they never see. */
+// crown occluder: [radius m, crown base m, crown top m, shade density]
+function sfCrownOcc(o){
+  switch(o.kind){
+    case 'sfTree':       return o.big ? [2.7, 2.6, 8.4, 0.85]
+                                      : [1.7, 1.6, 5.4, 0.72];
+    case 'sfPalm':       return [1.6, 5.0, 7.4, 0.42];
+    case 'sfCypress':    return [1.0, 0.3, 7.6, 0.8];
+    case 'sfStreetTree': return o.v === 0 ? [2.3, 1.5, 5.2, 0.72]
+                                          : [1.2, 1.3, 3.9, 0.55];
+    default: return null;
+  }
+}
+/* direct-sun visibility 0..1 at ground point (meters). tMap is the
+   per-chunk-bake occluder index (cell -> crown records pre-expanded over
+   every cell the disc overlaps); without it we probe the 3x3 prop-cell
+   neighborhood — the live query for pawns/props. */
+function sfSkyVis(xm, ym, tMap){
+  if(SF_SUN.day < 0.05 || isNight()) return 1;
+  const cm = SF_M.cell_m, tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+  const z0 = sfElevM(xm, ym);
+  const maxD = Math.min(90, 34 / tanEl);
+  let vis = 1;
+  for(let s = 1.5; s < maxD; s += 1.5){
+    const ox = xm + SF_SUN.toX * s, oy = ym + SF_SUN.toY * s;
+    const zr = z0 + s * tanEl;
+    const bi = sfBldAtM(ox, oy);
+    if(bi >= 0 && SF_BLD[bi].hPx / 4.2 + sfElevM(ox, oy) > zr)
+      return 0;                                   // opaque mass — umbra
+    const cxx = Math.floor(ox / cm), cyy = Math.floor(oy / cm);
+    if(tMap){
+      const lst = tMap.get(cxx + ',' + cyy);
+      if(lst) for(const t of lst){
+        const dx = ox - t.x, dy = oy - t.y;
+        if(dx * dx + dy * dy < t.r2 && zr > t.zb && zr < t.zt){
+          vis *= t.tr; if(vis < 0.04) return 0.04;
+        }
+      }
+    } else {
+      for(let ny = -1; ny <= 1; ny++) for(let nx = -1; nx <= 1; nx++){
+        const lst = SF_PROP_CELL.get((cxx + nx) + ',' + (cyy + ny));
+        if(!lst) continue;
+        for(const o of lst){
+          const oc = o._occ || (o._occ = sfCrownOcc(o));
+          if(!oc) continue;
+          const dx = ox - o.x / SF_PXM, dy = oy - o.y / SF_PXM;
+          if(dx * dx + dy * dy < oc[0] * oc[0] && zr > oc[1] && zr < oc[2]){
+            vis *= 1 - oc[3];
+            if(vis < 0.04) return 0.04;
+          }
+        }
+      }
+    }
+  }
+  return vis;
+}
+/* memoized field query for static props — the sun sector is the cache
+   key, so a pawn-free frame costs one compare per prop */
+function sfPropVis(o){
+  if(o._visQ !== SF_SUN.q){
+    o._visV = sfSkyVis(o.x / SF_PXM, o.y / SF_PXM);
+    o._visQ = SF_SUN.q;
+  }
+  return o._visV;
+}
+/* v84: pavement-level sun visibility for the street-view ground pass —
+   the same physics sfSkyVis marches for the top-down bake, solved two
+   cheaper ways. Buildings answer through the memoized canyon probe
+   (same occluder field the facades already pay for, 4m cells). Tree
+   crowns are solved by PROJECTION, not marching: each crown throws a
+   shadow disc whose center lands the crown's own height down-sun
+   (throw = z·cot(el) along the real solar bearing), grown by the sun's
+   ~0.5° penumbra over that throw. Inside the disc the beam is
+   crown-transmitted, not zero — a palm sieves (0.42 dense), a cypress
+   wallops (0.8) — with a soft rim so the sieve edge reads like real
+   scattered shade. Returns 0..1 direct-beam fraction. */
+function sfGroundVis(xm, ym){
+  if(SF_SUN.day < 0.05 || isNight()) return 1;
+  /* the field's own gradients are street-scale — a 10m road, a 12m
+     canopy, a 40m parapet throw — so the answer is memoized on an 8m
+     frame grid and every tile samples its nearest probe. One frame
+     pays ~nc/16 marches instead of nc. */
+  const gx8 = Math.round(xm / 8), gy8 = Math.round(ym / 8);
+  const k = gx8 * 8192 + gy8;
+  const hit = sfLFGet('gvis', k);
+  if(hit !== undefined) return hit;
+  xm = gx8 * 8; ym = gy8 * 8;
+  if(sfCanyonShade(xm, ym, -1) > 0.35) return sfLFSet('gvis', k, 0.04);
+  const cm = SF_M.cell_m, tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+  const z0 = sfElevM(xm, ym);
+  let vis = 1;
+  const cxx = Math.floor(xm / cm), cyy = Math.floor(ym / cm);
+  for(let ny = -1; ny <= 1; ny++) for(let nx = -1; nx <= 1; nx++){
+    const lst = SF_PROP_CELL.get((cxx + nx) + ',' + (cyy + ny));
+    if(!lst) continue;
+    for(const o of lst){
+      const oc = o._occ || (o._occ = sfCrownOcc(o));
+      if(!oc) continue;
+      const r = oc[0],
+            zc = (oc[1] + oc[2]) * 0.5 +
+                 sfElevM(o.x / SF_PXM, o.y / SF_PXM);
+      const thr = (zc - z0) / tanEl;       // shadow throw in meters
+      if(thr < -r) continue;               // crown below the probe
+      const t2 = Math.max(0, thr);
+      const sx = o.x / SF_PXM - SF_SUN.toX * t2,
+            sy = o.y / SF_PXM - SF_SUN.toY * t2;
+      const rr = r + t2 * 0.009;           // penumbra grows with throw
+      const dx = xm - sx, dy = ym - sy, d2 = dx * dx + dy * dy;
+      if(d2 >= rr * rr) continue;
+      const edge = clamp((rr - Math.sqrt(d2)) / (rr * 0.3), 0, 1);
+      vis *= 1 - oc[3] * edge;
+      if(vis < 0.04) return sfLFSet('gvis', k, 0.04);
+    }
+  }
+  return sfLFSet('gvis', k, vis);
 }
 /* ---------------- v15: penumbra & twilight ----------------
    sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
@@ -26755,11 +27331,28 @@ function sfBounceK(sunK, occlM){
    repeat lot datums. Quantized to 1/16m — sub-millimeter height error
    on these slopes — and LRU-bounded; the map persists across frames so
    steady-state frames run lookup-only. */
-const SF_ELEV_MEMO = new Map();
+/* v82: the memo grew into a heightfield — a Float32Array over the whole
+   map at 1m cells, lazily filled on first touch per cell (NaN sentinel),
+   evaluated at the cell center. Same function, same shape, but a flat
+   array index replaces the Map round-trip: ~110k lookups/frame go from
+   hashed-key to pointer math. Max sampling error is half a meter of XY —
+   under 4cm of height on the steepest modeled grade (the Dolores bowl),
+   far inside the line width of anything it shades. ~10MB resident. */
+let SF_ELEV_G = null, SF_ELEV_GW = 0, SF_ELEV_GH = 0;
 function sfElevM(xm, ym){
-  const k = Math.round(xm * 16) * 1e6 + Math.round(ym * 16);
-  let z = SF_ELEV_MEMO.get(k);
-  if(z !== undefined) return z;
+  if(!SF_ELEV_G){
+    SF_ELEV_GW = Math.ceil(SF_M.gw * SF_M.cell_m) + 2;
+    SF_ELEV_GH = Math.ceil(SF_M.gh * SF_M.cell_m) + 2;
+    SF_ELEV_G = new Float32Array(SF_ELEV_GW * SF_ELEV_GH);
+    SF_ELEV_G.fill(NaN);
+  }
+  let ix = Math.floor(xm) + 1, iy = Math.floor(ym) + 1;
+  if(ix < 0) ix = 0; else if(ix >= SF_ELEV_GW) ix = SF_ELEV_GW - 1;
+  if(iy < 0) iy = 0; else if(iy >= SF_ELEV_GH) iy = SF_ELEV_GH - 1;
+  const idx = iy * SF_ELEV_GW + ix;
+  let z = SF_ELEV_G[idx];
+  if(z === z) return z;                          // NaN = unbaked cell
+  xm = ix - 0.5; ym = iy - 0.5;                  // cell center sample
   const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
   const pc = sfParkCenterM();
   z = 9 + (ym / mh) * 31 + (1 - xm / mw) * 19;
@@ -26772,9 +27365,8 @@ function sfElevM(xm, ym){
   z += 9.0 / (1 + (hx * hx + hy * hy) / (240 * 240));   // Dolores Heights
   z += 0.9 * Math.sin(xm * 0.011 + 1.3) * Math.sin(ym * 0.009 + 0.4)
      + 0.4 * Math.sin((xm - ym) * 0.0055);       // dunes under the grid
-  if(SF_ELEV_MEMO.size > 400000) SF_ELEV_MEMO.clear();
-  SF_ELEV_MEMO.set(k, z);
-  return z;
+  SF_ELEV_G[idx] = z;
+  return SF_ELEV_G[idx];      // return the STORED value — repeat calls equal
 }
 const SF_CURB_H = 0.15;
 function sfGroundZ(wxm, wym){
@@ -27017,24 +27609,31 @@ function sfCloudPos(c){
   let y = (c.y + vy * SF_WX.t) % SF_WX.wrapY; if(y < 0) y += SF_WX.wrapY;
   return [x - 350, y - 350];
 }
-/* 0..1 soft cloud occlusion over a world point (meters) — sun dimmer */
+/* 0..1 soft cloud occlusion over a world point (meters) — sun dimmer.
+   v82: evaluates the field on the frame-memoized blob list and caches the
+   scalar per 8m cell — the field's own penumbra is ~10x wider than the
+   cell, so the memo is inside the noise of the gradient it samples. */
 function sfCloudShadow(mx, my){
-  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('cloud', k);
+  if(hit !== undefined) return hit;
+  const bl = sfShadowBlobs();
   let sh = 0;
-  for(let i = 0; i < n; i++){
-    const c = cs[i];
-    const [cx, cy] = sfCloudPos(c);
-    const gx = cx - SF_SUN.x * SF_CLOUD_ALT, gy = cy - SF_SUN.y * SF_CLOUD_ALT;
-    const dx = mx - gx, dy = my - gy;
-    const d2 = dx * dx + dy * dy, r2 = c.r * c.r;
-    if(d2 < r2 * 4) sh += c.a * Math.exp(-d2 / r2);
+  for(let i = 0; i < bl.length; i++){
+    const b = bl[i], dx = mx - b[0], dy = my - b[1], d2 = dx * dx + dy * dy;
+    if(d2 < b[2] * 4) sh += b[3] * Math.exp(-d2 / b[2]);
   }
-  return Math.min(1, sh * (0.4 + 0.6 * sfCloudCover()));
+  return sfLFSet('cloud', k,
+                 Math.min(1, sh * (0.4 + 0.6 * sfCloudCover())));
 }
 /* v11: ground-projected cloud blobs resolved ONCE per frame — the street
    ground pass used to re-run sfCloudPos (wrap/mod math) for every cell x
-   every cloud. Same shadow field, a fraction of the arithmetic. */
+   every cloud. Same shadow field, a fraction of the arithmetic.
+   v82: the list itself is now memoized on SF_FRAME — sfCloudShadow and
+   the painters below share one resolution per rendered frame. */
+const SF_BLOB_SH = { fr: -1, a: null };
 function sfShadowBlobs(){
+  if(SF_BLOB_SH.fr === SF_FRAME && SF_BLOB_SH.a) return SF_BLOB_SH.a;
   const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
   const out = [];
   for(let i = 0; i < n; i++){
@@ -27043,6 +27642,7 @@ function sfShadowBlobs(){
     out.push([cx - SF_SUN.x * SF_CLOUD_ALT, cy - SF_SUN.y * SF_CLOUD_ALT,
               c.r * c.r, c.a]);
   }
+  SF_BLOB_SH.fr = SF_FRAME; SF_BLOB_SH.a = out;
   return out;
 }
 /* ---------------- v47: sunbreaks --------------------------------------
@@ -27057,7 +27657,9 @@ function sfShadowBlobs(){
    drifts on the same wind, projects along the same sun vector, and dies
    out as the deck closes (cover -> 1 leaves no gaps to shine through). */
 const SF_GAP_SHIFT = 132;                    // ~half the 265m street spacing
+const SF_BLOB_GAP = { fr: -1, a: null };
 function sfGapBlobs(){
+  if(SF_BLOB_GAP.fr === SF_FRAME && SF_BLOB_GAP.a) return SF_BLOB_GAP.a;
   const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
   const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
   const out = [];
@@ -27068,21 +27670,20 @@ function sfGapBlobs(){
               cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT,
               c.r * c.r * 1.35, c.a]);
   }
+  SF_BLOB_GAP.fr = SF_FRAME; SF_BLOB_GAP.a = out;
   return out;
 }
 function sfSunGapK(mx, my){
-  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
-  const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
-  let k = 0;
-  for(let i = 0; i < n; i++){
-    const c = cs[i];
-    const [cx, cy] = sfCloudPos(c);
-    const gx = cx + nxv * SF_GAP_SHIFT - SF_SUN.x * SF_CLOUD_ALT,
-          gy = cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT;
-    const dx = mx - gx, dy = my - gy, d2 = dx * dx + dy * dy, r2 = c.r * c.r * 1.35;
-    if(d2 < r2 * 4) k += c.a * Math.exp(-d2 / r2);
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('gap', k);
+  if(hit !== undefined) return hit;
+  const bl = sfGapBlobs();
+  let g = 0;
+  for(let i = 0; i < bl.length; i++){
+    const b = bl[i], dx = mx - b[0], dy = my - b[1], d2 = dx * dx + dy * dy;
+    if(d2 < b[2] * 4) g += b[3] * Math.exp(-d2 / b[2]);
   }
-  return Math.min(1, k);
+  return sfLFSet('gap', k, Math.min(1, g));
 }
 /* ---------------- v24: cumulus bodies -------------------------------
    The cloud field used to exist only as sliding ground shadows and flat
@@ -27349,15 +27950,24 @@ function sfParkCenterM(){
    to carry it. sfKarlPoly() clips the map rect to the half-plane behind
    the fog front — the upwind edge where Karl pours in. Both views draw
    the SAME front. */
+/* v82: memoized on its INPUTS (tod/hum/wind/cover/rain/storm) rather than
+   the frame counter — a harness or game tick that mutates W between
+   renders still sees the new value instantly. */
+let SF_KARLK_IN = '', SF_KARLK_V = 0;
 function sfKarlK(){
+  const sig = W.tod + ',' + W.hum + ',' + W.windSpd + ',' + SF_WX.cover +
+              ',' + W.rain + ',' + W.storm;
+  if(sig === SF_KARLK_IN) return SF_KARLK_V;
   const t = W.tod;
   const diur = clamp(0.12 + 0.85 * Math.max(
     Math.exp(-Math.pow((t - 7.5) / 4.2, 2)),      // overnight/morning deck
     clamp((t - 14.6) / 2.6, 0, 1)), 0, 1);         // evening push
   const hum = clamp((W.hum - 0.35) / 0.5, 0, 1);
   const fetch = clamp(W.windSpd / 2.4, 0, 1);
-  return clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
+  SF_KARLK_V = clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
                fetch * 0.15 - 0.24, 0, 1);
+  SF_KARLK_IN = sig;
+  return SF_KARLK_V;
 }
 /* v67: meteorological visibility — a Koschmieder-style daylight visual
    range in km, derived from the same drivers every other weather system
@@ -27468,13 +28078,17 @@ function sfKarlFrontField(){
 }
 /* along-wind depth (m) of the modulated front at cross-wind coord v */
 function sfKarlDepthAt(v){
+  const k = Math.round(v * 0.5);                 // v82: 2m cells on the front
+  const hit = sfLFGet('kdep', k);
+  if(hit !== undefined) return hit;
   const F = sfKarlFrontField(), kk = sfKarlK();
   const lim = F.lo + kk * 0.9 * (F.hi - F.lo);
   const x = clamp((v - F.vLo) / (F.vHi - F.vLo), 0, 1) * F.N;
   const i = Math.min(F.N - 1, Math.floor(x)), fx = x - i;
   const mod = F.dv[i] + (F.dv[i + 1] - F.dv[i]) * fx;
   // fingertips breathe on a slow ~minute-scale cycle
-  return lim + mod + Math.sin(SF_WX.t * 0.10 + v * 0.013) * 9;
+  return sfLFSet('kdep', k,
+               lim + mod + Math.sin(SF_WX.t * 0.10 + v * 0.013) * 9);
 }
 /* world-meter polyline of the modulated front edge (cross-wind order) */
 function sfKarlFrontPts(){
@@ -27495,10 +28109,14 @@ function sfKarlFrontPts(){
 function sfKarlShade(mx, my){
   const kk = sfKarlK();
   if(kk <= 0.03 || isNight()) return 0;
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('karl', k);
+  if(hit !== undefined) return hit;
   const F = sfKarlFrontField();
   const u = mx * F.wxv + my * F.wyv, v = mx * F.nxv + my * F.nyv;
   if(v < F.vLo || v > F.vHi) return 0;
-  return clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1);
+  return sfLFSet('karl', k,
+               clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1));
 }
 
 /* ---------------- v60: KARL AT STREET LEVEL ---------------------------
@@ -27893,7 +28511,40 @@ function sfSplashOverlay(cw, yTop, yBot){
       ivy, flower boxes) is distance-tiered so far walls cost far less.
    Physically: same sun, same wind, same wet streets — just cheaper. */
 const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0, info: '' };
+/* ---------------- v82: the light-field cache --------------------------
+   Profiling (devtools/perf_v82.js) showed the street pass spending ~40%
+   of its JS time re-answering the same three questions ~1.7k times per
+   frame: "how much cloud is over this point" (sfCloudShadow), "is this
+   point in a sunbreak" (sfSunGapK), "is Karl's sheet overhead"
+   (sfKarlShade) — each a ~46-cloud exp() loop per query, plus the canyon
+   raymarch and the fog-front interpolant. Every one of those is a SMOOTH
+   SCALAR FIELD over world meters: a cloud shadow edge is ~100m wide, the
+   fog shade gradient runs 110m, canyon shade changes on facade scale.
+   So v82 evaluates each field once per ~8m cell per rendered frame and
+   memoizes the rest — the light the sim draws is identical (the error is
+   far under one shade gradient), the per-frame work drops by an order of
+   magnitude. SF_FRAME ticks at the top of each render pass (sfPerfBegin),
+   so a stale cell can never survive a clock tick; the blob lists
+   (cloud ground positions projected along the sun vector) are resolved
+   once per frame instead of once per query. */
+let SF_FRAME = 0;
+const SF_LFM = { cloud: { fr: -1, m: new Map() },
+                 gap:   { fr: -1, m: new Map() },
+                 karl:  { fr: -1, m: new Map() },
+                 cany:  { fr: -1, m: new Map() },
+                 gvis:  { fr: -1, m: new Map() },   // v84 pavement sun field
+                 kdep:  { fr: -1, m: new Map() } };
+let SF_LF_HIT = 0, SF_LF_MIS = 0;
+function sfLFGet(slot, k){
+  const F = SF_LFM[slot];
+  if(F.fr !== SF_FRAME){ F.m.clear(); F.fr = SF_FRAME; }
+  const v = F.m.get(k);
+  if(v === undefined){ SF_LF_MIS++; return undefined; }
+  SF_LF_HIT++; return v;
+}
+function sfLFSet(slot, k, v){ SF_LFM[slot].m.set(k, v); return v; }
 function sfPerfBegin(){
+  SF_FRAME++;
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   if(SF_PERF.last) SF_PERF.fps += (1000 / Math.max(1, now - SF_PERF.last) - SF_PERF.fps) * 0.06;
   SF_PERF.last = now; SF_PERF.t0 = now; SF_PERF.info = '';
@@ -27902,7 +28553,10 @@ function sfPerfHud(cw, ch){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   SF_PERF.ms += (now - SF_PERF.t0 - SF_PERF.ms) * 0.1;
   const ms = SF_PERF.ms, fps = Math.min(240, SF_PERF.fps);
+  const lfT = SF_LF_HIT + SF_LF_MIS;
+  const lfPct = lfT ? Math.round(100 * SF_LF_HIT / lfT) : 0;
   const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms` +
+              ` LF${lfPct}%` +
               (SF_PERF.info ? ' ' + SF_PERF.info : '');
   ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
   const tw = ctx.measureText(lab).width;
@@ -28444,7 +29098,11 @@ function sfTerrChunk(cx, cy, wetQ){
         const sk = -((e10 + e11 - e00 - e01) / (2 * cm2) * SF_SUN.toX +
                      (e01 + e11 - e00 - e10) / (2 * cm2) * SF_SUN.toY) *
                    (0.35 + 0.65 * SF_SUN.day);
-        const aa = clamp(sk * 4.5, -0.22, 0.26);
+        /* v86: the Dolores bowl must read as LAND at diorama zoom —
+           grass takes a stronger hillshade gain so the sun-facing slope
+           warms and the shying slope cools hard enough to see the bowl. */
+        const aa = tt === 13 ? clamp(sk * 9.0, -0.34, 0.40)
+                             : clamp(sk * 4.5, -0.22, 0.26);
         if(aa > 0.02){
           g.fillStyle = `rgba(255,246,220,${aa.toFixed(3)})`;
           g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
@@ -28453,11 +29111,11 @@ function sfTerrChunk(cx, cy, wetQ){
           g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
         }
       }
-      // v42: the warm key — open ground is sun-struck, not just unshadowed.
-      // A faint gold wash (scaled by elevation + golden-hour warmth) sits
-      // under every cast-shadow sprite, so lit pavement reads warm against
-      // the cool skylight-only shade the buildings throw over it.
-      if(SF_TERR.litA > 0.004){
+      // v80: the flat warm key moved into the sun-field pass below —
+      // visibility-gated per half-cell, so shadowed ground stops
+      // receiving the gold wash. Fallback only when the field is off
+      // (deep overcast / night edges where litA is ~0 anyway).
+      if(SF_TERR.litA > 0.004 && (SF_SUN.day <= 0.05 || isNight())){
         g.fillStyle = `rgba(255,210,142,${SF_TERR.litA})`;
         g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
       }
@@ -28477,6 +29135,77 @@ function sfTerrChunk(cx, cy, wetQ){
     }
   }
   sfDecalChunk(g, cx, cy);
+  /* v80: sun field — bake the raymarched sky-visibility map into the
+     chunk. Two half-cell-resolution layers drawn smoothed (bilinear
+     does the penumbra): a warm key where the sun lands (shadowed ground
+     keeps only a faint bounce term) and a cool skylight shade where it
+     doesn't. One map drives both, so lit and shaded pavement can never
+     disagree about where the shadow line runs. */
+  if(SF_SUN.day > 0.05 && !isNight()){
+    const cm = SF_M.cell_m, SS = 2, N = CHN * SS;
+    const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+    const maxD = Math.min(90, 34 / tanEl);
+    // crown occluders: gather veg props over the chunk + the up-sun
+    // reach, pre-expanded into every cell each crown disc overlaps
+    const reach = Math.ceil(maxD / cm) + 2;
+    const ax = Math.round(SF_SUN.toX * reach), ay = Math.round(SF_SUN.toY * reach);
+    const xA = Math.min(cx * CHN, cx * CHN + ax) - 2,
+          xB = Math.max(cx * CHN + CHN - 1, cx * CHN + CHN - 1 + ax) + 2,
+          yA = Math.min(cy * CHN, cy * CHN + ay) - 2,
+          yB = Math.max(cy * CHN + CHN - 1, cy * CHN + CHN - 1 + ay) + 2;
+    const tMap = new Map();
+    for(let cy2 = yA; cy2 <= yB; cy2++) for(let cx2 = xA; cx2 <= xB; cx2++){
+      const lst = SF_PROP_CELL.get(cx2 + ',' + cy2);
+      if(!lst) continue;
+      for(const o of lst){
+        const oc = o._occ || (o._occ = sfCrownOcc(o));
+        if(!oc) continue;
+        const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+        const ze = sfElevM(mx, my);
+        const rec = { x: mx, y: my, r2: oc[0] * oc[0],
+                      zb: oc[1] + ze, zt: oc[2] + ze, tr: 1 - oc[3] };
+        const rc = Math.ceil(oc[0] / cm);
+        const ccx = Math.floor(mx / cm), ccy = Math.floor(my / cm);
+        for(let dy2 = -rc; dy2 <= rc; dy2++)
+          for(let dx2 = -rc; dx2 <= rc; dx2++){
+            const k2 = (ccx + dx2) + ',' + (ccy + dy2);
+            if(!tMap.has(k2)) tMap.set(k2, []);
+            tMap.get(k2).push(rec);
+          }
+      }
+    }
+    // march one sun ray per half-cell sample
+    const vis8 = new Uint8Array(N * N);
+    for(let j = 0; j < N; j++){
+      const ym = (cy * CHN + (j + 0.5) / SS) * cm;
+      for(let i = 0; i < N; i++){
+        const xm = (cx * CHN + (i + 0.5) / SS) * cm;
+        vis8[j * N + i] = Math.round(sfSkyVis(xm, ym, tMap) * 255);
+      }
+    }
+    const mk = (r, g2, b, f) => {
+      const c2 = document.createElement('canvas'); c2.width = c2.height = N;
+      const g3 = c2.getContext('2d'), im = g3.createImageData(N, N),
+            dd = im.data;
+      for(let j = 0; j < N; j++) for(let i = 0; i < N; i++){
+        const k2 = (j * N + i) * 4, vis = vis8[j * N + i] / 255;
+        dd[k2] = r; dd[k2 + 1] = g2; dd[k2 + 2] = b;
+        dd[k2 + 3] = Math.round(255 * f(vis));
+      }
+      g3.putImageData(im, 0, 0);
+      return c2;
+    };
+    const litA = SF_TERR.litA;
+    const shA = clamp(0.40 * Math.min(1, SF_SUN.day * 1.4), 0, 0.44);
+    g.imageSmoothingEnabled = true;
+    if(litA > 0.003)
+      g.drawImage(mk(255, 214, 150, v => litA * (0.3 + 0.7 * v) * 1.35),
+                  0, 0, c.width, c.height);
+    if(shA > 0.004)
+      g.drawImage(mk(34, 48, 92, v => shA * (1 - v)),
+                  0, 0, c.width, c.height);
+    g.imageSmoothingEnabled = false;
+  }
   SF_TERR.cache.set(key, c);
   while(SF_TERR.cache.size > SF_TERR.max)
     SF_TERR.cache.delete(SF_TERR.cache.keys().next().value);
@@ -28581,6 +29310,496 @@ function sfStillStore(cw, ch, key){
   }
   SF_STILL.g.drawImage(ctx.canvas, 0, 0, cw, ch);
   SF_STILL.key = key;
+}
+/* ---- v79: roof life ---------------------------------------------------
+   The baked sprite carries static furniture, but the Mission's roofs are
+   alive: boiler stacks breathe wind-slanted smoke, exhaust vents spin,
+   laundry swings on its line, and pigeon flocks flush off the parapet,
+   wheel a lap over the block, and settle back. Anchors are recorded at
+   bake time (art.live, canvas px) so every animated element sits exactly
+   on the prop that causes it. Drawn AFTER the blit inside the same
+   sfTopLean transform, and again over a still-cache hit so the roof never
+   freezes. */
+function sfRoofLife(b, art, sx, sy){
+  const L = art.live;
+  if(!L || !L.length) return;
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+  const z = cam.zoom;
+  const wvX = Math.cos(W.windAng), wvY = Math.sin(W.windAng);
+  const wSpd = Math.max(0.4, W.windSpd || 0.8);
+  const gust = SF_WX.gust || 0.5;
+  const night = isNight();
+  /* breath visibility — a plume reads strongest in cold, damp, foggy air
+     and nearly vanishes on a hot dry afternoon; always >0 so the roof
+     keeps breathing, scaled by the physics that would carry it */
+  const plumeK = clamp(0.55 + (SF_WX.wet || 0) * 0.45 + sfKarlK() * 0.3 +
+                       (W.temp < 12 ? 0.25 : 0) + (night ? 0.1 : 0), 0.4, 1);
+  const puffCol = night ? '146,154,168' : '214,219,225';
+  const cw2 = ctx.canvas.width, ch2 = ctx.canvas.height;
+  for(const a of L){
+    const ax = sx + a.x * z, ay = sy + a.y * z;
+    if(ax < -60 || ax > cw2 + 60 || ay < -90 || ay > ch2 + 60) continue;
+    const ph = phash(b.i, a.x + a.y * 7, 7800);
+    if(a.k === 3 || a.k === 2){
+      /* chimney / pipe stack smoke — puffs born at the cap, rising on
+         their own buoyancy while the wind vector bends the column over;
+         each puff grows and thins as it mixes out */
+      const rise0 = a.k === 3 ? 10 : 6, len = a.k === 3 ? 1 : 0.55;
+      for(let i = 0; i < 7; i++){
+        const t = (now * (0.2 + wSpd * 0.06) + i * 0.145 + ph) % 1;
+        const drift = t * (8 + wSpd * 16) * len;
+        const px = ax + wvX * drift * z,
+              py = ay - (rise0 * 0.4 + t * rise0 * 1.8) * z + wvY * drift * z;
+        const r = Math.max(0.7, (1.8 + t * 8) * z);
+        ctx.fillStyle = `rgba(${puffCol},${((1 - t) * 0.62 * plumeK).toFixed(3)})`;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if(a.k === 12){
+      /* exhaust fan — three-blade sweep over the baked dome; spin rate
+         follows wind speed like a real turbine vent */
+      const cy2 = ay - 2 * z, r = Math.max(1.4, 3.2 * z);
+      const rot = now * (4 + wSpd * 4) + ph * 6.28;
+      ctx.strokeStyle = night ? 'rgba(120,128,138,0.55)' : 'rgba(238,242,246,0.85)';
+      ctx.lineWidth = Math.max(0.6, 0.55 * z);
+      for(let s2 = 0; s2 < 3; s2++){
+        const an = rot + s2 * Math.PI * 2 / 3;
+        ctx.beginPath();
+        ctx.moveTo(ax, cy2);
+        ctx.lineTo(ax + Math.cos(an) * r, cy2 + Math.sin(an) * r * 0.72);
+        ctx.stroke();
+      }
+    } else if(a.k === 10){
+      /* clothesline — laundry pinned at the line, hems swinging downwind
+         in phase with the gust envelope */
+      const lx0 = ax - 7 * z, lx1 = ax + 7 * z, lyy = ay - 4 * z;
+      const cloth = ['#e8e0d0', '#7a94b8', '#c86a6a', '#e8e8f0'];
+      for(let c3 = 0; c3 < 3; c3++){
+        const t2 = 0.22 + c3 * 0.28;
+        const bx6 = lx0 + (lx1 - lx0) * t2,
+              by6 = lyy - z + Math.sin(t2 * Math.PI) * 1.6 * z;
+        const sw = Math.sin(now * (1.5 + gust * 2.4) + c3 * 1.9 + ph * 6);
+        ctx.save();
+        ctx.translate(bx6, by6);
+        ctx.rotate(sw * 0.3 * (0.4 + gust));
+        ctx.fillStyle = cloth[Math.floor(phash(b.i, c3 + a.x, 1706) * 4)];
+        ctx.fillRect(-1.7 * z, 0, 3.4 * z, (4.2 + sw * 1.1) * z);
+        ctx.restore();
+      }
+    } else if(a.k === 9){
+      /* pigeon flock — a deterministic flush schedule: roughly half the
+         cycle the birds wheel an elliptical lap above the roof (beating
+         wings), then settle back to shuffle-peck around the vent */
+      const cyc = (now / 24 + ph) % 1;
+      const nB = 4 + Math.floor(phash(b.i, a.x, 7801) * 3);
+      if(cyc < 0.5){
+        const lift = Math.sin(Math.min(1, cyc / 0.12) * Math.PI * 0.5) *
+                     Math.sin(Math.min(1, (0.5 - cyc) / 0.1) * Math.PI * 0.5);
+        const R = (9 + gust * 4 + Math.sin(now * 0.7 + ph * 9) * 2) * z;
+        const ocx = ax + wvX * 4 * z, ocy = ay - 13 * z * lift;
+        ctx.strokeStyle = night ? '#3a3a42' : '#3e3e46';
+        ctx.lineWidth = Math.max(0.8, 0.7 * z);
+        for(let b2 = 0; b2 < nB; b2++){
+          const an = now * (1.6 + gust * 0.6) + ph * 6.28 + b2 * Math.PI * 2 / nB;
+          const bx6 = ocx + Math.cos(an) * R,
+                by6 = ocy + Math.sin(an) * R * 0.55;
+          // real-sun flicker shadow sliding over the roof as the bird wheels
+          if(!night && SF_SUN.day > 0.2){
+            ctx.fillStyle = `rgba(20,14,8,${0.10 * SF_SUN.day})`;
+            ctx.beginPath();
+            ctx.ellipse(bx6 + SF_SUN.x * 6 * z, ay + SF_SUN.y * 4 * z,
+                        1.6 * z, 0.9 * z, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          const flap = Math.sin(now * 13 + b2 * 2.3) * 1.8 * z;
+          ctx.beginPath();
+          ctx.moveTo(bx6 - 3.2 * z, by6 - flap);
+          ctx.lineTo(bx6, by6);
+          ctx.lineTo(bx6 + 3.2 * z, by6 - flap);
+          ctx.stroke();
+        }
+      } else {
+        const step = Math.floor(now * 2);
+        ctx.fillStyle = night ? '#3a3a42' : '#46464e';
+        for(let b2 = 0; b2 < 2; b2++){
+          const bx6 = ax + (phash(step, b2 + a.x, 7802) - 0.5) * 11 * z,
+                by6 = ay + (phash(b2 + a.x, step, 7803) - 0.5) * 7 * z -
+                      (phash(step, b2, 7804) < 0.3 ? z : 0); // peck dip
+          ctx.fillRect(bx6, by6, Math.max(1, 1.2 * z), Math.max(1, z));
+        }
+      }
+    }
+  }
+}
+/* standalone pass for still-cache hits — replays the overlay over the
+   blitted frame so smoke, fans, laundry and pigeons never freeze while
+   the camera idles. Same culling + lean transform as the main loop. */
+function sfRoofLifePass(cw, ch){
+  if(cam.zoom < 0.35) return;
+  const wet = SF_WX.wet > 0.45 ? 1 : 0;
+  for(const b of SF_BLD){
+    if(!b.px) continue;
+    if(b.bx1 < cam.x - cw / 2 / cam.zoom - 64 || b.bx0 > cam.x + cw / 2 / cam.zoom + 64) continue;
+    if(b.by1 - b.hPx / SF_TILT < cam.y - ch / 2 / cam.zoom / SF_TILT - 220 ||
+       b.by0 > cam.y + ch / 2 / cam.zoom / SF_TILT + 64) continue;
+    const art = getSfBldArt(b.i, wet);
+    if(!art.live || !art.live.length) continue;
+    const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom),
+          sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
+    ctx.save();
+    sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2, sfSY(b.by1, ch));
+    sfRoofLife(b, art, sx, sy);
+    ctx.restore();
+  }
+}
+/* street-view counterpart: a plume of puffs born at a chimney/pipe cap,
+   buoyant rise bent downwind — the wind vector is re-projected through
+   the camera so the slant agrees with the flagged trees and rain */
+function sfStreetPlume(pr, fx, fy, zB, capX, capY, sc, seed, night){
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+  const wA = pr(fx, fy, zB),
+        wB = pr(fx + Math.cos(W.windAng) * 3, fy + Math.sin(W.windAng) * 3, zB);
+  let wdx = 0.4, wdy = -0.15;
+  if(wA && wB){
+    const dx = wB[0] - wA[0], dy = wB[1] - wA[1], l = Math.hypot(dx, dy) || 1;
+    wdx = dx / l; wdy = dy / l;
+  }
+  const wSpd = Math.max(0.4, W.windSpd || 0.8);
+  const plumeK = clamp(0.55 + (SF_WX.wet || 0) * 0.45 + sfKarlK() * 0.3 +
+                       (W.temp < 12 ? 0.25 : 0) + (night ? 0.1 : 0), 0.4, 1);
+  for(let i = 0; i < 6; i++){
+    const t = (now * (0.2 + wSpd * 0.05) + i * 0.17 + seed) % 1;
+    const drift = t * (4 + wSpd * 8) * sc;
+    const px = capX + wdx * drift,
+          py = capY + wdy * drift * 0.4 - t * 8.5 * sc;
+    const r = Math.max(0.6, (0.5 + t * 3.4) * sc);
+    ctx.fillStyle = `rgba(${night ? '146,154,168' : '214,219,225'},${((1 - t) * 0.34 * plumeK).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+  }
+}
+/* v83: street-view paint of ONE catalog entry (sfRoofCatalog, 31_sf_art)
+   — the same prop the baked top-down sprite drew at (e.mx, e.my), so the
+   water tank / bulkhead / clothesline / penthouse you see from above is
+   the object rising over this parapet. e.k is the bake kind (0-22).
+   Heights in meters above the roof plane hm. */
+function sfStreetRoofProp(pr, b, e, hm, F, night, DX, DY){
+  const base = pr(e.mx, e.my, hm);
+  if(!base || base[2] > 150) return;
+  const sc = F / base[2], M = Math.max, bx = base[0], by = base[1];
+  const seed = phash(b.i, Math.round(e.mx * 7 + e.my * 31), 7800);
+  const ln = (x0, y0, z0, x1, y1, z1, w, col) => {
+    const a = pr(x0, y0, z0), c = pr(x1, y1, z1);
+    if(!a || !c) return;
+    ctx.strokeStyle = col; ctx.lineWidth = M(0.6, w * sc);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+  };
+  const quad = (pts, col) => {
+    ctx.beginPath(); let ok = false;
+    for(const [qx, qy, qz] of pts){
+      const p = pr(qx, qy, qz); if(!p) return;
+      ok ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); ok = true;
+    }
+    ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+  };
+  const dim = night ? 0.42 : 1;
+  switch(e.k){
+    case 0: // mushroom vent: stem + cap dome
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 0.45, 0.14, night ? '#2a2725' : '#5a5348');
+      ctx.fillStyle = night ? '#2e2a26' : '#7a7060';
+      ctx.beginPath();
+      ctx.ellipse(bx, by - M(1, 0.5 * sc), M(1.6, 0.5 * sc), M(1, 0.3 * sc), 0, Math.PI, 0);
+      ctx.fill();
+      break;
+    case 1: { // AC unit: box + fan grille
+      const bw = M(2.5, 1.1 * sc), bh = M(2, 0.7 * sc);
+      ctx.fillStyle = night ? '#242120' : shade('#8a8478', dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#1c1a18' : '#5a564e';
+      ctx.beginPath(); ctx.ellipse(bx, by - bh * 0.5, bw * 0.28, bh * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+      break;
+    }
+    case 2: { // pipe stack + steam wisp
+      const tp = pr(e.mx, e.my, hm + 1.3);
+      if(!tp) break;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 1.3, 0.16, night ? '#2a2725' : '#6a6a62');
+      ctx.fillStyle = night ? '#322e2a' : '#8a8478';
+      ctx.beginPath(); ctx.ellipse(tp[0], tp[1], M(1.2, 0.22 * sc), M(0.8, 0.09 * sc), 0, 0, Math.PI * 2); ctx.fill();
+      sfStreetPlume(pr, e.mx, e.my, hm + 0.8, tp[0], tp[1] - 0.15 * sc, sc * 0.5, seed, night);
+      break;
+    }
+    case 3: { // brick chimney + cap + live smoke (the bake's anchor)
+      const bw = M(3, 0.8 * sc), bh = M(4, 1.9 * sc);
+      ctx.fillStyle = night ? '#241d1a' : '#8a5a48';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2622' : '#c89078';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.14));
+      ctx.fillStyle = night ? '#1c1815' : '#6a4034';
+      ctx.fillRect(bx - bw / 2 - 1, by - bh - 2, bw + 2, 2.5);
+      sfStreetPlume(pr, e.mx, e.my, hm + 2, bx, by - bh - 4, sc, seed, night);
+      break;
+    }
+    case 4: { // rooftop water tank — legs, banded barrel, cone cap
+      const tb = pr(e.mx, e.my, hm + 1.4), tt = pr(e.mx, e.my, hm + 3.4),
+            tp = pr(e.mx, e.my, hm + 4.2);
+      if(!tb || !tt || !tp) break;
+      const rw = M(3, 1.6 * sc);
+      for(const off of [-0.7, 0.7]){
+        const pl = pr(e.mx + off, e.my, hm), pt2 = pr(e.mx + off * 0.6, e.my, hm + 1.4);
+        if(pl && pt2){
+          ctx.strokeStyle = night ? '#1c1a18' : '#4a4038';
+          ctx.lineWidth = M(1, 0.12 * sc);
+          ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = night ? '#262220' : '#7a6a58';
+      ctx.fillRect(tb[0] - rw, tt[1], rw * 2, tb[1] - tt[1]);
+      ctx.fillStyle = night ? '#1e1c1a' : '#54483c';
+      ctx.fillRect(tb[0] - rw, tb[1] - (tb[1] - tt[1]) * 0.45, rw * 2, M(1, (tb[1] - tt[1]) * 0.08));
+      ctx.fillStyle = night ? '#2e2a26' : '#8a765e';
+      ctx.beginPath();
+      ctx.moveTo(tb[0] - rw, tt[1]); ctx.lineTo(tb[0] + rw, tt[1]);
+      ctx.lineTo(tp[0], tp[1]); ctx.closePath(); ctx.fill();
+      break;
+    }
+    case 5: case 14: { // solar array / water heater: slab tilted sunward
+      const tx = -SF_SUN.x, ty = -SF_SUN.y, tl = Math.hypot(tx, ty) || 1;
+      const ax = tx / tl, ay = ty / tl, px2 = -ay, py2 = ax;
+      const s = e.k === 14 ? 0.8 : 1.1;
+      quad([[e.mx - px2 * s - ax * 0.7, e.my - py2 * s - ay * 0.7, hm + 0.15],
+            [e.mx + px2 * s - ax * 0.7, e.my + py2 * s - ay * 0.7, hm + 0.15],
+            [e.mx + px2 * s + ax * 0.7, e.my + py2 * s + ay * 0.7, hm + 0.6],
+            [e.mx - px2 * s + ax * 0.7, e.my - py2 * s + ay * 0.7, hm + 0.6]],
+           night ? '#141c26' : '#1e3450');
+      if(e.k === 14){ // insulated tank on the high side
+        const tq = pr(e.mx + ax * 1.2, e.my + ay * 1.2, hm + 0.9);
+        if(tq){
+          ctx.fillStyle = night ? '#2a2826' : '#b8b4a8';
+          ctx.beginPath(); ctx.ellipse(tq[0], tq[1], M(1.6, 0.5 * sc), M(1, 0.4 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      break;
+    }
+    case 6: { // roof hatch: low box, lit cap
+      const bw = M(2.5, 0.9 * sc), bh = M(2.5, 1.0 * sc);
+      ctx.fillStyle = night ? '#242120' : shade('#8a8478', 0.95 * dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2a27' : '#a8a298';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.16));
+      break;
+    }
+    case 7: { // antenna mast + crossbars
+      const hgt = 3 + phash(b.i, Math.round(e.mx), 1509) * 2;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + hgt, 0.07, night ? '#242120' : '#4a4a48');
+      const tp = pr(e.mx, e.my, hm + hgt);
+      if(tp){
+        const bw = M(2, 0.8 * sc);
+        ctx.strokeStyle = night ? '#242120' : '#4a4a48';
+        ctx.lineWidth = M(0.6, 0.05 * sc);
+        for(const zz of [0.78, 0.92]){
+          const py = by + (tp[1] - by) * zz;
+          ctx.beginPath(); ctx.moveTo(tp[0] - bw * (1 - zz * 0.4), py);
+          ctx.lineTo(tp[0] + bw * (1 - zz * 0.4), py); ctx.stroke();
+        }
+        ctx.fillStyle = '#c94040';
+        ctx.fillRect(tp[0] - 0.5, tp[1] - 1, M(1, 0.06 * sc), M(1, 0.06 * sc));
+      }
+      break;
+    }
+    case 8: { // satellite dish on a stub pole
+      const tp = pr(e.mx, e.my, hm + 1.1);
+      if(!tp) break;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 1.0, 0.08, night ? '#2a2725' : '#6a6a66');
+      ctx.fillStyle = night ? '#2e2b29' : '#c8c8c0';
+      ctx.beginPath();
+      ctx.ellipse(tp[0], tp[1], M(2, 0.55 * sc), M(1.2, 0.3 * sc), -0.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+    case 10: { // clothesline: two posts, sagging line, laundry swinging
+      //   on the gust envelope — the bake animates it from above
+      const dir = phash(b.i, Math.round(e.my * 13), 3620) < 0.5;
+      const ax = dir ? 1 : 0, ay = dir ? 0 : 1, half = 1.4;
+      const p0 = pr(e.mx - ax * half, e.my - ay * half, hm + 1.5),
+            p1 = pr(e.mx + ax * half, e.my + ay * half, hm + 1.5);
+      if(!p0 || !p1) break;
+      ln(e.mx - ax * half, e.my - ay * half, hm, e.mx - ax * half, e.my - ay * half, hm + 1.6, 0.1, '#5a554e');
+      ln(e.mx + ax * half, e.my + ay * half, hm, e.mx + ax * half, e.my + ay * half, hm + 1.6, 0.1, '#5a554e');
+      ctx.strokeStyle = night ? '#1a1816' : '#3a3a38';
+      ctx.lineWidth = M(0.5, 0.04 * sc);
+      const sag = sc * 0.22;
+      ctx.beginPath();
+      for(let s2 = 0; s2 <= 10; s2++){
+        const t = s2 / 10, sx = p0[0] + (p1[0] - p0[0]) * t,
+              sy = p0[1] + (p1[1] - p0[1]) * t + Math.sin(t * Math.PI) * sag;
+        s2 ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy);
+      }
+      ctx.stroke();
+      const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+      const gust = SF_WX.gust || 0.5;
+      const cloth = ['#e8e0d0', '#7a94b8', '#c86a6a'];
+      for(let c3 = 0; c3 < 3; c3++){
+        const t = 0.22 + c3 * 0.28;
+        const sx = p0[0] + (p1[0] - p0[0]) * t,
+              sy = p0[1] + (p1[1] - p0[1]) * t + Math.sin(t * Math.PI) * sag;
+        const sw = Math.sin(now * (1.5 + gust * 2.4) + c3 * 1.9 + seed * 6);
+        ctx.save(); ctx.translate(sx, sy); ctx.rotate(sw * 0.24 * (0.4 + gust));
+        ctx.fillStyle = night ? shade(cloth[c3], 0.4) : cloth[c3];
+        ctx.fillRect(-M(1, 0.28 * sc), 0, M(2, 0.56 * sc), M(2, (0.7 + sw * 0.12) * sc));
+        ctx.restore();
+      }
+      break;
+    }
+    case 11: { // roof garden bed: soil slab + leaf tufts
+      quad([[e.mx - 0.9, e.my - 0.6, hm + 0.1], [e.mx + 0.9, e.my - 0.6, hm + 0.1],
+            [e.mx + 0.9, e.my + 0.6, hm + 0.1], [e.mx - 0.9, e.my + 0.6, hm + 0.1]],
+           night ? '#1c2018' : '#5a4632');
+      ctx.fillStyle = night ? '#243020' : '#4e7a44';
+      for(let g2 = -1; g2 <= 1; g2++){
+        const q = pr(e.mx + g2 * 0.5, e.my, hm + 0.3);
+        if(q){ ctx.beginPath(); ctx.arc(q[0], q[1], M(1, 0.22 * sc), 0, Math.PI * 2); ctx.fill(); }
+      }
+      break;
+    }
+    case 12: { // exhaust fan: curb + dome + spinning blades
+      const bw = M(2, 0.6 * sc);
+      ctx.fillStyle = night ? '#242120' : '#7a766e';
+      ctx.fillRect(bx - bw / 2, by - M(1.5, 0.4 * sc), bw, M(1.5, 0.4 * sc));
+      ctx.fillStyle = night ? '#2e2c2a' : '#9aa0a4';
+      ctx.beginPath(); ctx.ellipse(bx, by - M(2, 0.55 * sc), M(2, 0.55 * sc), M(1.4, 0.32 * sc), 0, Math.PI, 0); ctx.fill();
+      const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+      const rot = now * (4 + Math.max(0.4, W.windSpd || 0.8) * 4) + seed * 6.28;
+      ctx.strokeStyle = night ? 'rgba(120,128,138,0.5)' : 'rgba(238,242,246,0.8)';
+      ctx.lineWidth = M(0.6, 0.05 * sc);
+      for(let s2 = 0; s2 < 3; s2++){
+        const an = rot + s2 * Math.PI * 2 / 3;
+        ctx.beginPath(); ctx.moveTo(bx, by - 0.55 * sc);
+        ctx.lineTo(bx + Math.cos(an) * 0.5 * sc, by - 0.55 * sc + Math.sin(an) * 0.3 * sc);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 13: { // stair bulkhead: slab box, cap flashing, shade-side door
+      const bw = M(3.5, 1.3 * sc), bh = M(4, 1.9 * sc);
+      ctx.fillStyle = night ? '#262220' : shade('#8a8478', 1.05 * dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2a27' : '#a09a8e';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.12));
+      ctx.fillStyle = night ? '#181614' : '#3a342e';
+      const dox = SF_SUN.x > 0 ? -1 : 1;
+      ctx.fillRect(bx + dox * bw * 0.22 - bw * 0.1, by - bh * 0.55, bw * 0.2, bh * 0.55);
+      break;
+    }
+    case 15: { // pergola: four posts + slat roof throwing striped shade
+      const pw = 1.1, pd = 0.8, hz = 2.3;
+      for(const [ox, oy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
+        ln(e.mx + ox * pw, e.my + oy * pd, hm, e.mx + ox * pw, e.my + oy * pd, hm + hz, 0.12, night ? '#241f1c' : '#5a4a38');
+      quad([[e.mx - pw, e.my - pd, hm + hz], [e.mx + pw, e.my - pd, hm + hz],
+            [e.mx + pw, e.my + pd, hm + hz], [e.mx - pw, e.my + pd, hm + hz]],
+           night ? 'rgba(30,26,22,0.7)' : 'rgba(138,111,78,0.55)');
+      for(let s2 = 0; s2 < 5; s2++){
+        const t = s2 / 4;
+        ln(e.mx - pw - 0.1, e.my - pd + t * pd * 2, hm + hz + 0.06,
+           e.mx + pw + 0.1, e.my - pd + t * pd * 2, hm + hz + 0.06,
+           0.08, night ? '#2a2622' : '#8a6f4e');
+      }
+      break;
+    }
+    case 16: { // container garden: terracotta pots + leaf tufts
+      const nPt = 3 + Math.floor(phash(b.i, Math.round(e.mx * 5), 3212) * 3);
+      for(let p3 = 0; p3 < nPt; p3++){
+        const q = pr(e.mx + (p3 - nPt / 2) * 0.45, e.my, hm);
+        if(!q) continue;
+        ctx.fillStyle = night ? '#241f1c' : '#a05a38';
+        ctx.fillRect(q[0] - M(1, 0.16 * sc), q[1] - M(1, 0.2 * sc), M(2, 0.32 * sc), M(1.5, 0.2 * sc));
+        ctx.fillStyle = night ? '#1e2818' : '#4e7a44';
+        ctx.beginPath(); ctx.arc(q[0], q[1] - M(1.5, 0.3 * sc), M(1.2, 0.24 * sc), 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    }
+    case 17: { // conduit run + vent elbow
+      const run = 1.2 + phash(b.i, Math.round(e.my * 3), 3216) * 1.2;
+      const dr = phash(b.i, Math.round(e.mx * 3), 3217) < 0.5;
+      ln(e.mx - (dr ? run / 2 : 0), e.my - (dr ? 0 : run / 2), hm + 0.15,
+         e.mx + (dr ? run / 2 : 0), e.my + (dr ? 0 : run / 2), hm + 0.15,
+         0.12, night ? '#2a2725' : '#8a8478');
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 0.5, 0.14, night ? '#2a2725' : '#8a8478');
+      break;
+    }
+    case 18: { // HVAC duct run: galvanized trunk + gooseneck
+      const horiz = phash(b.i, Math.round(e.mx * 11), 3300) < 0.5;
+      const len = 1.4 + phash(b.i, Math.round(e.my * 11), 3301) * 1.2;
+      const x0 = e.mx - (horiz ? len / 2 : 0), y0 = e.my - (horiz ? 0 : len / 2);
+      quad([[x0, y0, hm + 0.3], [e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.3],
+            [e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.62],
+            [x0, y0, hm + 0.62]],
+           night ? '#242628' : '#9aa2a8');
+      ln(x0, y0, hm + 0.62, e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.62,
+         0.05, night ? '#30343a' : '#c8d0d6');
+      break;
+    }
+    case 21: { // penthouse pop-up — a real second massing over the parapet:
+      //   sun-keyed camera-facing walls, sash windows, its own cap rim
+      const H = 2.5, x0 = e.mx0, y0 = e.my0, x1 = e.mx0 + e.mw, y1 = e.my0 + e.md;
+      const wBase = SF_WALL_COLS[Math.floor(phash(b.i, 7, 1300) * SF_WALL_COLS.length)];
+      const faces = [
+        [[x0, y1], [x1, y1], [0, 1]],   // south
+        [[x1, y0], [x1, y1], [1, 0]],   // east
+        [[x0, y0], [x0, y1], [-1, 0]],  // west
+        [[x0, y0], [x1, y0], [0, -1]],  // north
+      ];
+      for(const [pa, pb, nv] of faces){
+        if(nv[0] * -DX + nv[1] * -DY <= 0.05) continue;
+        const k2 = clamp(nv[0] * SF_SUN.toX + nv[1] * SF_SUN.toY, -1, 1);
+        quad([[pa[0], pa[1], hm], [pb[0], pb[1], hm],
+              [pb[0], pb[1], hm + H], [pa[0], pa[1], hm + H]],
+             night ? '#26221f' : sfSunWallCol(wBase, k2));
+        // sashes on the tall face
+        const Lm = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+        const nWin = Math.max(1, Math.floor(Lm / 2.6));
+        for(let k2w = 0; k2w < nWin; k2w++){
+          const t = (k2w + 0.5) / nWin;
+          const wx = pa[0] + (pb[0] - pa[0]) * t, wy = pa[1] + (pb[1] - pa[1]) * t;
+          quad([[wx - 0.28, wy - nv[1] * 0.02, hm + 0.9], [wx + 0.28, wy - nv[1] * 0.02, hm + 0.9],
+                [wx + 0.28, wy - nv[1] * 0.02, hm + 1.7], [wx - 0.28, wy - nv[1] * 0.02, hm + 1.7]],
+               night ? '#16202a' : '#7a94a8');
+        }
+      }
+      // cap + parapet rim
+      quad([[x0, y0, hm + H], [x1, y0, hm + H], [x1, y1, hm + H], [x0, y1, hm + H]],
+           night ? '#221f1d' : shade('#8a8478', 1.05));
+      const c0 = pr(x0, y0, hm + H + 0.18), c1 = pr(x1, y1, hm + H + 0.18);
+      if(c0 && c1){
+        ctx.strokeStyle = night ? '#1a1816' : '#e8e0d0';
+        ctx.lineWidth = M(0.8, 0.06 * F / c0[2]);
+        ctx.beginPath();
+        for(const [cx2, cy2] of [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]){
+          const p = pr(cx2, cy2, hm + H + 0.18);
+          if(!p) break;
+          ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      break;
+    }
+    case 22: { // roof deck — its umbrella canopy pokes over the parapet
+      if(e.ux == null) break;
+      const ub = pr(e.ux, e.uy, hm), ut = pr(e.ux, e.uy, hm + 2.0);
+      if(!ub || !ut || ub[2] > 140) break;
+      const sc2 = F / ub[2];
+      ctx.strokeStyle = night ? '#2a241e' : '#8a6a45';
+      ctx.lineWidth = M(0.7, 0.07 * sc2);
+      ctx.beginPath(); ctx.moveTo(ub[0], ub[1]); ctx.lineTo(ut[0], ut[1]); ctx.stroke();
+      const rw = M(3, 1.35 * sc2);
+      ctx.fillStyle = night ? '#3a3028' : (e.res ? '#c96a4a' : '#d8e8f0');
+      ctx.beginPath();
+      ctx.moveTo(ut[0] - rw, ut[1]);
+      ctx.quadraticCurveTo(ut[0], ut[1] - rw * 0.7, ut[0] + rw, ut[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = night ? '#241f1c' : (e.res ? '#e08a62' : '#e8f0f6');
+      ctx.lineWidth = M(0.6, 0.05 * sc2);
+      ctx.beginPath(); ctx.moveTo(ut[0] - rw, ut[1]); ctx.lineTo(ut[0] + rw, ut[1]); ctx.stroke();
+      break;
+    }
+  }
 }
 /* seamless cloud-dapple texture: blobs drawn 9-way wrapped so the tile
    repeats without seams as it scrolls on the wind */
@@ -28726,7 +29945,7 @@ function sfRenderWorld(cw, ch){
   // v10: temporal frame cache — blit the last frame when nothing moved
   const stillKey = sfStillKey(cw, ch, 'top',
     [Math.round(cam.x), Math.round(cam.y), Math.round(cam.zoom * 1000)]);
-  if(sfStillHit(stillKey)){ sfPerfHud(cw, ch); return; }
+  if(sfStillHit(stillKey)){ sfRoofLifePass(cw, ch); sfPerfHud(cw, ch); return; } // v79
   const sfDappleOn = !isNight();
   const cs = CS * cam.zoom;
   const csT = cs * SF_TILT;   // v8: squashed ground-plane cell height
@@ -29033,6 +30252,9 @@ function sfRenderWorld(cw, ch){
       const sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
+      // v79: live roof overlay — smoke, spinning fans, swinging laundry,
+      // wheeling pigeons on the anchors the bake recorded
+      if(!cover && !doll && cam.zoom >= 0.35) sfRoofLife(b, art, sx, sy);
       // v33: parapet sun-rim — the coping lip on every footprint edge
       // whose outward normal faces the solar bearing catches a thin warm
       // line at roof height; the baked sprite can't carry it (the sprite
@@ -29158,14 +30380,14 @@ function sfRenderWorld(cw, ch){
           sfSoftEllipse(sx + shx, sy + shy,
                         cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
                         chh * 0.5, Math.atan2(shy, shx),
-                        0.22 * Math.min(1, SF_SUN.day + 0.3),
+                        0.22 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
                         sfUmbra(Math.hypot(shx, shy)));
         }
         ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
         /* v51: parked sheet metal — the sunward rim of the roof/hood
            throws a short bright arc back when the sun is up (the same
            bearing that throws the car's shadow, flipped). */
-        if(!isNight() && SF_SUN.day > 0.3){
+        if(!isNight() && SF_SUN.day > 0.3 && sfPropVis(o) > 0.4){
           const sa = Math.atan2(-SF_SUN.y * SF_TILT, -SF_SUN.x);
           ctx.strokeStyle = `rgba(255,244,214,${(0.30 * SF_SUN.day *
                              (0.4 + 0.6 * SF_SUN.warm)).toFixed(3)})`;
@@ -29195,7 +30417,7 @@ function sfRenderWorld(cw, ch){
           sfSoftEllipse(sx + shx, sy + shy,
                         cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
                         chh * 0.5, Math.atan2(shy, shx),
-                        0.2 * Math.min(1, SF_SUN.day + 0.3),
+                        0.2 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
                         sfUmbra(Math.hypot(shx, shy)));
         }
         ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
@@ -29208,6 +30430,9 @@ function sfRenderWorld(cw, ch){
         // and stretch both come from the solar elevation (long low-sun
         // streaks, compact noon pools), tilted with the ground plane
         if(shadeR && !isNight() && SF_SUN.day > 0.08){
+          // v80: a crown inside a building's shadow throws nothing —
+          // the field owns that pavement now
+          const pVis = sfPropVis(o);
           const hmPx = (o.kind === 'sfTree' ? (o.big ? 7.2 : 4.4) : o.kind === 'sfPalm' ? 6.4 :
                         o.kind === 'sfCypress' ? 6.0 :
                         o.kind === 'sfStreetTree' && o.v === 0 ? 4.8 : 3.6) * SF_PXM * cam.zoom;
@@ -29216,7 +30441,7 @@ function sfRenderWorld(cw, ch){
           const rot = Math.atan2(shy, shx);
           // v15: penumbral canopy shadow — umbra core, soft falloff edge;
           // the longer the throw, the wider the penumbra spreads
-          const aS = 0.26 * Math.min(1, SF_SUN.day + 0.3),
+          const aS = 0.26 * Math.min(1, SF_SUN.day + 0.3) * pVis,
                 um = sfUmbra(Math.hypot(shx, shy));
           if(o.kind === 'sfPalm'){
             // v46: a palm crown is a rosette — its shadow is a star of
@@ -29333,7 +30558,8 @@ function sfRenderWorld(cw, ch){
                         footM * SF_PXM * cam.zoom + len * 0.45,
                         Math.max(2 * cam.zoom, footM * SF_PXM * cam.zoom * 0.7),
                         Math.atan2(shy, shx),
-                        0.24 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+                        0.24 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
+                        sfUmbra(len));
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         const vegK = o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
@@ -29496,7 +30722,7 @@ function sfRenderWorld(cw, ch){
         // v31: crowns answer the REAL sun — a warm wash on the sunward
         // flank of the crown, cool sky-fill lee, and light-dapple
         // speckles where sun leaks through onto the shadowed ground
-        if(vegK && !isNight() && SF_SUN.day > 0.2){
+        if(vegK && !isNight() && SF_SUN.day > 0.2 && sfPropVis(o) > 0.3){
           const crx = pw * 0.42, cy2 = sy - ph * 0.58;
           const sux = SF_SUN.toX, suy = SF_SUN.toY * SF_TILT;
           const sl2 = Math.hypot(sux, suy) || 1;
@@ -29524,6 +30750,17 @@ function sfRenderWorld(cw, ch){
             const rr = Math.sqrt(phash(di, o.wy * 11 + o.wx, 3463)) * shadeR * cam.zoom;
             ctx.fillRect(Math.round(dcx + Math.cos(a) * rr),
                          Math.round(dcy + Math.sin(a) * rr * 0.5), 1.6, 1.2);
+          }
+        }
+        // v80: a crown inside a building's shadow is lit by the sky dome
+        // alone — cool and flat, no sun flank, no dapple
+        if(vegK && !isNight() && SF_SUN.day > 0.08){
+          const pv2 = sfPropVis(o);
+          if(pv2 < 0.55){
+            ctx.fillStyle = `rgba(44,58,96,${(0.30 * (1 - pv2)).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.ellipse(sx, sy - ph * 0.55, pw * 0.46, ph * 0.42, 0, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
         // v59: wet foliage — rain-soaked crowns darken (wet cuticle
@@ -29564,7 +30801,11 @@ function sfRenderWorld(cw, ch){
       ctx.beginPath();
       ctx.ellipse(sx, sy + 2 * cam.zoom, 9 * cam.zoom, 4 * cam.zoom, 0, 0, Math.PI * 2);
       ctx.fill();
-      if(!isNight() && SF_SUN.day > 0.08){
+      // v80: a pawn inside a shadow throws none of its own and takes the
+      // same skylight-only fill as the pavement under it
+      const pvVis = (!isNight() && SF_SUN.day > 0.08)
+        ? sfSkyVis(v.x / SF_PXM, v.y / SF_PXM) : 1;
+      if(!isNight() && SF_SUN.day > 0.08 && pvVis > 0.05){
         const hmPx = 1.6 * SF_PXM * cam.zoom;
         const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
         const len = Math.hypot(shx, shy);
@@ -29572,7 +30813,7 @@ function sfRenderWorld(cw, ch){
                       9 * cam.zoom + len * 0.5,
                       Math.max(3 * cam.zoom, 4.5 * cam.zoom + len * 0.12),
                       Math.atan2(shy, shx),
-                      0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+                      0.28 * Math.min(1, SF_SUN.day + 0.3) * pvVis, sfUmbra(len));
       }
       // v62: pawns lean like every other upright mass — 1.6m is small,
       // but at the frame edges the aerial displacement is real
@@ -29606,6 +30847,15 @@ function sfRenderWorld(cw, ch){
         ctx.fill();
       }
       ctx.restore();
+      // v80: skylight-only body fill — a pawn in a building's shadow
+      // reads cool and flat like the pavement under it
+      if(pvVis < 0.6){
+        ctx.fillStyle = `rgba(44,58,96,${(0.30 * (1 - pvVis)).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy - 8 * cam.zoom, 8 * cam.zoom,
+                    12 * cam.zoom, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
@@ -32480,30 +33730,8 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v25: rain weeps off the cornice — drops fall from the parapet edge,
   // accelerating as they go, and burst on the sidewalk. Only near
   // facades resolve drips; beyond ~90m the rain field itself carries it.
-  if(W.rain > 0.1 && fwd < 90 && !SF_WALL_BAKE){
-    const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
-    for(let k = 0; k < nD; k++){
-      const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
-      const dxx = x1 + ex * u, dyy = y1 + ey * u;
-      const phase = (SF_WX.t * (1.2 + phash(k, i, 1881) * 0.9) +
-                     phash(i, k, 1882)) % 1;
-      const z = (hm - 0.1) * (1 - phase * phase);   // accelerating fall
-      const dp = pr(dxx, dyy, z), db = pr(dxx, dyy, 0.02);
-      if(!dp || !db) continue;
-      const streak = Math.max(2, 0.5 * F / dp[2]);
-      ctx.strokeStyle = `rgba(200,220,240,${clamp(W.rain, 0, 0.5)})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(dp[0], dp[1] - streak); ctx.lineTo(dp[0], dp[1]);
-      ctx.stroke();
-      if(phase > 0.92){ // splash star as the drop lands
-        ctx.fillStyle = `rgba(220,235,250,${(phase - 0.92) * 6})`;
-        ctx.beginPath();
-        ctx.arc(db[0], db[1], Math.max(1, 0.25 * F / db[2]), 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
+  if(W.rain > 0.1 && fwd < 90 && !SF_WALL_BAKE)
+    sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F);
 
   /* v65: facade garnish — Calle 24 papel-picado strings and porch
      bracket flags. Both stand ~0.3m proud of the wall on real sag
@@ -32624,233 +33852,10 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
      facade opposite the sun's along-wall component. Rain takes the
      wash in: nothing hangs out wet in a storm. */
   if(det >= 1 && !mural && ny > 0.05 && W.windSpd != null &&
-     !SF_WALL_BAKE && W.rain < 0.35){
-    const wSpd = W.windSpd || 0, gust = SF_WX.gust || 0.5;
-    const wAl = wvx * ux + wvy * uy;              // wind along the wall
-    const wOut = -(wvx * nx + wvy * ny);          // wind pressing into the face
-    const sAl = SF_SUN.x * ux + SF_SUN.y * uy;    // sun throw along the wall
-    const shA = `rgba(18,14,10,${(0.13 * SF_SUN.day * dim).toFixed(3)})`;
-    // ---- laundry line ----
-    if(!isShop && floors >= 2 && L > 8 && phash(i, ei, 6100) < 0.44){
-      const lz = Math.min(hm * 0.62, hm + para - 2.0);
-      const lu0 = 0.14, lu1 = 0.86, lsag = 0.26, loff = 0.26;
-      const lp = t => {
-        const u = lu0 + (lu1 - lu0) * t;
-        return pr(x1 + ex * u + nx * loff, y1 + ey * u + ny * loff,
-                  lz - lsag * Math.sin(Math.PI * t));
-      };
-      // eye-bolt anchors + the sagging cord
-      const e0 = lp(0), e1 = lp(1);
-      if(e0 && e1){
-        ctx.strokeStyle = 'rgba(30,26,20,0.85)'; ctx.lineWidth = 1;
-        ctx.beginPath();
-        let cs = false;
-        for(let k = 0; k <= 8; k++){
-          const c = lp(k / 8); if(!c){ cs = false; continue; }
-          cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
-        }
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(24,20,16,0.9)';
-        ctx.fillRect(e0[0] - 1, e0[1] - 1, 2, 2);
-        ctx.fillRect(e1[0] - 1, e1[1] - 1, 2, 2);
-      }
-      const nG = Math.max(2, Math.floor(L * (lu1 - lu0) / 3.4));
-      const GARM = ['#e6e2d4', '#d4dae2', '#5a6e8a', '#c8b89a',
-                    '#a8503e', '#7a8a6a', '#dcd6c8'];
-      for(let k = 0; k < nG; k++){
-        const tg = (k + 0.5 + (phash(i, k, 6102) - 0.5) * 0.6) / nG;
-        const u = lu0 + (lu1 - lu0) * tg;
-        const at = lp(tg); if(!at) continue;
-        const kind = phash(i, k, 6103);   // <0.42 tee · <0.8 sheet/towel · else socks
-        const ph = phash(i, k, 6104) * 6.283;
-        /* the swing: a slow pendulum about the cord anchor, gust-
-           amplitude scaled, plus a fast flutter ripple; wind blowing
-           INTO the face presses the cloth back, wind off it lifts it
-           out toward the street */
-        const amp = 0.05 + 0.11 * wSpd * (0.4 + 0.6 * gust);
-        const sw = Math.sin(SF_WX.t * (1.3 + wSpd * 0.8) + ph) * amp;
-        const bw = Math.max(0, wOut) *
-                   (0.10 + 0.16 * wSpd * gust) *
-                   (0.7 + 0.3 * Math.sin(SF_WX.t * (2.1 + wSpd) + ph * 1.7));
-        const fl = Math.sin(SF_WX.t * (3.6 + wSpd * 1.4) + ph * 2.3) *
-                   0.04 * Math.min(1.5, wSpd * gust);
-        const ax = x1 + ex * u + nx * loff, ay = y1 + ey * u + ny * loff;
-        const az = lz - lsag * Math.sin(Math.PI * tg);
-        const gCol = GARM[Math.floor(phash(i, k, 6105) * GARM.length)];
-        const gLit = Math.max(0.45, Math.min(1.15, lit * 1.05));
-        const drop = kind < 0.42 ? 0.62 : (kind < 0.8 ? 0.85 : 0.3);
-        const wid = kind < 0.42 ? 0.5 : (kind < 0.8 ? 1.15 : 0.16);
-        // shade on the paint behind — slides along the wall with the sun
-        if(!night && SF_SUN.day > 0.15){
-          quad([[ax - ux * wid * 0.5 - ux * sAl * loff * 1.6,
-                 ay - uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
-                [ax + ux * wid * 0.5 - ux * sAl * loff * 1.6,
-                 ay + uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
-                [ax + ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
-                 ay + uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15],
-                [ax - ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
-                 ay - uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15]],
-               shA);
-        }
-        const bx0 = ax - ux * wid * 0.5 + ux * sw + nx * bw,
-              by0 = ay - uy * wid * 0.5 + uy * sw + ny * bw,
-              bx1 = ax + ux * wid * 0.5 + ux * (sw + fl) + nx * (bw + fl * 0.6),
-              by1 = ay + uy * wid * 0.5 + uy * (sw + fl) + ny * (bw + fl * 0.6),
-              bz = az - drop * (1 - 0.25 * Math.abs(sw) - 0.3 * bw);
-        if(kind < 0.8){
-          // body: top pinned to the cord, hem swings free
-          quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
-                [ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
-                [bx1, by1, bz], [bx0, by0, bz]],
-               shade(gCol, gLit));
-          if(kind < 0.42){
-            // tee sleeves — two stubs pinned at the cord, angling out
-            const sgn = sw >= 0 ? 1 : -1;
-            quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
-                  [ax - ux * (wid * 0.5 + 0.22), ay - uy * (wid * 0.5 + 0.22), az - 0.05],
-                  [ax - ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
-                   ay - uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
-                  [ax - ux * wid * 0.5 + ux * sw * 0.3,
-                   ay - uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
-                 shade(gCol, gLit * 0.92));
-            quad([[ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
-                  [ax + ux * (wid * 0.5 + 0.22), ay + uy * (wid * 0.5 + 0.22), az - 0.05],
-                  [ax + ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
-                   ay + uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
-                  [ax + ux * wid * 0.5 + ux * sw * 0.3,
-                   ay + uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
-                 shade(gCol, gLit * 0.92));
-          }
-        } else {
-          // socks pair — two narrow danglers on one cord spot
-          for(let s = -1; s <= 1; s += 2){
-            quad([[ax + ux * (s * 0.09 - 0.07), ay + uy * (s * 0.09 - 0.07), az],
-                  [ax + ux * (s * 0.09 + 0.07), ay + uy * (s * 0.09 + 0.07), az],
-                  [ax + ux * (s * 0.09 + 0.06 + sw * 1.4) + nx * bw,
-                   ay + uy * (s * 0.09 + 0.06 + sw * 1.4) + ny * bw, az - drop],
-                  [ax + ux * (s * 0.09 - 0.06 + sw * 1.4) + nx * bw,
-                   ay + uy * (s * 0.09 - 0.06 + sw * 1.4) + ny * bw, az - drop]],
-                 shade(gCol, gLit));
-          }
-        }
-        // clothespin dots pinning the top edge
-        if(e0 && det === 2){
-          ctx.fillStyle = 'rgba(60,40,20,0.9)';
-          ctx.fillRect(at[0] - 1, at[1] - 2, 2, 3);
-        }
-      }
-    }
-    // ---- open parlor window, curtain breathing out ----
-    if(!isShop && floors >= 2 && L > 9 && phash(i, ei, 6110) < 0.24){
-      const wc = Math.floor(phash(i, ei, 6111) * Math.max(1, bays));
-      const cu = (wc + 0.5) / Math.max(1, bays);
-      const cz = Math.min(hm * 0.68, hm + para - 1.9);
-      const cx = x1 + ex * cu, cy = y1 + ey * cu;
-      // the raised sash reads as a darker slot in the window opening
-      quad([[cx - ux * 0.62, cy - uy * 0.62, cz - 0.7],
-            [cx + ux * 0.62, cy + uy * 0.62, cz - 0.7],
-            [cx + ux * 0.62, cy + uy * 0.62, cz + 0.2],
-            [cx - ux * 0.62, cy - uy * 0.62, cz + 0.2]],
-           'rgba(24,18,14,0.55)');
-      /* curtain panel pinned at the head of the opening: streams out
-         along the wind when the pressure sucks it off the face, drapes
-         against the paint in calm. Same ripple grammar as the shop
-         flag, weighted heavier near the free hem. */
-      let dxw = wvx, dyw = wvy;
-      const into = dxw * nx + dyw * ny;
-      if(into < -0.15){ dxw -= nx * (into + 0.15); dyw -= ny * (into + 0.15); }
-      dxw += nx * 0.55; dyw += ny * 0.55;   // panel always breathes OFF the wall
-      const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
-      const CL = 0.85, CW = 0.5,
-            cAmp = 0.05 + 0.13 * Math.min(1.5, wSpd) * gust,
-            cPh = SF_WX.t * (2.4 + wSpd * 1.5) + i;
-      const cCol = phash(i, ei, 6112) < 0.5 ? '#f0ece0' : '#e0d8c8';
-      // shade the cloth throws on the wall when it lifts off
-      if(!night && SF_SUN.day > 0.15){
-        quad([[cx - ux * CW * 0.5 - ux * sAl * 0.4, cy - uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
-              [cx + ux * CW * 0.5 - ux * sAl * 0.4, cy + uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
-              [cx + ux * CW * 0.5 - ux * sAl * 0.8, cy + uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9],
-              [cx - ux * CW * 0.5 - ux * sAl * 0.8, cy - uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9]],
-             shA);
-      }
-      for(let s2 = 0; s2 < 2; s2++){
-        ctx.fillStyle = shade(cCol, Math.max(0.5, Math.min(1.15,
-          lit * (s2 ? 0.94 : 1.06))));
-        ctx.beginPath();
-        let started = false;
-        for(let k = 0; k <= 3; k++){
-          const t = k / 3,
-                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
-          const q = pr(cx - ux * CW * 0.5 + ux * CW * s2 + dxw * CL * t - dyw * wave,
-                       cy - uy * CW * 0.5 + uy * CW * s2 + dyw * CL * t + dxw * wave,
-                       cz + 0.15 - 0.55 * t * t);
-          if(!q){ started = false; continue; }
-          started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
-          started = true;
-        }
-        for(let k = 3; k >= 0; k--){
-          const t = k / 3,
-                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
-          const q = pr(cx - ux * CW * 0.5 + ux * CW * (s2 + 1) + dxw * CL * t - dyw * wave,
-                       cy - uy * CW * 0.5 + uy * CW * (s2 + 1) + dyw * CL * t + dxw * wave,
-                       cz + 0.15 - 0.55 * t * t);
-          if(q) ctx.lineTo(q[0], q[1]);
-        }
-        ctx.closePath(); ctx.fill();
-      }
-    }
-    // ---- cornice pigeons — the Mission's ever-present ledge tenants.
-    //   A hashed handful of birds perches along the cornice lip just
-    //   under the parapet cap, each with its own puff/bow phase so the
-    //   row breathes instead of sitting frozen; every bird throws a
-    //   small sun-shifted blob on the paint behind it. Rain and night
-    //   empty the roost (birds go to cover like the real flock does).
-    if(L > 7 && hm > 4.5 && !isNight() && phash(i, ei, 6120) < 0.5){
-      const nB = 2 + Math.floor(phash(i, ei, 6121) * Math.min(5, L / 3));
-      const pzB = hm - 0.38 - phash(i, ei, 6122) * 0.2;
-      const pb0 = 0.10, pb1 = 0.90;
-      for(let k = 0; k < nB; k++){
-        const tb = pb0 + (pb1 - pb0) *
-                 ((k + 0.5 + (phash(i, k, 6123) - 0.5) * 0.7) / nB);
-        const bx = x1 + ex * tb + nx * 0.14,
-              by = y1 + ey * tb + ny * 0.14;
-        const q = pr(bx, by, pzB); if(!q) continue;
-        const s = Math.max(1.4, 0.42 * F / q[2]);   // ~0.28m bird
-        // breathing: slow puff of the chest feathers on its own phase
-        const puff = 1 + 0.10 * Math.sin(SF_WX.t * (0.9 + phash(i, k, 6124)) +
-                                         phash(i, k, 6125) * 6.28);
-        // shade the body throws on the paint, sun-shifted along the wall
-        if(!night && SF_SUN.day > 0.15){
-          quad([[bx - ux * 0.16 - ux * sAl * 0.3, by - uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
-                [bx + ux * 0.16 - ux * sAl * 0.3, by + uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
-                [bx + ux * 0.16 - ux * sAl * 0.55, by + uy * 0.16 - uy * sAl * 0.55, pzB - 0.3],
-                [bx - ux * 0.16 - ux * sAl * 0.55, by - uy * 0.16 - uy * sAl * 0.55, pzB - 0.3]],
-               shA);
-        }
-        const grey = phash(i, k, 6126) < 0.72,
-              body = grey ? '#7a7e88' : '#b8b2a6',
-              head = grey ? '#4e5460' : '#8a8478';
-        // tail stub angled back along the wall
-        const tailS = phash(i, k, 6127) < 0.5 ? 1 : -1;
-        ctx.fillStyle = shade(body, lit * 0.85);
-        ctx.beginPath();
-        ctx.moveTo(q[0], q[1]);
-        ctx.lineTo(q[0] + tailS * s * 1.6, q[1] - s * 0.5);
-        ctx.lineTo(q[0] + tailS * s * 1.4, q[1] - s * 1.1);
-        ctx.closePath(); ctx.fill();
-        // plump body
-        ctx.fillStyle = shade(body, Math.min(1.15, lit));
-        ctx.beginPath();
-        ctx.ellipse(q[0], q[1] - s * 0.8, s * 1.05, s * 0.8 * puff, 0,
-                    0, Math.PI * 2); ctx.fill();
-        // head tucked toward the wall's sun side
-        ctx.fillStyle = shade(head, Math.min(1.15, lit));
-        ctx.beginPath();
-        ctx.arc(q[0] - tailS * s * 0.55, q[1] - s * 1.7, s * 0.42,
-                0, Math.PI * 2); ctx.fill();
-      }
-    }
-  }
+     !SF_WALL_BAKE && W.rain < 0.35)
+    sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+              night, det, isShop, mural, floors, lit, dim, sunK,
+              wvx, wvy, ux, uy);
 
   /* v75: living walls — the street camera finally grows the same
      climbing vines the top-down bake has always painted (same hash keys
@@ -33180,6 +34185,279 @@ function sfBinsStreet(o, pr, F, night){
     F2([[-hw2, -hd, h], [hw2, -hd, h], [hw2, hd, h], [-hw2, hd, h]], shade(col, 1.18));
   }
 }
+function sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F){
+    const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
+    for(let k = 0; k < nD; k++){
+      const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
+      const dxx = x1 + ex * u, dyy = y1 + ey * u;
+      const phase = (SF_WX.t * (1.2 + phash(k, i, 1881) * 0.9) +
+                     phash(i, k, 1882)) % 1;
+      const z = (hm - 0.1) * (1 - phase * phase);   // accelerating fall
+      const dp = pr(dxx, dyy, z), db = pr(dxx, dyy, 0.02);
+      if(!dp || !db) continue;
+      const streak = Math.max(2, 0.5 * F / dp[2]);
+      ctx.strokeStyle = `rgba(200,220,240,${clamp(W.rain, 0, 0.5)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(dp[0], dp[1] - streak); ctx.lineTo(dp[0], dp[1]);
+      ctx.stroke();
+      if(phase > 0.92){ // splash star as the drop lands
+        ctx.fillStyle = `rgba(220,235,250,${(phase - 0.92) * 6})`;
+        ctx.beginPath();
+        ctx.arc(db[0], db[1], Math.max(1, 0.25 * F / db[2]), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+}
+
+/* v78: wash-day garnish, extracted so the impostor path can replay
+   the live cloth AFTER blitting the baked sprite — the atlas only
+   carries static paint; laundry, curtains and cornice pigeons keep
+   breathing on top of it. Args mirror the sfStreetWall locals. */
+function sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+                   night, det, isShop, mural, floors, lit, dim, sunK,
+                   wvx, wvy, ux, uy){
+  const bays = Math.max(1, Math.floor(L / 3.2));
+  const quad = (pts, fill) => {
+    let started = false;
+    ctx.beginPath();
+    for(const [qx, qy, qz] of pts){
+      const p = pr(qx, qy, qz);
+      if(!p) return null;
+      started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+      started = true;
+    }
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    return true;
+  };
+    const wSpd = W.windSpd || 0, gust = SF_WX.gust || 0.5;
+    const wAl = wvx * ux + wvy * uy;              // wind along the wall
+    const wOut = -(wvx * nx + wvy * ny);          // wind pressing into the face
+    const sAl = SF_SUN.x * ux + SF_SUN.y * uy;    // sun throw along the wall
+    const shA = `rgba(18,14,10,${(0.13 * SF_SUN.day * dim).toFixed(3)})`;
+    // ---- laundry line ----
+    if(!isShop && floors >= 2 && L > 8 && phash(i, ei, 6100) < 0.44){
+      const lz = Math.min(hm * 0.62, hm + para - 2.0);
+      const lu0 = 0.14, lu1 = 0.86, lsag = 0.26, loff = 0.26;
+      const lp = t => {
+        const u = lu0 + (lu1 - lu0) * t;
+        return pr(x1 + ex * u + nx * loff, y1 + ey * u + ny * loff,
+                  lz - lsag * Math.sin(Math.PI * t));
+      };
+      // eye-bolt anchors + the sagging cord
+      const e0 = lp(0), e1 = lp(1);
+      if(e0 && e1){
+        ctx.strokeStyle = 'rgba(30,26,20,0.85)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        let cs = false;
+        for(let k = 0; k <= 8; k++){
+          const c = lp(k / 8); if(!c){ cs = false; continue; }
+          cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
+        }
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(24,20,16,0.9)';
+        ctx.fillRect(e0[0] - 1, e0[1] - 1, 2, 2);
+        ctx.fillRect(e1[0] - 1, e1[1] - 1, 2, 2);
+      }
+      const nG = Math.max(2, Math.floor(L * (lu1 - lu0) / 3.4));
+      const GARM = ['#e6e2d4', '#d4dae2', '#5a6e8a', '#c8b89a',
+                    '#a8503e', '#7a8a6a', '#dcd6c8'];
+      for(let k = 0; k < nG; k++){
+        const tg = (k + 0.5 + (phash(i, k, 6102) - 0.5) * 0.6) / nG;
+        const u = lu0 + (lu1 - lu0) * tg;
+        const at = lp(tg); if(!at) continue;
+        const kind = phash(i, k, 6103);   // <0.42 tee · <0.8 sheet/towel · else socks
+        const ph = phash(i, k, 6104) * 6.283;
+        /* the swing: a slow pendulum about the cord anchor, gust-
+           amplitude scaled, plus a fast flutter ripple; wind blowing
+           INTO the face presses the cloth back, wind off it lifts it
+           out toward the street */
+        const amp = 0.05 + 0.11 * wSpd * (0.4 + 0.6 * gust);
+        const sw = Math.sin(SF_WX.t * (1.3 + wSpd * 0.8) + ph) * amp;
+        const bw = Math.max(0, wOut) *
+                   (0.10 + 0.16 * wSpd * gust) *
+                   (0.7 + 0.3 * Math.sin(SF_WX.t * (2.1 + wSpd) + ph * 1.7));
+        const fl = Math.sin(SF_WX.t * (3.6 + wSpd * 1.4) + ph * 2.3) *
+                   0.04 * Math.min(1.5, wSpd * gust);
+        const ax = x1 + ex * u + nx * loff, ay = y1 + ey * u + ny * loff;
+        const az = lz - lsag * Math.sin(Math.PI * tg);
+        const gCol = GARM[Math.floor(phash(i, k, 6105) * GARM.length)];
+        const gLit = Math.max(0.45, Math.min(1.15, lit * 1.05));
+        const drop = kind < 0.42 ? 0.62 : (kind < 0.8 ? 0.85 : 0.3);
+        const wid = kind < 0.42 ? 0.5 : (kind < 0.8 ? 1.15 : 0.16);
+        // shade on the paint behind — slides along the wall with the sun
+        if(!night && SF_SUN.day > 0.15){
+          quad([[ax - ux * wid * 0.5 - ux * sAl * loff * 1.6,
+                 ay - uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
+                [ax + ux * wid * 0.5 - ux * sAl * loff * 1.6,
+                 ay + uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
+                [ax + ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
+                 ay + uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15],
+                [ax - ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
+                 ay - uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15]],
+               shA);
+        }
+        const bx0 = ax - ux * wid * 0.5 + ux * sw + nx * bw,
+              by0 = ay - uy * wid * 0.5 + uy * sw + ny * bw,
+              bx1 = ax + ux * wid * 0.5 + ux * (sw + fl) + nx * (bw + fl * 0.6),
+              by1 = ay + uy * wid * 0.5 + uy * (sw + fl) + ny * (bw + fl * 0.6),
+              bz = az - drop * (1 - 0.25 * Math.abs(sw) - 0.3 * bw);
+        if(kind < 0.8){
+          // body: top pinned to the cord, hem swings free
+          quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
+                [ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
+                [bx1, by1, bz], [bx0, by0, bz]],
+               shade(gCol, gLit));
+          if(kind < 0.42){
+            // tee sleeves — two stubs pinned at the cord, angling out
+            const sgn = sw >= 0 ? 1 : -1;
+            quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
+                  [ax - ux * (wid * 0.5 + 0.22), ay - uy * (wid * 0.5 + 0.22), az - 0.05],
+                  [ax - ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
+                   ay - uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
+                  [ax - ux * wid * 0.5 + ux * sw * 0.3,
+                   ay - uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
+                 shade(gCol, gLit * 0.92));
+            quad([[ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
+                  [ax + ux * (wid * 0.5 + 0.22), ay + uy * (wid * 0.5 + 0.22), az - 0.05],
+                  [ax + ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
+                   ay + uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
+                  [ax + ux * wid * 0.5 + ux * sw * 0.3,
+                   ay + uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
+                 shade(gCol, gLit * 0.92));
+          }
+        } else {
+          // socks pair — two narrow danglers on one cord spot
+          for(let s = -1; s <= 1; s += 2){
+            quad([[ax + ux * (s * 0.09 - 0.07), ay + uy * (s * 0.09 - 0.07), az],
+                  [ax + ux * (s * 0.09 + 0.07), ay + uy * (s * 0.09 + 0.07), az],
+                  [ax + ux * (s * 0.09 + 0.06 + sw * 1.4) + nx * bw,
+                   ay + uy * (s * 0.09 + 0.06 + sw * 1.4) + ny * bw, az - drop],
+                  [ax + ux * (s * 0.09 - 0.06 + sw * 1.4) + nx * bw,
+                   ay + uy * (s * 0.09 - 0.06 + sw * 1.4) + ny * bw, az - drop]],
+                 shade(gCol, gLit));
+          }
+        }
+        // clothespin dots pinning the top edge
+        if(e0 && det === 2){
+          ctx.fillStyle = 'rgba(60,40,20,0.9)';
+          ctx.fillRect(at[0] - 1, at[1] - 2, 2, 3);
+        }
+      }
+    }
+    // ---- open parlor window, curtain breathing out ----
+    if(!isShop && floors >= 2 && L > 9 && phash(i, ei, 6110) < 0.24){
+      const wc = Math.floor(phash(i, ei, 6111) * Math.max(1, bays));
+      const cu = (wc + 0.5) / Math.max(1, bays);
+      const cz = Math.min(hm * 0.68, hm + para - 1.9);
+      const cx = x1 + ex * cu, cy = y1 + ey * cu;
+      // the raised sash reads as a darker slot in the window opening
+      quad([[cx - ux * 0.62, cy - uy * 0.62, cz - 0.7],
+            [cx + ux * 0.62, cy + uy * 0.62, cz - 0.7],
+            [cx + ux * 0.62, cy + uy * 0.62, cz + 0.2],
+            [cx - ux * 0.62, cy - uy * 0.62, cz + 0.2]],
+           'rgba(24,18,14,0.55)');
+      /* curtain panel pinned at the head of the opening: streams out
+         along the wind when the pressure sucks it off the face, drapes
+         against the paint in calm. Same ripple grammar as the shop
+         flag, weighted heavier near the free hem. */
+      let dxw = wvx, dyw = wvy;
+      const into = dxw * nx + dyw * ny;
+      if(into < -0.15){ dxw -= nx * (into + 0.15); dyw -= ny * (into + 0.15); }
+      dxw += nx * 0.55; dyw += ny * 0.55;   // panel always breathes OFF the wall
+      const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
+      const CL = 0.85, CW = 0.5,
+            cAmp = 0.05 + 0.13 * Math.min(1.5, wSpd) * gust,
+            cPh = SF_WX.t * (2.4 + wSpd * 1.5) + i;
+      const cCol = phash(i, ei, 6112) < 0.5 ? '#f0ece0' : '#e0d8c8';
+      // shade the cloth throws on the wall when it lifts off
+      if(!night && SF_SUN.day > 0.15){
+        quad([[cx - ux * CW * 0.5 - ux * sAl * 0.4, cy - uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
+              [cx + ux * CW * 0.5 - ux * sAl * 0.4, cy + uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
+              [cx + ux * CW * 0.5 - ux * sAl * 0.8, cy + uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9],
+              [cx - ux * CW * 0.5 - ux * sAl * 0.8, cy - uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9]],
+             shA);
+      }
+      for(let s2 = 0; s2 < 2; s2++){
+        ctx.fillStyle = shade(cCol, Math.max(0.5, Math.min(1.15,
+          lit * (s2 ? 0.94 : 1.06))));
+        ctx.beginPath();
+        let started = false;
+        for(let k = 0; k <= 3; k++){
+          const t = k / 3,
+                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
+          const q = pr(cx - ux * CW * 0.5 + ux * CW * s2 + dxw * CL * t - dyw * wave,
+                       cy - uy * CW * 0.5 + uy * CW * s2 + dyw * CL * t + dxw * wave,
+                       cz + 0.15 - 0.55 * t * t);
+          if(!q){ started = false; continue; }
+          started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+          started = true;
+        }
+        for(let k = 3; k >= 0; k--){
+          const t = k / 3,
+                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
+          const q = pr(cx - ux * CW * 0.5 + ux * CW * (s2 + 1) + dxw * CL * t - dyw * wave,
+                       cy - uy * CW * 0.5 + uy * CW * (s2 + 1) + dyw * CL * t + dxw * wave,
+                       cz + 0.15 - 0.55 * t * t);
+          if(q) ctx.lineTo(q[0], q[1]);
+        }
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // ---- cornice pigeons — the Mission's ever-present ledge tenants.
+    //   A hashed handful of birds perches along the cornice lip just
+    //   under the parapet cap, each with its own puff/bow phase so the
+    //   row breathes instead of sitting frozen; every bird throws a
+    //   small sun-shifted blob on the paint behind it. Rain and night
+    //   empty the roost (birds go to cover like the real flock does).
+    if(L > 7 && hm > 4.5 && !isNight() && phash(i, ei, 6120) < 0.5){
+      const nB = 2 + Math.floor(phash(i, ei, 6121) * Math.min(5, L / 3));
+      const pzB = hm - 0.38 - phash(i, ei, 6122) * 0.2;
+      const pb0 = 0.10, pb1 = 0.90;
+      for(let k = 0; k < nB; k++){
+        const tb = pb0 + (pb1 - pb0) *
+                 ((k + 0.5 + (phash(i, k, 6123) - 0.5) * 0.7) / nB);
+        const bx = x1 + ex * tb + nx * 0.14,
+              by = y1 + ey * tb + ny * 0.14;
+        const q = pr(bx, by, pzB); if(!q) continue;
+        const s = Math.max(1.4, 0.42 * F / q[2]);   // ~0.28m bird
+        // breathing: slow puff of the chest feathers on its own phase
+        const puff = 1 + 0.10 * Math.sin(SF_WX.t * (0.9 + phash(i, k, 6124)) +
+                                         phash(i, k, 6125) * 6.28);
+        // shade the body throws on the paint, sun-shifted along the wall
+        if(!night && SF_SUN.day > 0.15){
+          quad([[bx - ux * 0.16 - ux * sAl * 0.3, by - uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
+                [bx + ux * 0.16 - ux * sAl * 0.3, by + uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
+                [bx + ux * 0.16 - ux * sAl * 0.55, by + uy * 0.16 - uy * sAl * 0.55, pzB - 0.3],
+                [bx - ux * 0.16 - ux * sAl * 0.55, by - uy * 0.16 - uy * sAl * 0.55, pzB - 0.3]],
+               shA);
+        }
+        const grey = phash(i, k, 6126) < 0.72,
+              body = grey ? '#7a7e88' : '#b8b2a6',
+              head = grey ? '#4e5460' : '#8a8478';
+        // tail stub angled back along the wall
+        const tailS = phash(i, k, 6127) < 0.5 ? 1 : -1;
+        ctx.fillStyle = shade(body, lit * 0.85);
+        ctx.beginPath();
+        ctx.moveTo(q[0], q[1]);
+        ctx.lineTo(q[0] + tailS * s * 1.6, q[1] - s * 0.5);
+        ctx.lineTo(q[0] + tailS * s * 1.4, q[1] - s * 1.1);
+        ctx.closePath(); ctx.fill();
+        // plump body
+        ctx.fillStyle = shade(body, Math.min(1.15, lit));
+        ctx.beginPath();
+        ctx.ellipse(q[0], q[1] - s * 0.8, s * 1.05, s * 0.8 * puff, 0,
+                    0, Math.PI * 2); ctx.fill();
+        // head tucked toward the wall's sun side
+        ctx.fillStyle = shade(head, Math.min(1.15, lit));
+        ctx.beginPath();
+        ctx.arc(q[0] - tailS * s * 0.55, q[1] - s * 1.7, s * 0.42,
+                0, Math.PI * 2); ctx.fill();
+      }
+    }
+}
+
 /* ---------------- v63: WALL IMPOSTOR ATLAS ----------------
    The street pass used to re-trace every cornice bracket, bay sash and
    string course of every facing facade on every frame (~13k canvas ops
@@ -33194,7 +34472,15 @@ function sfBinsStreet(o, pr, F, night){
    per-frame on top. Rain (animated facade streaks) or a lens inside the
    near plane falls back to the full vector pass. */
 const SF_WIM = new Map();          // key -> {c,wpx,hpx,uPad,S,zTopL,zBotL}
-const SF_WIM_MAX = 150;
+/* v78: the atlas used to cap at 150 ENTRIES — but a single street frame
+   faces ~570 walls, so every lookup missed and every wall was rebaked
+   every frame (the impostor was slower than the vectors it replaced).
+   The working set is bounded by PIXELS now (~104MB of RGBA at the cap),
+   with a generous entry ceiling as a second belt. Map order is LRU:
+   hits re-insert at the tail, eviction always takes the head. */
+const SF_WIM_MAX = 1600;
+const SF_WIM_PX_MAX = 26e6;
+let SF_WIM_PX = 0;
 const SF_WIM_S = 11;               // bake px per meter
 let SF_WALL_BAKE = false;          // gates camera-ephemeral detail in the bake
 function sfWallBakeKey(b, ei, night){
@@ -33236,8 +34522,13 @@ function sfWallImpostor(b, ei, x1, y1, x2, y2, ux, uy, L, nx, ny, hm,
       sfCloudShadow = csF; sfKarlShade = ksF; sfSunGapK = gkF;
     }
     bk = { c, wpx, hpx, uPad, S, zTopL, zBotL };
-    if(SF_WIM.size >= SF_WIM_MAX)
-      SF_WIM.delete(SF_WIM.keys().next().value);
+    SF_WIM_PX += wpx * hpx;
+    while(SF_WIM_PX > SF_WIM_PX_MAX || SF_WIM.size >= SF_WIM_MAX){
+      const k0 = SF_WIM.keys().next().value,
+            v0 = SF_WIM.get(k0);
+      SF_WIM_PX -= v0.wpx * v0.hpx;
+      SF_WIM.delete(k0);
+    }
     SF_WIM.set(key, bk);
   }
   // slice fan: u sweeps a padded span so cornice returns survive
@@ -33304,6 +34595,37 @@ function sfWallImpostor(b, ei, x1, y1, x2, y2, ux, uy, L, nx, ny, hm,
   return true;
 }
 
+/* v78: after an impostor blit, replay the camera-live garnish the bake
+   deliberately skips (SF_WALL_BAKE-gated): cornice drips in the rain,
+   and the wash-day layer — laundry lines, breathing curtains, cornice
+   pigeons. Derivation mirrors the top of sfStreetWall so the same
+   hashes pick the same garments on sprite and vector paths alike. */
+function sfWallLiveOver(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm,
+                        pr, F, night, fwd){
+  const i = b.i;
+  const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
+  const mural = sfMuralWall(i, ei, L, isShop);
+  const floors = Math.max(1, Math.round(hm / 3));
+  const para = 0.5 + phash(i, 17, 1406) * 0.35;
+  const ux = ex / L, uy = ey / L;
+  const det = fwd < 85 ? 2 : (fwd < 160 ? 1 : 0);
+  const dim = (night ? 0.4 : 1) *
+              (1 - 0.45 * sfCloudShadow(b.x / SF_PXM, b.y / SF_PXM)) *
+              (1 - 0.5 * sfKarlShade(b.x / SF_PXM, b.y / SF_PXM));
+  const sunK = sfSunFaceK(nx, ny);
+  const gapK = night ? 0 : sfSunGapK(b.x / SF_PXM, b.y / SF_PXM) * SF_SUN.day;
+  const lit = (0.55 + 0.5 * Math.max(0, sunK) * SF_SUN.day +
+               0.05 * Math.max(0, sunK)) * dim * (1 + 0.30 * gapK);
+  const wvx = Math.cos(W.windAng || 0), wvy = Math.sin(W.windAng || 0);
+  if(W.rain > 0.1 && fwd < 90)
+    sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F);
+  if(det >= 1 && !mural && ny > 0.05 && W.windSpd != null &&
+     W.rain < 0.35)
+    sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+              night, det, isShop, mural, floors, lit, dim, sunK,
+              wvx, wvy, ux, uy);
+}
+
 function sfRenderStreet(cw, ch){
   sfPerfBegin();
   sfWxTick();
@@ -33359,13 +34681,56 @@ function sfRenderStreet(cw, ch){
   // v9: all of it is now the TARGET for a spring-damped rig.
   const TDX = Math.cos(SF_CAM.yaw), TDY = Math.sin(SF_CAM.yaw);
   let tX, tY, tPitch = SF_CAM.pitch;
+  let yawOffT = 0;                    // v81: composition pan (follow only)
   if(SF_CAM.director){
-    tX = SF_CAM.x; tY = SF_CAM.y;
+    tX = SF_CAM.x; tY = SF_CAM.y; SF_CAM._mate = null;
   } else {
+    /* v81: coverage grammar — before the boom math, decide what the shot
+       IS. A single keeps the subject on the third opposite their motion
+       (look-room — the frame opens where they're headed). A two-shot
+       engages when a second pawn is close and facing the subject (or
+       standing in a huddle): the lens pans to split the pair and the
+       boom widens until both fit with body margin, like an operator
+       riding the pedestal for a dialogue line. */
+    let mate = null;
+    if(v && !v.inBuilding){
+      let md = 7.0;
+      for(let i2 = 0; i2 < VILLAGERS.length; i2++){
+        const pv2 = VILLAGERS[i2];
+        if(pv2 === v || pv2.inBuilding) continue;
+        const dd = Math.hypot(pv2.x - v.x, pv2.y - v.y) / SF_PXM;
+        if(dd >= md) continue;
+        const MV = [[0, 1], [0, -1], [-1, 0], [1, 0]][pv2.face] || [0, 1];
+        const ux = v.x - pv2.x, uy = v.y - pv2.y, ul = Math.hypot(ux, uy) || 1;
+        if((MV[0] * ux + MV[1] * uy) / ul > 0.45 ||
+           (!v.moving && !pv2.moving && dd < 5)){ mate = pv2; md = dd; }
+      }
+    }
+    SF_CAM._mate = mate;
+    const back0 = Math.max(1.4, SF_CAM._backE == null ? SF_CAM.back : SF_CAM._backE);
     // v36: the boom is physical — clip it against real footprints so the
     // arm never sinks into a facade; pull-in is fast (never clip through
     // a wall), the return is slow (no snap-back pop).
-    const clip = sfBoomClip(px, py, -TDX, -TDY, SF_CAM.back, SF_CAM.h);
+    let clip = sfBoomClip(px, py, -TDX, -TDY, SF_CAM.back, SF_CAM.h);
+    if(mate){
+      // mate bearing relative to the boom anchor
+      const ax = px - TDX * back0, ay = py - TDY * back0;
+      const mF = (mate.x / SF_PXM - ax) * TDX + (mate.y / SF_PXM - ay) * TDY;
+      const mS = (mate.x / SF_PXM - ax) * TDY - (mate.y / SF_PXM - ay) * TDX;
+      if(mF > 1.5){
+        const mA = Math.atan2(mS, mF);
+        yawOffT = mA * 0.55;                 // split the pair on the axis
+        const halfH = Math.atan2(cw * 0.5, Math.max(400, ch * 1.1) * SF_CAM.fov);
+        const spread = Math.abs(mA - yawOffT) + Math.atan2(1.5, mF);
+        if(spread > halfH * 0.86)            // widen until both fit
+          clip = Math.max(clip, Math.min(24, back0 * spread / (halfH * 0.86)));
+      }
+    } else {
+      const lside = SF_CAM._leadX * TDY - SF_CAM._leadY * TDX;
+      if(Math.abs(lside) > 0.4)
+        yawOffT = -Math.sign(lside) *
+          Math.atan2(cw * 0.15, Math.max(400, ch * 1.1) * SF_CAM.fov);
+    }
     if(SF_CAM._backE == null || SF_CAM._snap) SF_CAM._backE = clip;
     const kB = Math.min(1, dtC * (clip < SF_CAM._backE ? 10 : 2.6));
     SF_CAM._backE += (clip - SF_CAM._backE) * kB;
@@ -33375,6 +34740,10 @@ function sfRenderStreet(cw, ch){
     tY = py + SF_CAM._leadY - TDY * backUse;
     tPitch = SF_CAM.pitch - Math.atan2(Math.max(0, SF_CAM.h - 1.05), Math.max(2, backUse)) * 0.85;
   }
+  // v81: the composition pan glides on its own clock — a partner stepping
+  // in or out of the shot reframes over ~0.4s instead of popping
+  if(SF_CAM._yawOff == null) SF_CAM._yawOff = yawOffT;
+  SF_CAM._yawOff += (yawOffT - SF_CAM._yawOff) * Math.min(1, dtC * 2.4);
   if(SF_CAM._snap || SF_CAM._sx == null){
     SF_CAM._sx = tX; SF_CAM._sy = tY; SF_CAM._syaw = SF_CAM.yaw;
     SF_CAM._spitch = tPitch; SF_CAM._sh = SF_CAM.h; SF_CAM._snap = false;
@@ -33382,7 +34751,7 @@ function sfRenderStreet(cw, ch){
   const kRig = 1 - Math.exp(-dtC * 6.5);
   SF_CAM._sx += (tX - SF_CAM._sx) * kRig;
   SF_CAM._sy += (tY - SF_CAM._sy) * kRig;
-  SF_CAM._syaw = sfAngLerp(SF_CAM._syaw, SF_CAM.yaw, kRig);
+  SF_CAM._syaw = sfAngLerp(SF_CAM._syaw, SF_CAM.yaw + (SF_CAM._yawOff || 0), kRig);
   SF_CAM._spitch += (tPitch - SF_CAM._spitch) * kRig;
   SF_CAM._sh += (SF_CAM.h - SF_CAM._sh) * kRig;
   // v9: handheld breath — a whisper of operator movement while flying
@@ -33401,7 +34770,26 @@ function sfRenderStreet(cw, ch){
   SF_CAM._yaw0 = useYaw;
   const rollT = clamp(-yawRate * 0.045, -0.02, 0.02) * (SF_CAM.director ? 1 : 0.6);
   SF_CAM._roll = (SF_CAM._roll || 0) + (rollT - (SF_CAM._roll || 0)) * Math.min(1, dtC * 5);
-  SF_LENS.roll = SF_CAM._roll;
+  /* v81: gust buffeting — wind load on the rig scales with EXPOSURE, not
+     altitude on the map: _sh is already height above the local ground,
+     so a lens 2m up inside the street canyon barely feels the gust field
+     while a crane at 20m over the park takes the full envelope, worst
+     broadside (crosswind factor on sin(windAng − yaw)). The slow drift
+     term is the operator getting pushed leeward between gusts. At
+     street-follow heights expo≈0 so the temporal still-cache keeps
+     working on calm sidewalk shots. */
+  const bufExpo = clamp((SF_CAM._sh - 2.2) / 14, 0, 1);
+  const bufK = (SF_WX.gust || 0) * bufExpo *
+               (0.45 + 0.55 * Math.abs(Math.sin((W.windAng || 0) - useYaw)));
+  if(bufK > 0.004){
+    const tt = SF_WX.t;
+    useYaw += (Math.sin(tt * 2.9) * 0.6 + Math.sin(tt * 7.3 + 1.1) * 0.4) * 0.011 * bufK;
+    usePitch += Math.sin(tt * 4.7 + 0.6) * 0.007 * bufK;
+    SF_CAM._bufRoll = Math.sin(tt * 5.1 + 2.2) * 0.005 * bufK;
+    // leeward push: a standing rig slowly weathercocks off the wind axis
+    useYaw += Math.sin((W.windAng || 0) - useYaw) * 0.012 * bufK;
+  } else SF_CAM._bufRoll = 0;
+  SF_LENS.roll = SF_CAM._roll + (SF_CAM._bufRoll || 0);
   const DX = Math.cos(useYaw), DY = Math.sin(useYaw);
   const camX = SF_CAM._sx, camY = SF_CAM._sy;
   // v27: operator bob — the follow lens rides the subject's gait, a ~5cm
@@ -34080,7 +35468,7 @@ function sfRenderStreet(cw, ch){
           e3 = sfElevM(wxm + c, wym + c), e4 = sfElevM(wxm, wym + c);
     const p1 = pr(wxm, wym, e1), p2 = pr(wxm + c, wym, e2),
           p3 = pr(wxm + c, wym + c, e3), p4 = pr(wxm, wym + c, e4);
-    if(!p1 || !p2 || !p3 || !p4) continue;
+    if(!p1 || !p2 || !p3 || !p4){ if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).pr++; continue; }
     /* v50: near-field gate — a cell whose nearest corner sits within the
        hidden under-lens distance (closer than the ground the frame's own
        bottom edge can resolve) projects that corner to tens of thousands
@@ -34090,9 +35478,12 @@ function sfRenderStreet(cw, ch){
        nothing the lens could have shown. */
     {
       const fN = camH * F / Math.max(1, ch - horizon) * 0.55;
-      if(Math.min(p1[2], p2[2], p3[2], p4[2]) < Math.max(1.2, fN))
+      if(Math.min(p1[2], p2[2], p3[2], p4[2]) < Math.max(1.2, fN)){
+        if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).fn++;
         continue;
+      }
     }
+    if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).ok++;
     P[0] = p1[0]; P[1] = p1[1]; P[2] = p2[0]; P[3] = p2[1];
     P[4] = p3[0]; P[5] = p3[1]; P[6] = p4[0]; P[7] = p4[1];
     // slab top: pr() is linear in z — top corner = z0 corner lifted by gz*F/fwd
@@ -34355,11 +35746,26 @@ function sfRenderStreet(cw, ch){
       }
       gk = Math.min(1, gk * (1 - cover * 0.5));
     }
+    /* v84: the pavement joins the sun field. Until now the only beam
+       blockers this pass knew were clouds and Karl — a cell under a 40m
+       parapet shadow still received the warm key underneath the sweep
+       pass, and no crown ever sieved light onto the road. sfGroundVis
+       answers both: canyon-memoized building umbra + projected crown
+       shadow discs. Shade lands as extra skylight-only fill; the warm
+       key is gated by the SAME visibility so lit and shade can never
+       disagree about where the shadow line runs. */
+    let gsv = 1;
+    if(litK > 0.02 && cfwd < 150)
+      gsv = sfGroundVis(wxm + cm / 2, wym + cm / 2);
+    if(gsv < 0.97){
+      const qs = Math.min(8, Math.round((1 - gsv) * 0.30 * 24));
+      if(qs > 0) qE(shSt[qs], T0, T0 + 2, T0 + 4, T0 + 6);
+    }
     // v42: the sun's warm key on whatever the shade leaves lit — grass,
     // asphalt, sidewalk all read gold in open sun, cool where cloud,
-    // canyon or Karl already claimed the cell (lit ∝ 1 - csh)
+    // canyon or Karl already claimed the cell (lit ∝ vis · (1 - csh))
     if(litK > 0.04 && csh < 0.9){
-      const ql = Math.min(8, Math.round(litK * (1 - csh) * (1 + 0.85 * gk) * 8));
+      const ql = Math.min(8, Math.round(litK * gsv * (1 - csh) * (1 + 0.85 * gk) * 8));
       if(ql > 0) qE(litSt[ql], T0, T0 + 2, T0 + 4, T0 + 6);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
@@ -34700,12 +36106,17 @@ function sfRenderStreet(cw, ch){
           if((s1 > lat1 && s2 > lat2) || (s1 < -lat1 && s2 < -lat2))
             continue;
         }
-        // v63: impostor atlas — the baked wall sprite re-projects as a
-        // slice fan; rain streaks + extreme near-plane stay on vectors
-        if(W.rain > 0.1 ||
-           !sfWallImpostor(b, e, x1, y1, x2, y2, ex / L, ey / L, L,
+        /* v63: impostor atlas — the baked wall sprite re-projects as a
+           slice fan; extreme near-plane stays on vectors. v78: rain no
+           longer forces the vector pass — the sprite stands and the
+           cornice drips replay as a live overlay via sfWallLiveOver,
+           which also carries the wash-day cloth the bake can't hold. */
+        if(!sfWallImpostor(b, e, x1, y1, x2, y2, ex / L, ey / L, L,
                            nx, ny, hm, pr, night, d.fwd, cw))
           sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
+        else
+          sfWallLiveOver(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm,
+                         pr, F, night, d.fwd);
         /* v23/v39: canyon shade band — the row across the street steals
            the low sun. v39: the shade line is now PROBED, not guessed —
            sfCanyonShade marches the sun ray at N points along the wall,
@@ -34919,6 +36330,50 @@ function sfRenderStreet(cw, ch){
               ctx.strokeStyle = night ? '#3a3430' : shingR[5];
               ctx.lineWidth = Math.max(1, 0.14 * F / pa2[2]);
               ctx.beginPath(); ctx.moveTo(pa2[0], pa2[1]); ctx.lineTo(pb2[0], pb2[1]); ctx.stroke();
+              /* v83: cast-iron ridge cresting on Victorian gables — same
+                 gate as the bake (salt 3610): a dark rail standing 0.3m
+                 proud of the ridge on upright ticks, finial balls at the
+                 gable ends. */
+              if(!isShopR && phash(b.i, 76, 3610) < 0.45 && pa2[2] < 140){
+                const cA = RFm.alongX ? pr(rA, RFm.cy, hm + riseM + 0.3)
+                                      : pr(RFm.cx, rA, hm + riseM + 0.3);
+                const cB = RFm.alongX ? pr(rB, RFm.cy, hm + riseM + 0.3)
+                                      : pr(RFm.cx, rB, hm + riseM + 0.3);
+                if(cA && cB){
+                  const ic = night ? '#1e1a17' : '#2e2a26';
+                  ctx.strokeStyle = ic;
+                  ctx.lineWidth = Math.max(0.7, 0.09 * F / cA[2]);
+                  ctx.beginPath(); ctx.moveTo(cA[0], cA[1]); ctx.lineTo(cB[0], cB[1]); ctx.stroke();
+                  const nT = Math.min(24, Math.max(2,
+                    Math.floor(Math.hypot(cB[0] - cA[0], cB[1] - cA[1]) / Math.max(2, 0.4 * F / cA[2]))));
+                  ctx.lineWidth = Math.max(0.5, 0.05 * F / cA[2]);
+                  for(let t3 = 0; t3 <= nT; t3++){
+                    const tt = t3 / nT;
+                    ctx.beginPath();
+                    ctx.moveTo(pa2[0] + (pb2[0] - pa2[0]) * tt,
+                               pa2[1] + (pb2[1] - pa2[1]) * tt);
+                    ctx.lineTo(cA[0] + (cB[0] - cA[0]) * tt,
+                               cA[1] + (cB[1] - cA[1]) * tt);
+                    ctx.stroke();
+                  }
+                  // finial knobs at both gable ends
+                  for(const cP of [cA, cB]){
+                    const tp = RFm.alongX
+                      ? pr(cP === cA ? rA : rB, RFm.cy, hm + riseM + 0.55)
+                      : pr(RFm.cx, cP === cA ? rA : rB, hm + riseM + 0.55);
+                    ctx.fillStyle = night ? '#2a251f' : '#d8cba0';
+                    ctx.beginPath();
+                    ctx.arc(cP[0], cP[1] - Math.max(1, 0.1 * F / cP[2]),
+                            Math.max(1.2, 0.13 * F / cP[2]), 0, Math.PI * 2);
+                    ctx.fill();
+                    if(tp){
+                      ctx.strokeStyle = ic;
+                      ctx.lineWidth = Math.max(0.5, 0.04 * F / cP[2]);
+                      ctx.beginPath(); ctx.moveTo(cP[0], cP[1]); ctx.lineTo(tp[0], tp[1]); ctx.stroke();
+                    }
+                  }
+                }
+              }
             }
           }
         } else if(rk === 'mansard'){
@@ -34940,6 +36395,21 @@ function sfRenderStreet(cw, ch){
             fillProj([[a[0], a[1], hm], [bq[0], bq[1], hm],
                       [RFm.cx, RFm.cy, hm + riseM]],
                      colAt(edgeLitM(a, bq)));
+          }
+          // v83: apex finial on crested Victorians (same 3610 gate)
+          if(!isShopR && phash(b.i, 76, 3610) < 0.45){
+            const ap = pr(RFm.cx, RFm.cy, hm + riseM),
+                  at = pr(RFm.cx, RFm.cy, hm + riseM + 0.6);
+            if(ap && at && ap[2] < 140){
+              ctx.strokeStyle = night ? '#1e1a17' : '#2e2a26';
+              ctx.lineWidth = Math.max(0.6, 0.05 * F / ap[2]);
+              ctx.beginPath(); ctx.moveTo(ap[0], ap[1]); ctx.lineTo(at[0], at[1]); ctx.stroke();
+              ctx.fillStyle = night ? '#2a251f' : '#d8cba0';
+              ctx.beginPath();
+              ctx.arc(at[0], at[1] - Math.max(1, 0.08 * F / ap[2]),
+                      Math.max(1.2, 0.12 * F / ap[2]), 0, Math.PI * 2);
+              ctx.fill();
+            }
           }
         }
         // wet sheen + aerial haze over the pitched silhouette
@@ -35056,6 +36526,23 @@ function sfRenderStreet(cw, ch){
       for(const [x, y] of P){ cxm += x; cym += y; }
       cxm /= P.length; cym /= P.length;
       const axU = RFm.alongX ? [1, 0] : [0, 1];
+      /* v83: flat roofs render the BAKE'S catalog (sfRoofCatalog) — the
+         water tank / clothesline / bulkhead / penthouse you see from
+         above is the same object projected here over the parapet.
+         Painter order: far to near by camera depth. */
+      const rcat83 = !pitched ? sfRoofCatalog(b) : null;
+      if(rcat83 && rcat83.length){
+        const items83 = [];
+        for(const e of rcat83){
+          if(e.k === 9 || e.k === 19 || e.k === 20) continue; // flat details
+          const bp = pr(e.mx, e.my, hm);
+          if(!bp || bp[2] > 150) continue;
+          items83.push([bp[2], e]);
+        }
+        items83.sort((a2, b2) => b2[0] - a2[0]);
+        for(const it of items83)
+          sfStreetRoofProp(pr, b, it[1], hm, F, night, DX, DY);
+      } else
       for(let k = 0; k < nRoof; k++){
         const e2 = P[Math.floor(phash(b.i, k, 1505) * P.length)];
         const t = 0.25 + phash(k, b.i, 1506) * 0.5;
@@ -35089,6 +36576,9 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath();
           ctx.ellipse(base[0], base[1] - bh2 - 4, Math.max(1.2, bw2 * 0.16), Math.max(1.6, bw2 * 0.22), 0, 0, Math.PI * 2);
           ctx.fill();
+          // v79: live smoke off the chimney pot
+          sfStreetPlume(pr, fx, fy, hm + zR + 2, base[0], base[1] - bh2 - 5,
+                        sc, phash(b.i, k, 7812), night);
         } else if(kind === 0 && roofAreaM > 110){
           // water tank: legs + banded barrel + cone cap
           const lb = pr(fx, fy, hm + zR), lt = pr(fx, fy, hm + zR + 1.4),
@@ -35115,6 +36605,9 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
           ctx.fillStyle = night ? '#2a2725' : '#8a8478';
           ctx.beginPath(); ctx.ellipse(pt2[0], pt2[1], Math.max(1.5, 0.25 * sc), Math.max(0.8, 0.1 * sc), 0, 0, Math.PI * 2); ctx.fill();
+          // v79: steam wisp off the vent cap — thinner than a chimney
+          sfStreetPlume(pr, fx, fy, hm + zR + 0.5, pt2[0], pt2[1] - 0.2 * sc,
+                        sc * 0.55, phash(b.i, k, 7813), night);
         } else if(kind === 2){ // antenna mast + crossbars
           const pt2 = pr(fx, fy, hm + zR + 3 + phash(k, b.i, 1509) * 2);
           if(!pt2) continue;
@@ -35306,6 +36799,37 @@ function sfRenderStreet(cw, ch){
             ctx.beginPath();
             ctx.arc(q[0] - bs * 0.9, q[1] - bs * 1.3, bs * 0.45, 0, Math.PI * 2);
             ctx.fill();
+          }
+        }
+      }
+      /* v79: a wheeling flock above the roofline — same flush schedule as
+         the top view: half the cycle the birds orbit the block, wings
+         beating; the other half they've settled back on the parapet */
+      {
+        const now2 = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+        const cyc = (now2 / 24 + phash(b.i, 1, 7806)) % 1;
+        if(cyc < 0.5 && d.fwd < 160 && phash(b.i, 3, 7807) < 0.55){
+          const lift = Math.sin(Math.min(1, cyc / 0.12) * Math.PI * 0.5) *
+                       Math.sin(Math.min(1, (0.5 - cyc) / 0.1) * Math.PI * 0.5);
+          const c0 = pr(cxm, cym, hm + 3 + 3 * lift);
+          if(c0){
+            const sc3 = F / c0[2];
+            const R = (6 + SF_WX.gust * 4) * sc3;
+            const nB = 4 + Math.floor(phash(b.i, 2, 7808) * 3);
+            ctx.strokeStyle = night ? '#33333b' : '#46464e';
+            ctx.lineWidth = Math.max(0.8, 0.05 * sc3);
+            for(let b2 = 0; b2 < nB; b2++){
+              const an = now2 * 1.7 + phash(b.i, 4, 7809) * 6.28 +
+                         b2 * Math.PI * 2 / nB;
+              const bx6 = c0[0] + Math.cos(an) * R * 2.4,
+                    by6 = c0[1] + Math.sin(an) * R * 0.5 - lift * 6 * sc3;
+              const flap = Math.sin(now2 * 13 + b2 * 2.3) * 0.9 * sc3;
+              ctx.beginPath();
+              ctx.moveTo(bx6 - 1.6 * sc3, by6 - flap);
+              ctx.lineTo(bx6, by6);
+              ctx.lineTo(bx6 + 1.6 * sc3, by6 - flap);
+              ctx.stroke();
+            }
           }
         }
       }
@@ -36056,11 +37580,36 @@ function sfRenderStreet(cw, ch){
     }
   }
 
-  // v9: rig readout — mode + focal length, bottom-left, like a viewfinder
+  // v81: director frame guides — thirds grid + center cross, drawn like
+  // a field monitor's etched lines. H toggles; follow mode stays clean.
+  if(SF_CAM.director && SF_CAM.guides !== false){
+    ctx.strokeStyle = 'rgba(235,242,250,0.16)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(const f of [1 / 3, 2 / 3]){
+      ctx.moveTo(cw * f, 0); ctx.lineTo(cw * f, ch);
+      ctx.moveTo(0, ch * f); ctx.lineTo(cw, ch * f);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(235,242,250,0.30)';
+    ctx.beginPath();
+    ctx.moveTo(cw / 2 - 7, ch * 0.42); ctx.lineTo(cw / 2 + 7, ch * 0.42);
+    ctx.moveTo(cw / 2, ch * 0.42 - 7); ctx.lineTo(cw / 2, ch * 0.42 + 7);
+    ctx.stroke();
+  }
+
+  // v9+v81: rig readout — mode, focal length, focus plane, metered EV
+  // and compass heading, bottom-left, like a viewfinder data strip
   {
     const mm = Math.round(50 * SF_CAM.fov);
     const mode = SF_CAM.director ? 'DIRECTOR' : (SF_CAM.orbit ? 'ORBIT' : 'FOLLOW');
-    const lab = `◉ ${mode}  ${mm}mm  ƒ2.0 · ${Math.round(SF_LENS.foc)}m`;
+    const ev = SF_LENS.ev || 0;
+    const bearing = ((90 + (SF_CAM._syaw != null ? SF_CAM._syaw : SF_CAM.yaw)
+                      * 180 / Math.PI) % 360 + 360) % 360;
+    const card = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(bearing / 45) % 8];
+    const lab = `◉ ${mode}  ${mm}mm  ƒ2.0 · ${Math.round(SF_LENS.foc)}m` +
+      `  EV${ev >= 0 ? '+' : ''}${ev.toFixed(1)}  ▲${Math.round(bearing)}°${card}` +
+      (SF_CAM.director ? `  h${SF_CAM._sh != null ? SF_CAM._sh.toFixed(1) : SF_CAM.h}m`
+                       : (SF_CAM._mate ? '  2-SHOT' : ''));
     ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
     const tw2 = ctx.measureText(lab).width;
     const barH = SF_CAM.director ? Math.round(ch * 0.085) : 0;
@@ -36104,6 +37653,22 @@ function sfRenderStreet(cw, ch){
       ctx.fillStyle = 'rgba(160,230,255,0.9)';
       ctx.font = 'bold 9px monospace'; ctx.textAlign = 'left';
       ctx.fillText('AF', rp[0] + s + 4, rp[1] - s + 4);
+      // v81: two-shot coverage marks the partner with amber brackets so
+      // the operator can read who's in the shot at a glance
+      if(SF_CAM._mate){
+        const mp = pr(SF_CAM._mate.x / SF_PXM, SF_CAM._mate.y / SF_PXM, 1.0);
+        if(mp){
+          ctx.strokeStyle = 'rgba(255,205,120,0.7)'; ctx.lineWidth = 1.2;
+          const s2 = 11, t2 = 5;
+          ctx.beginPath();
+          for(const [sx3, sy3] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]){
+            ctx.moveTo(mp[0] + sx3 * s2, mp[1] + sy3 * s2 - sy3 * t2);
+            ctx.lineTo(mp[0] + sx3 * s2, mp[1] + sy3 * s2);
+            ctx.lineTo(mp[0] + sx3 * s2 - sx3 * t2, mp[1] + sy3 * s2);
+          }
+          ctx.stroke();
+        }
+      }
     }
   }
 
@@ -36225,6 +37790,32 @@ function sfDollhouse(b, name, cw, ch){
     }
     ctx.stroke();
   }
+  /* v85: real floor plans — the deep end of every interior is a second
+     room now: a tiled kitchen for the cafés, a stock room for the
+     hardware store, a bedroom or kitchen for the flats. Its floor
+     finish differs from the front room before the partition goes in. */
+  const zS = RM_D - (2.6 + phash(seed, 5, 8500) * 0.9);   // partition depth
+  const dgx = -2.1 + phash(seed, 6, 8501) * 4.2;          // doorway lateral
+  const bedFlat = !shop && phash(seed, 7, 8502) < 0.45;
+  {
+    rmRect(-3.5, zS, 3.5, RM_D,
+           shop ? 'rgba(196,190,178,0.55)'
+         : bedFlat ? 'rgba(80,64,88,0.35)' : 'rgba(126,114,98,0.45)');
+    if(shop || !bedFlat){          // kitchen/stock tile grid
+      ctx.strokeStyle = 'rgba(60,56,50,0.30)';
+      ctx.lineWidth = Math.max(0.5, cam.zoom * 0.8);
+      ctx.beginPath();
+      for(let z = zS + 0.6; z < RM_D; z += 0.6){
+        const a = rmP(-3.5, z), c2 = rmP(3.5, z);
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+      }
+      for(let x = -3.3; x <= 3.3; x += 0.6){
+        const a = rmP(x, zS), c2 = rmP(x, RM_D);
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+      }
+      ctx.stroke();
+    }
+  }
   // party walls — in a footprint wider than the room (a whole row of
   // shops shares one building record) the venue is one unit; walls at
   // x=±3.5 keep it readable instead of a hall the size of the block
@@ -36272,14 +37863,14 @@ function sfDollhouse(b, name, cw, ch){
     rmRect(0.9, 4.2, 3.3, 4.45, '#c8b490');           // stone top edge
     rmRect(1.05, 4.35, 1.7, 5.05, '#2c2c30');         // espresso machine
     rmRect(2.5, 4.35, 3.15, 5.0, '#7a4a26');          // pastry case
-    rmRect(-3.5, 5.9, -3.15, 7.6, '#4a3626');         // back-bar shelves
+    rmRect(-3.5, 5.9, -3.15, Math.min(7.6, zS - 0.15), '#4a3626'); // back-bar shelves
     if(arch === 'taqueria')
-      rmRect(-3.3, 4.8, -2.3, 6.0, '#8a2f24');        // salsa bar
+      rmRect(-3.3, 4.8, -2.3, Math.min(6.0, zS - 0.15), '#8a2f24'); // salsa bar
     if(arch === 'hardware')
-      rmRect(-3.3, 4.2, -2.0, 7.4, '#3c4048');        // aisle shelf
+      rmRect(-3.3, 4.2, -2.0, Math.min(7.4, zS - 0.15), '#3c4048'); // aisle shelf
     if(arch !== 'hardware'){
       for(const [tx, tz] of [[-1.7, 4.7], [-0.3, 6.2], [-2.5, 6.9]]){
-        if(tz > RM_D - 0.9) continue;
+        if(tz > zS - 0.7) continue;   // v85: tables stay in the front room
         rmDisc(tx, tz, 0.5, '#d8cba8');
         rmRect(tx - 0.98, tz - 0.2, tx - 0.58, tz + 0.2, fur);
         rmRect(tx + 0.58, tz - 0.2, tx + 0.98, tz + 0.2, fur);
@@ -36304,17 +37895,78 @@ function sfDollhouse(b, name, cw, ch){
   } else {
     rmDisc(0, 5.6, 1.35, '#8a4a42');                  // rug
     rmDisc(0, 5.6, 0.95, '#7c443c');
-    rmRect(-3.4, 4.4, -2.35, 6.6, '#5a6a58');         // sofa
+    rmRect(-3.4, 4.4, -2.35, Math.min(6.6, zS - 0.2), '#5a6a58'); // sofa
     rmRect(-3.32, 4.95, -2.45, 5.7, '#c9a86a');
     rmRect(-3.32, 5.75, -2.45, 6.5, '#a85a5a');
-    rmRect(2.55, 5.7, 3.42, Math.min(8.2, RM_D - 0.4), fur); // bookshelf
+    rmRect(2.55, 5.7, 3.42, Math.min(8.2, zS - 0.15), fur); // bookshelf stays front
     rmDisc(-1.2, 5.2, 0.16, '#2c241c');               // floor lamp
-    rmRect(-3.2, 7.4, -2.75, 7.85, '#8a5a3a');        // potted plant
-    rmDisc(-2.97, 7.6, 0.28, '#3e7a34');
-    rmRect(-3.5, 6.9, -3.35, 7.7, '#3a2c1c');         // wall art
-    rmRect(-3.5, 7.9, -3.35, 8.5, '#3a2c1c');
+    const plZ = Math.min(7.4, zS - 1.5);              // plant stays front of the partition
+    rmRect(-3.2, plZ, -2.75, plZ + 0.45, '#8a5a3a');  // potted plant
+    rmDisc(-2.97, plZ + 0.2, 0.28, '#3e7a34');
+    rmRect(-3.5, 6.9, -3.35, Math.min(7.7, zS - 0.1), '#3a2c1c');   // wall art
+    rmRect(-3.5, 7.9, -3.35, Math.min(8.5, zS - 0.1), '#3a2c1c');
     // sewing table by the window (Carmen's flat) / desk for the others
-    if(phash(seed, 2, 7100) < 0.5) rmRect(0.8, 7.6, 1.9, 8.2, furT);
+    if(phash(seed, 2, 7100) < 0.5 && zS - 0.3 > 7.9)
+      rmRect(0.8, 7.6, 1.9, Math.min(8.2, zS - 0.2), furT);
+  }
+  /* v85: the partition itself — a wall across the room with a cased
+     doorway, then the back room's fixtures behind it. The doorway
+     position is the same `dgx` the walk-in view renders on the left
+     wall, so both views agree about the same floor plan. */
+  {
+    const wc = shade(SF_INT_WALL[arch][0], 0.5);
+    rmRect(-3.5, zS - 0.07, dgx - 0.48, zS + 0.07, wc);
+    rmRect(dgx + 0.48, zS - 0.07, 3.5, zS + 0.07, wc);
+    // casing ticks + door leaf swung into the front room
+    rmRect(dgx - 0.56, zS - 0.11, dgx - 0.42, zS + 0.11, '#3a2c1c');
+    rmRect(dgx + 0.42, zS - 0.11, dgx + 0.56, zS + 0.11, '#3a2c1c');
+    {
+      const dl0 = rmP(dgx - 0.44, zS), dl1 = rmP(dgx - 0.44 + 0.66, zS - 0.66);
+      ctx.strokeStyle = '#4a3626';
+      ctx.lineWidth = Math.max(1.2, 2 * cam.zoom);
+      ctx.beginPath(); ctx.moveTo(dl0[0], dl0[1]); ctx.lineTo(dl1[0], dl1[1]); ctx.stroke();
+    }
+    if(shop){
+      if(arch === 'hardware'){
+        // stock room: shelf rows + boxed goods + a pallet stack
+        rmRect(-3.3, zS + 0.4, -0.4, zS + 1.0, '#3c4048');
+        rmRect(-3.3, zS + 1.5, -0.4, zS + 2.1, '#3c4048');
+        for(let k = 0; k < 8; k++)
+          rmRect(-3.2 + k * 0.33, zS + 0.5, -3.05 + k * 0.33, zS + 0.9,
+                 ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80'][k % 4]);
+        rmRect(0.4, zS + 0.4, 3.3, zS + 1.6, '#5a5148');
+      } else {
+        // kitchen: steel prep line on the back wall — range burners,
+        // sink, a prep table with plate stacks, steam table (taqueria)
+        rmRect(-3.3, RM_D - 0.75, 0.4, RM_D - 0.15, '#8a8f94');
+        rmRect(-3.3, RM_D - 0.75, 0.4, RM_D - 0.60, '#b8bcc4');
+        for(let k = 0; k < 4; k++)
+          rmDisc(-2.9 + k * 0.55, RM_D - 0.45, 0.14, '#2c2c30');
+        rmDisc(0.1, RM_D - 0.45, 0.2, '#5a6a72');
+        rmRect(1.0, zS + 0.5, 3.2, zS + 1.15, '#7a6a58');
+        rmRect(1.0, zS + 0.5, 3.2, zS + 0.62, '#c8b490');
+        for(let k = 0; k < 4; k++)
+          rmDisc(1.4 + k * 0.5, zS + 0.85, 0.11, ['#e8e0d0', '#d8cba8'][k % 2]);
+        if(arch === 'taqueria')
+          rmRect(-1.4, zS + 0.5, -0.4, zS + 1.3, '#8a2f24');
+      }
+    } else if(bedFlat){
+      rmRect(-3.35, zS + 0.35, -1.45, zS + 2.25, '#6a4a5a');  // bed
+      rmRect(-3.35, zS + 0.35, -1.45, zS + 0.85, '#e8dcc8');  // pillow end
+      rmRect(-1.55, zS + 0.35, -1.35, zS + 2.25, '#4a3626');  // footboard
+      rmRect(1.6, RM_D - 0.9, 3.3, RM_D - 0.2, '#5a4530');    // dresser
+      rmDisc(0.4, zS + 1.3, 0.7, '#8a4a42');                  // bedside rug
+    } else {
+      // flat kitchen: counter run + range discs + sink, fridge, table
+      rmRect(-3.3, RM_D - 0.75, 0.9, RM_D - 0.15, '#7a7268');
+      rmRect(-3.3, RM_D - 0.75, 0.9, RM_D - 0.60, '#d8d0c0');
+      rmDisc(-1.2, RM_D - 0.45, 0.18, '#4a5a62');
+      for(let k = 0; k < 3; k++)
+        rmDisc(-2.7 + k * 0.5, RM_D - 0.45, 0.13, '#2c2c30');
+      rmRect(1.4, RM_D - 1.6, 2.2, RM_D - 0.2, '#c8ccd0');    // fridge
+      rmDisc(2.9, zS + 0.9, 0.45, '#d8cba8');                 // cafe table
+      rmRect(2.5, zS + 1.5, 3.3, zS + 1.9, fur);
+    }
   }
   // furniture mass shade — a soft block thrown away from the window sun
   if(sunIn){
@@ -36829,6 +38481,34 @@ function sfRenderInterior(cw, ch, v){
     const knob = RM(RM_W / 2, 4.35, 1.0);
     ctx.fillStyle = '#c8a44a';
     ctx.beginPath(); ctx.arc(knob.x, knob.y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  /* v85: the back room shows through a second cased opening on the
+     left wall — the same back room the dollhouse draws behind its
+     partition (kitchen for the venues, kitchen or bedroom for the
+     flats). A real opening: dark jamb, lit far wall, fixture
+     silhouettes, warm spill on the floorboards. */
+  {
+    const dz0 = 2.9, dz1 = 4.0;
+    const lit2 = lamps || night;
+    rmWallQuad(-1, dz0, dz1, 0, 2.15, '#1a120a');              // jamb dark
+    const bg2 = ctx.createLinearGradient(0, RM(-RM_W / 2, dz1, 1.9).y,
+                                         0, RM(-RM_W / 2, dz1, 0.12).y);
+    bg2.addColorStop(0, lit2 ? '#6a4a24' : '#54432e');
+    bg2.addColorStop(1, lit2 ? '#8a5e30' : '#463626');
+    rmWallQuad(-1, dz0 + 0.16, dz1 - 0.16, 0.12, 1.9, bg2);    // lit far wall
+    // fixture silhouettes inside: counter line + hung pots / shelf line
+    rmWallQuad(-1, dz0 + 0.3, dz1 - 0.3, 0.88, 0.98, '#2a1e12');
+    for(let k = 0; k < 3; k++)
+      rmWallQuad(-1, dz0 + 0.4 + k * 0.3, dz0 + 0.52 + k * 0.3, 1.3, 1.62,
+                 '#241a10');
+    ctx.strokeStyle = shade('#e8dcc8', 0.8); ctx.lineWidth = 2.5;
+    const jp = [RM(-RM_W / 2, dz0, 0), RM(-RM_W / 2, dz1, 0),
+                RM(-RM_W / 2, dz1, 2.15), RM(-RM_W / 2, dz0, 2.15)];
+    ctx.beginPath(); ctx.moveTo(jp[0].x, jp[0].y);
+    for(let i = 1; i < 4; i++) ctx.lineTo(jp[i].x, jp[i].y);
+    ctx.closePath(); ctx.stroke();
+    if(lit2) rmDisc(-2.9, (dz0 + dz1) / 2, 0.85, 0.01,
+                    'rgba(255,200,120,0.15)');                 // spill
   }
 
   /* --- furniture, per archetype — all in meters --- */
@@ -38621,10 +40301,22 @@ function sfCamWatch(id){
   if(!view) return null;
   if(view.mode === 'street'){
     SF_VIEW = 'street';
+    /* v81: keep the screen's live smoothed pose (_sx/_syaw/...) — the
+       view record persisted its own, and restoring it would teleport the
+       rig to where the feed was parked instead of gliding there from
+       where the spectator is looking now. */
+    const keepS = {};
+    for(const k in SF_CAM) if(k[0] === '_') keepS[k] = SF_CAM[k];
     Object.assign(SF_CAM, view.sfCam);
+    for(const k in keepS) SF_CAM[k] = keepS[k];
     SF_CAM.director = !!view.sfCam.director;
     if(view.follow != null) inspectedPawnIdx = view.follow;
-    sfCamSnap();
+    /* v81: no snap — switching feeds is a camera MOVE, not a teleport.
+       The spring rig glides from the current pose to the parked feed's
+       framing (~0.5s at kRig 6.5), like a director's cut handled by a
+       jib instead of a hard cut. First-time rigs still snap internally
+       (the _sx == null branch) so there's no fly-through-the-map on a
+       cold start. */
   } else {
     SF_VIEW = 'top';
     if(view.follow != null){ inspectedPawnIdx = view.follow; SF_CAM_FREE = false; }
