@@ -1082,6 +1082,18 @@ needs both.
 | plant_child_mult / scaffold_unit | 1.0 / 0.02 | 2.6 / 0.15 | encodeAge<8 plant multiplier + per-true-detail scaffold (v5.26) |
 | deja_thresh / deja_age_slope / deja_cool | 0.6 / 0.2 / 14 | 0.9 / 0.8 / 90 | déjà-vu config gate / age decline / sim-day cooldown (v5.26) |
 | source_poison_k / poison_radius | 0.1 / 0.2 | 0.5 / 0.6 | caught-lie audit magnitude + simOp retro radius (v5.26) |
+| blunt_avoid_k / blunt_intr_k / blunt_retell_omit | 0.0 / 0.0 / 0.0 | 0.3 / 0.15 / 0.2 | blunting intake filter + intrusion suppression + topic avoidance (v5.27) |
+| blunt_recall_operand | 0.3 | 1.2 | blunt weight inside the vigil recall operand (v5.27) |
+| immig_lo / immig_hi | −6 / 8 | 0 / 20 | second-bump window offsets around immig_age (v5.27) |
+| trans_shift / trans_ptr_k / joint_boost | 0.0 / 0.0 / 0.0 | 0.4 / 0.6 / 0.3 | shared-encode shift, pointer mint, partner-present restore (v5.27) |
+| collab_inhibit / collab_stab | 0.0 / 0.0 | 0.3 / 0.2 | recall-together drive cost + agreed-field drift reduction (v5.27) |
+| offload_k / ext_ptr_k | 0.0 / 0.0 | 0.5 / 0.6 | externalized-content encode cut + ext_pointer mint (v5.27) |
+| consol_yield_k / consol_sleep_k / consol_link_k | 0.0 / 0.0 / 0.0 | 0.3 / 0.3 / 0.15 | per-sleep yield, sleepFactor rescale, post-sleep linking (v5.27) |
+| navab_place_k / navab_reinstate_k / navab_link_k / navab_when_k / navab_interf_k / nav_layout_match | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.4 / 0.2 / 0.3 / 0.1 / 0.2 | nav ability: place weight, reinstate, route linking, when σ, new-route PI, topology match (v5.27) |
+| schz_src_k / schz_flip_k / schz_intr_k / schz_deja_k / schz_phantom_k | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.15 / 0.12 / 0.15 / 0.03 | schizotypy reality-monitoring leak bundle (v5.27) |
+| hypnot_gain / hypnot_yield / hypnot_conf | 0.0 / 0.0 / 0.0 | 0.6 / 0.15 / 0.15 | gated-to-guided-imagery hypnotizability legs (v5.27) |
+| mnem_link_k / mnem_beta_k / mnem_place_k / mnem_search_k | 0.0 / 0.0 / 0.0 / 0 | 0.6 / 0.4 / 0.3 / 3 | deliberate-context mnemonic gains (v5.27) |
+| tot_nondom_k / tot_cognate_rescue | 0.0 / 0.0 | 0.1 / 0.05 | nondominant-language TOT tax + cognate rescue (v5.27) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3843,3 +3855,70 @@ deja_age_slope scaling). Bible-facing notes:
   weakened ≠ unspeakable — a main can keep repeating a
   claim they no longer quite believe. Write the
   double-entry: the ledger thins while the mouth continues.
+
+## 61. v5.27 note (individual-differences VII — where the memory lives)
+
+Twelve clamp rows added in §0. **Eight new traits**
+(`blunt`, `trans_dep`, `offload`, `consol`, `nav_ab`,
+`schizotyp`, `hypnot`, `mnem`) and **five bible-set fields**
+(`immig_age`, `grew_rural`, `home_layout`, `dominantLang`,
+`trans_partner`). Bible-facing notes:
+
+- **The blunter is not the calm one (§77):** `blunt` is
+  bipolar against `vigil` — a high-blunt main takes in less
+  threat material (warnings, medical news, "we need to
+  talk"), intrudes on it less, and doesn't bring it up,
+  while staying every bit as anxious underneath. Do not
+  write a blunter as fearless; write them as someone who
+  never read the letter.
+- **The immigrant's bump moved (§78):** set `immig_age` on
+  immigrant mains and their life-distribution gets a second
+  dense window around the transition — dense, not hotter
+  (the records are numerous, not more emotional). Pair it
+  with `dominantLang`/`langs`: pre-immigration memories cue
+  better in L1 — the grandmother's childhood comes back in
+  Spanish whether or not the conversation does.
+- **Couples divide the remembering (§79):** `trans_dep` +
+  `trans_partner` makes shared events mint `pointer` fields
+  instead of full content — "she handles the dates." Kill
+  or remove the partner and the pointers orphan:
+  `orphan_recall` — reaching for a memory half that is no
+  longer there. The widower who can't say what year they
+  moved in is not failing to grieve; the storage is gone.
+- **The phone is a memory (§80):** high-`offload` mains
+  encode `ext_pointer` fields (photo roll, chat thread)
+  instead of content on `externalized` events. `lookup`
+  resolves perfectly — the phone never misremembers — but
+  teaches nothing on first use. Lose the phone and the
+  pointers die: the character knows a photo exists and has
+  nothing else.
+- **Same night, different yield (§81):** `consol` separates
+  sleep quantity (`sleep`) from consolidation yield — two
+  mains on identical 7-hour nights bank different amounts
+  of yesterday. Invisible at bedtime; visible at breakfast.
+- **Grids reward the grid-raised (§82):** `nav_ab` +
+  `home_layout`/`grew_rural` — the Mission's street grid
+  literally encodes better in a grid-raised main. A
+  rural-raised newcomer gets lost in places she remembers
+  perfectly once she's there.
+- **The leaky monitor (§83):** `schizotyp` leaks
+  source-monitoring both directions — said→thought and
+  imagined→performed — plus more intrusions and déjà vu.
+  Distinct from `fantasy` (inflation) and `asd`
+  (self/other confusion with few phantoms): schizotyp is
+  the "did I say that or just think it" texture at normal
+  hit-rates.
+- **Hypnotizability stays in its cage (§84):** `hypnot`
+  loads ONLY under `guided_imagery`/`authoritative`
+  contexts — the literature is contested, so outside the
+  gate the trait is inert. If a playtest shows an ungated
+  difference, it's a bug; if the field goes null, the trait
+  joins birth_order and learn_style.
+- **Skill, not superpower (§85):** `mnem` only fires on
+  `deliberate:true` encoding — the mnemonist's grocery list
+  is mighty, her drunk Tuesday is ordinary. Bible pin for
+  the bartender who memorizes every regular's order: it
+  buys nothing at the party.
+- **The tip of which tongue (§86):** bilingual mains pay a
+  TOT tax only in their nondominant language — the fluent
+  abuela blanks on English names, not Spanish ones.

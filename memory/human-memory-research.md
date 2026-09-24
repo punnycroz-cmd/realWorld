@@ -2911,3 +2911,62 @@ Nine credibility-layer mechanisms; probe registry P825–P834:
   and the Wade belief/memory recode); magnitudes, age
   increments, promotion shares, the retro-poison leg, and
   all field mechanizations are RW HYPOTHESES.
+
+## 57. Addendum — v79 anchors (individual-differences VII, spec v5.27)
+
+Sources backing Part VII of `individual-differences.md`
+(§§77–86) and probes P835–P846.
+
+- **Monitoring-blunting (§77):** Miller 1980 (the MBS
+  construct); Miller & Mangan 1983. CONSENSUS that the
+  coping-style dimension exists and is bipolar-ish; our
+  bipolar single-axis reading vs two separable subscales is
+  a simplification flagged in §91.
+- **Immigration bump (§78):** Schrauf & Rubin 1998 (*JML*
+  39:437 — verified this pass: bump follows immigration
+  age; ~20% of memories recalled internally in the
+  non-session language, partitioned by migration);
+  Schrauf & Rubin 2000 (*ACP* — bump-era memories not more
+  detailed/emotional: distribution, not tagging).
+  CONSENSUS relocation; window-width fit HYPOTHESIS.
+- **Transactive memory (§79):** Wegner 1987; Wegner, Erber
+  & Raymond 1991 (*JPSP* 61:923 — verified: natural couples
+  beat impromptu pairs without structure, lose WITH
+  assigned structure); Weldon & Bellinger 1997 (*JEP:LMC*
+  23:1160 — verified collaborative inhibition + group
+  stability). orphan_recall = RW HYPOTHESIS formalizing
+  bereavement reports.
+- **Cognitive offloading (§80):** Sparrow, Liu & Wegner
+  2011 (*Science* 333:776 — verified: access expectancy →
+  lower content recall, higher where-recall); Risko &
+  Gilbert 2016 (*TiCS* 20:676); Henkel 2014
+  (point-and-shoot impairment). First-lookup no-rehearsal
+  rule is RW HYPOTHESIS.
+- **Consolidation yield (§81):** Gais, Mölle, Helms & Born
+  2002; Schabus et al. 2004 — spindle/yield individual
+  differences. CONSENSUS direction; the two-multiplier
+  mechanization flattens sleep-stage physiology.
+- **Navigation ability (§82):** Coutrot et al. 2018
+  (*Curr. Biol.* — Sea Hero Quest, ~2.5M); Coutrot et al.
+  2022 (*Nature* — verified, N=397,162, rural advantage +
+  street-entropy topology match). navab_interf_k DEBATED.
+- **Schizotypy (§83):** Peters et al. 2007 (*J. Nerv.
+  Ment. Dis.* — verified: imagined→performed confusions,
+  WMC controlled); Larøi et al. 2005; 2022 SM meta (44
+  studies — internal-SM/imagined-stimuli impairment);
+  Steel et al. 2005 (intrusion vulnerability).
+- **Hypnotizability (§84):** Heaps & Nash 1999 (*Psychon.
+  Bull. Rev.* — verified: inflation ~ hypnotic
+  suggestibility + dissociativity, NOT interrogative
+  suggestibility); Barnier & McConkey 1992; Sheehan et al.
+  1991; Wagstaff sociocognitive counterline (verified —
+  accuracy-framed highs MORE resistant). DEBATED overall;
+  hence the context lock.
+- **Mnemonic training (§85):** Maguire et al. 2003; Dresler
+  et al. 2017 (*Neuron* 93:1227 — verified 6-week durable
+  gain); Wagner et al. 2021 (*Sci. Adv.* 7:eabc7606 —
+  verified durability leg).
+- **Bilingual TOT (§86):** Gollan & Acenas 2004 (*JEP:LMC*
+  30:246 — verified: more TOTs on noncognates, cognate
+  rescue, per-language activation mechanism); Gollan &
+  Silverberg 2001.

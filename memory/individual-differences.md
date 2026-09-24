@@ -2960,3 +2960,604 @@ learn_style·*     0.0    (mandated — see §71)
 - The two mandated nulls (birth_order, learn_style) now
   bracket the trait layer: it can represent "everything" and
   "nothing," and the nothing is load-bearing.
+
+---
+
+# Part VII — v79: the seventh axis of difference (where the
+# remembering lives — offloaded, shared, shifted; and the
+# coping styles that refuse the channel)
+
+Parts I–VI built the trait layer from ability, affect,
+metacognition, neurodivergence, clinical phenotypes, and the
+two tails. Part VII attacks the dimension all six skirted:
+**where the memory physically lives**. Human memory is
+distributed — into other people (transactive systems),
+devices (cognitive offloading), geography (navigation
+ability, the immigrant's re-anchored bump), and practice
+(trained mnemonics, per-sleep consolidation yield). The
+remaining axes cover the two ways a mind can *refuse* a
+channel (blunting vs vigilance's hypervigilance; the
+schizotypal reality-monitoring leak; the contested
+hypnotizability link) and one bilingual cost that was never
+priced.
+
+New traits: `blunt`, `trans_dep`, `offload`, `consol`,
+`nav_ab`, `schizotyp`, `hypnot`, `mnem`. New demographic
+fields (bible-set, not σ-traits): `immig_age`, `grew_rural`.
+No deletions.
+
+## 77. `blunt` — the coping style that looks away
+
+Miller's monitoring-blunting construct (Miller 1980 —
+"When is a little information a dangerous thing?"; Miller &
+Mangan 1983 — blunters under monitored vs distracting
+conditions) is the missing mirror of `vigil` (§24). Vigil is
+threat-channel *hypervigilance*; blunters are the documented
+opposite pole: they self-select OUT of threat information —
+less intake, less arousal, less memory for threat-relevant
+material, WITHOUT being low-anxious people. The distinction
+that matters for RW: neurot is how loudly the alarm rings;
+blunt/vigil is whether the person faces the siren or the
+wall.
+
+- `blunt` σ ∈ [−3, +3] (+ = blunting pole; −σ degenerates
+  toward monitoring/vigil behavior — the scale is bipolar in
+  the literature). r(vigil) −0.5 (the same axis's two poles —
+  CONSENSUS direction: the MBS scale was built bipolar);
+  r(neurot) ≈ −0.1 (orthogonal to distress level — the
+  construct's whole point).
+- Loadings: on records the event layer tags
+  `anticipThreat:true` (warnings, medical news, "we need to
+  talk"): `w_emo_neg ×(1 − blunt_avoid_k·blunt)` (0.12 —
+  intake is shallow); `intrusion_thresh += 0.04·blunt` on
+  threat-cued records (the trace exists but doesn't
+  spontaneously resurface); retell_omit ↑ on threat topics
+  for +blunt characters (they don't bring it up — behavior,
+  not storage). Recall-side drive: Mitte's recall bias
+  (§24) is *reversed* for +blunt — `vigil_recall_bias` term
+  uses `(vigil − 0.8·blunt)` as its effective operand.
+- Explicit nulls: `blunt → beta_*` = 0; `blunt → E` on
+  non-threat records = 0; `blunt → suggs` = 0 (avoidance is
+  not compliance). A blunter who DOES encode a threat record
+  keeps it normally — the filter is at the door.
+
+## 78. `immig_age` — the bump that moved
+
+The reminiscence bump is not nailed to adolescence.
+Schrauf & Rubin (1998, JML 39:437 — verified: 12 adult
+immigrants, bump followed age at immigration and settlement,
+not ages 10–30) and Schrauf & Rubin (2000, ACP — life-story
+narratives: recall increase centered on immigration age;
+immigration memories themselves not rated more emotional or
+detailed — the effect is distribution, not tagging) show a
+*second* bump anchored to the life transition. The cognitive
+account (novelty + effort-after-meaning + release from
+proactive interference at settlement) is exactly what our
+bump machinery already prices — we just let it anchor twice.
+
+- `immig_age` ∈ {null, 10..70} — bible-set demographic field
+  (null = native-born; the Mission's immigrant cast members
+  get a real, documented memory-distribution signature).
+- Model: the bump window becomes the UNION of
+  [bump_lo, bump_hi] and [immig_age − 3, immig_age + 12] —
+  the second window carries the same `bump_beta_mult` and
+  `bump_self_thresh` gates. `lang` field (§11) does the
+  split: pre-immigration records overwhelmingly in L1,
+  post-immigration increasingly in L2 — so the
+  `lang_mismatch` cost (v1.9) partitions the character's
+  own past by language, and Marian & Neisser-style probes
+  (§11/P174) hit a real boundary. [CONSENSUS that the bump
+  relocates; window width ±3/+12 is our HYPOTHESIS fit.]
+- Explicit nulls: `immig_age → beta_*` = 0 outside windows;
+  `immig_age → valence/arousal tagging` = 0 (Schrauf & Rubin
+  2000's own null — the era is dense, not hotter).
+
+## 79. `trans_dep` — the memory that lives in the partner
+
+Wegner's transactive memory (Wegner 1987; Wegner, Erber &
+Raymond 1991 — verified: couples outperform impromptu pairs
+only when left to their natural division of memory labor;
+assigned structure *hurts* real couples) is the strongest
+existence proof that "where information lives" is a
+person-level parameter, not a fact about the world. The
+counterweight is collaborative inhibition (Weldon &
+Bellinger 1997 — verified: collaborative dyads recall LESS
+than pooled-nominal dyads — retrieval strategy disruption);
+the two effects coexist: partners store pointers to each
+other AND recall-alone beats recall-together.
+
+- `trans_dep` σ ∈ [−3, +3]; r(attach_anx) +0.2, r(extra)
+  +0.15, r(social) +0.25. Trait = habitual reliance on a
+  designated partner as external store.
+- Model: a profile may carry `trans_partner:<charId>`
+  (world-builder sets on couples/long roommates). On events
+  tagged `shared:true` with partner present, content fields
+  encode at `×(1 − trans_shift·trans_dep)` (0.15) while a
+  `pointer` field mints at `+0.3·trans_dep` — "she'll
+  remember the reservation." Pointer fields cue
+  `askPartner` retrieval: joint-recall (`cueContext.
+  partnerPresent:true`) restores the deficit with bonus
+  `joint_boost` (0.1); solo recall gets the content penalty
+  bare.
+- Collaborative inhibition leg: `cueContext.recallTogether`
+  applies `collab_inhibit` (0.12) drive penalty to BOTH
+  members — but its variance-reduction is a benefit the
+  spec prices as `collab_stab` (drift_p ↓ on agreed fields —
+  Weldon's "group recall more stable over time").
+- **Bereavement/breakup edge (the drama):** partner exit
+  (`trans_partner` cleared or `partner_lost:true` event)
+  leaves orphaned pointer fields — records whose content was
+  never written. These produce the signature emission
+  `orphan_recall` ("I keep reaching for her half of the
+  memory"): retrieval attempts that resolve pointers to
+  absent partners emit sparse content + high FOK with no
+  resolution. The widower's amnesia is structural, not
+  psychodynamic. [CONSENSUS for transactive storage; the
+  orphan-recall phenotype is documented bereavement folklore
+  formalized — HYPOTHESIS.]
+
+## 80. `offload` — the phone remembers so you don't have to
+
+Sparrow, Liu & Wegner (2011, Science 333:776 — verified:
+expecting future access to information lowers recall of the
+information and raises recall of WHERE to get it) plus the
+offloading literature (Risko & Gilbert 2016 — intention
+offloading to external store reduces internal memory;
+camera/photo work: Henkel 2014 "point-and-shoot" memory
+impairment for photographed objects) establish a modern,
+Mission-plausible axis: habitual externalization.
+
+- `offload` σ ∈ [−3, +3]; r(inattn) +0.2, r(consc) −0.15
+  (weak — offloaders are not less conscientious, differently
+  conscientious).
+- Model: events the world tags `externalized:true` (photo
+  taken, address saved, message sent) get `E_content
+  ×(1 − offload_k·offload)` (0.2) but mint a durable
+  `ext_pointer` field (where it's stored — photo roll, chat
+  thread, contact card) at `+0.3·offload`. The pointer is a
+  semantic-tier fact, not episodic — it survives beta_episodic
+  decay.
+- Retrieval: `ext_pointer` resolves via `lookup` op (world-
+  mediated, cheap, perfect recall of the EXTERNAL content —
+  the phone doesn't misremember); but records consulted via
+  lookup gain NO retell_boost rehearsal credit on first
+  lookup — the familiar finding that looking something up
+  is not remembering it. Second+ lookups of the same pointer
+  DO start accruing rehearsal (repeated consultation
+  internalizes — HYPOTHESIS but the only sane rule).
+- **Loss edge:** `pointer_dead:true` (phone lost, account
+  deleted, chat history wiped) orphans ext_pointers — same
+  orphan_recall machinery as §79, device flavor. The
+  character knows there WAS a photo and nothing more.
+  [CONSENSUS for the where-vs-what split; loss-edge
+  phenomenology is HYPOTHESIS.]
+- Explicit nulls: `offload → enc_base` = 0 on non-
+  externalized events (Sparrow: the deficit is conditional
+  on expected access, not global); `offload → beta_*` = 0;
+  `offload → misinfo_suscept` = 0.
+
+## 81. `consol` — sleep yield, not sleep quantity
+
+`sleep` (§2.10) is how well a character sleeps; `consol` is
+how much memory a unit of sleep buys. The literature
+separates them: sleep spindle density/activity correlates
+with overnight memory retention beyond sleep duration
+(Gais, Mölle, Helms & Born 2002 — spindle activity after
+learning predicts retention; Schabus et al. 2004 — spindles
+differ between good and poor declarative-memory sleepers);
+and nappers/non-nappers differ in nap benefit (Mednick's
+lab). Two characters on identical 7-hour nights bank
+different amounts of yesterday.
+
+- `consol` σ ∈ [−3, +3]; r(sleep) +0.35 (good sleepers tend
+  to consolidate better — partial, not identical);
+  r(aging_rate) −0.15 (consolidation yield is an aging
+  slope component).
+- Loadings: `consol_beta_mult ×(1 − 0.12·consol)` (the
+  decay rate during the consolidation window — high-consol
+  records emerge from the first sleep already tougher);
+  `sleepFactor` gain per unit `sleepQuality` rescaled
+  `×(1 + 0.1·consol)` (same night, more yield); small
+  `link_p ·+0.05/σ` on records born one sleep ago (the
+  overnight integration leg — HYPOTHESIS).
+- Explicit nulls: `consol → E` = 0 (encoding is the same
+  before the first sleep); `consol → theta` = 0;
+  `consol → wake-time params` = 0 — it operates only inside
+  consol_window_days machinery (v0.1). The trait is
+  invisible in evening behavior; it shows up as what
+  survived the night.
+
+## 82. `nav_ab` / `grew_rural` — the map in the head
+
+v76 gave records a `nav_mode` (allo/ego style). This is the
+ability axis underneath the style. Coutrot et al. (2018,
+Curr. Biol. — Sea Hero Quest, ~2.5M players: navigation
+ability declines with age from early adulthood, male
+advantage, national differences) and Coutrot et al. (2022,
+Nature — verified: 397k participants; grew-up-outside-
+cities advantage; people navigate best in environments
+topologically similar to where they grew up — grid-city
+kids ace grids, organic-city kids ace entropic layouts) give
+the largest-N individual-differences dataset in cognition.
+The Mission District is a *grid* — a rural-raised main and
+a Manhattan-raised main literally differ in which
+neighborhoods their memories encode cleanly.
+
+- `nav_ab` σ ∈ [−3, +3]; r(sex=m) ≈ +0.15 (small male
+  advantage — CONSENSUS direction, Coutrot 2018), r(gc) ≈
+  +0.1, uncorrelated with face_ability (route memory ≠
+  face memory).
+- `grew_rural` ∈ {0,1} bible field + `home_layout ∈
+  {grid, organic}` (the childhood street topology): match
+  bonus `nav_layout_match` (0.08) on place-cue weights when
+  current venue topology matches home_layout — the
+  Mission's grids reward the grid-raised.
+- Loadings: `w_place +0.08/σ` and `place_reinstate
+  ×(1 + 0.15·nav_ab)` (better navigators get more out of
+  matched-place cues — reinstatement is the use of the
+  map); `link_p` on route/journey records +0.08/σ;
+  `whenEstimate` σ ×(1 − 0.1·nav_ab) on route-anchored
+  records (the map carries a timeline — HYPOTHESIS);
+  retroactive `interf_k` on NEW-route records `−0.02/σ`
+  (good navigators assimilate remapped streets — DEBATED).
+- Explicit nulls: `nav_ab → face/people params` = 0;
+  `nav_ab → beta_*` = 0 on non-place records; `nav_ab →
+  episodic E` = 0 — a lost character still remembers the
+  evening; she just can't retell where it happened.
+
+## 83. `schizotyp` — the reality-monitoring leak
+
+`fantasy` (§2.9) is imagination *inflation* — imagined
+things gain believed-past status. Positive schizotypy is a
+different defect: reality/source monitoring itself leaks —
+performed-vs-imagined and self-vs-other confusions in BOTH
+directions (Peters, Smeets, Giesbrecht, Jelicic &
+Merckelbach 2007 — verified: high schizotypy scorers
+falsely claimed to have PERFORMED acts they only imagined;
+Larøi, Collignon & Van der Linden 2005; 2022 meta-analysis
+44 studies: internal source-monitoring and imagined-stimuli
+SM specifically impaired, SMD ~0.5–0.7; Steel et al. 2005 —
+intrusion-proneness account). Importantly, WMC deficits do
+NOT explain it (Peters 2007 controlled) — so `schizotyp`
+loads on source_confuse, not on wmc.
+
+- `schizotyp` σ ∈ [0, +3] (one-tailed — the literature is
+  on the positive dimension); r(fantasy) +0.4, r(dissoc)
+  +0.3, r(neurot) +0.2.
+- Loadings: `source_confuse += schz_src_k·schizotyp` (0.08)
+  — and crucially `source_confuse_flip` operates
+  BIDIRECTIONALLY here: imagined→performed flips AND
+  said→thought, heard→imagined reverse flips (internal SM
+  deficit — the "did I say that out loud?" character);
+  `intrusion_thresh −0.04·schizotyp` (Steel's intrusion
+  vulnerability); `deja_thresh −= 0.05·schizotyp` (familiarity
+  without identification is a documented schizotypal
+  experience channel — Steel 2005); `phantom_p +0.008/σ`
+  small.
+- Explicit nulls: `schizotyp → wmc` = 0 (Peters 2007's own
+  control); `schizotyp → beta_*` = 0; `schizotyp → E` = 0.
+  Storage is fine; the attribution layer is porous.
+- Boundary vs `asd` (§22): asd's source_confuse is
+  self/other-detail confusion with *reduced* gist phantoms;
+  schizotyp is internal/external reality monitoring with
+  *normal-to-elevated* phantoms. The two signatures are
+  deliberately distinguishable in probes.
+
+## 84. `hypnot` — the contested channel (priced, flagged)
+
+Hypnotic susceptibility's link to false memory is REAL but
+messier than folklore: imagination inflation correlates with
+hypnotic (not interrogative) suggestibility (Heaps & Nash
+1999 — verified: inflation associated with hypnotic
+suggestibility and dissociativity, NOT imagery vividness or
+interrogative suggestibility); Barnier & McConkey 1992 and
+Sheehan, Statham & Jamieson 1991 report more false memories
+in highs under hypnosis-era procedures. BUT: Wagstaff's
+sociocognitive line (verified: when accuracy is emphasized,
+high hypnotizables can be MORE resistant), and the large
+"no false-memory trait" result (Patihis et al. line —
+correlations between false-memory tasks are near-null) cap
+the loading hard. We price a *context-locked* effect only:
+guided-imagery + authoritative framing is where the trait
+shows.
+
+- `hypnot` σ ∈ [0, +3] (scale is one-tailed); r(fantasy)
+  +0.45, r(suggs) +0.15 (hypnotic ≠ interrogative
+  suggestibility — Heaps & Nash's own dissociation),
+  r(dissoc) +0.3.
+- Loadings (ALL gated to `cueContext.guided_imagery:true`
+  or `authoritative:true` accounts — outside those contexts
+  the trait is inert): `imagine_gain ×(1 +
+  hypnot_gain·hypnot)` (0.25 under guidance only);
+  `misinfo_suscept += hypnot_yield·hypnot` (0.05, gated);
+  `conf_out += 0.06·hypnot` on guided-imagery-derived
+  reconstructions (highs report the production confidently).
+- Explicit nulls (this is where we bank the controversy):
+  `hypnot → misinfo_suscept` outside gated contexts = 0;
+  `hypnot → beta_*` = 0; `hypnot → E` = 0;
+  `hypnot → suggs-channel Shift` = 0 (Heaps & Nash
+  dissociation is load-bearing).
+- If the literature continues to weaken, the fix is to
+  zero `hypnot_gain` — the field remains as a bible pin
+  with mandated-null semantics, joining birth_order and
+  learn_style. [DEBATED — the most contested loading we
+  ship.]
+
+## 85. `mnem` — trained memory is a skill, not a brain
+
+Memory athletes are made, not born: Maguire et al. (2003 —
+memory champions show no superior general memory or brain
+anatomy; they use spatial/navigational strategies) and
+Dresler et al. (2017, Neuron — verified: 6-week
+method-of-loci training in naive subjects produced
+athlete-like network changes and durable gains at 4 months;
+Wagner et al. 2021, Sci. Adv. — verified: training enhanced
+DURABLE memory formation specifically) say the advantage is
+a *strategy* that can be acquired and is bound to the
+practiced material. So `mnem` is a training flag that
+re-routes encoding through spatial channels — cheap, honest,
+and it gives world-builder "the character who memorizes the
+regulars' orders" without superpowers.
+
+- `mnem` σ ∈ [0, +2] (acquired dose, bible-set; 0 = naive);
+  r(gc) +0.15, r(consc) +0.2 (training adherence),
+  r(nav_ab) +0.2 (the technique IS spatial).
+- Loadings (gated to `deliberate:true` encoding contexts —
+  studying, rehearsing a list, memorizing the specials):
+  `link_p ×(1 + 0.25·mnem)` on deliberate records;
+  `w_place cue contribution +0.1·mnem` at retrieval of
+  deliberate records (route reinstatement is the technique);
+  `beta_episodic ×(1 − 0.15·mnem)` on deliberate records only
+  (Wagner 2021's durability leg); `search_breadth +1·mnem`
+  (systematic search replaces hopping).
+- Explicit nulls: `mnem → incidental encoding` = 0 (the
+  strategy must be deployed — athletes at breakfast are
+  ordinary); `mnem → theta` = 0; `mnem → misinfo_suscept` =
+  0; `mnem → face/name learning absent deliberate effort`
+  = 0. The champion's grocery list is mighty; her drunk
+  Tuesday is not.
+
+## 86. The bilingual tax that was never priced — TOTs
+
+Gollan & Acenas (2004, JEP:LMC 30:246 — verified: bilinguals
+suffer MORE tip-of-the-tongue states than monolinguals on
+non-cognate targets; cognate/translation rescue effects;
+mechanism = weaker language-specific activation, NOT cross-
+language interference) document the one reliable bilingual
+memory *cost*. It was absent from §11 (which modeled only
+encoding-language cue match).
+
+- No new trait — `langs ≥ 2` gains a loading row:
+  `tot_rate += 0.03` when the retell/report channel is the
+  character's NONDOMINANT language (world supplies
+  `cueContext.reportLang` + profile `dominantLang`); cognate-
+  dense content partially rescues (`tot_rate −= 0.01` when
+  `cueContext.cognate_ok:true` — a fiction-safe flag the
+  world can set on Spanish/English name-adjacent content).
+- Explicit nulls: `langs≥2 → tot_rate` in the DOMINANT
+  language = 0 (the deficit is language-specific — Gollan's
+  mechanism is per-language activation); `langs≥2 →
+  tot_resolution` = 0 (TOTs resolve at normal rates; the
+  tax is incidence, not duration).
+
+## 87. Extended trait vector and R additions (Part VII)
+
+```json
+IndivTraits += {
+  "blunt":     0.0,   // §77 — monitoring(−)/blunting(+) pole
+  "trans_dep": 0.0,   // §79 — reliance on partner-as-store
+  "offload":   0.0,   // §80 — digital externalization habit
+  "consol":    0.0,   // §81 — per-sleep consolidation yield
+  "nav_ab":    0.0,   // §82 — spatial navigation ability
+  "schizotyp": 0.0,   // §83 — reality-monitoring leak [0,3]
+  "hypnot":    0.0,   // §84 — hypnotic susceptibility [0,3]
+  "mnem":      0.0,   // §85 — acquired mnemonic skill [0,2]
+  // demographic fields (bible-set, not σ-traits):
+  "immig_age":  null, // §78 — age at immigration, null=born-here
+  "grew_rural": 0,    // §82 — childhood outside cities
+  "home_layout": "grid" // §82 — {grid, organic} street topology
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+blunt·vigil        −0.50  (bipolar scale — CONSENSUS dir., MBS)
+blunt·neurot       −0.10  (avoidance ≠ calm — near-orthogonal)
+trans_dep·attach_anx +0.20
+trans_dep·extra    +0.15
+trans_dep·social   +0.25
+offload·inattn     +0.20
+offload·consc      −0.15
+consol·sleep       +0.35  (sleep quantity ↔ yield — partial)
+consol·aging_rate  −0.15
+nav_ab·sex         +0.15  (m direction — CONSENSUS, Coutrot 2018)
+nav_ab·mnem        +0.20  (the technique is spatial)
+schizotyp·fantasy  +0.40
+schizotyp·dissoc   +0.30
+schizotyp·neurot   +0.20
+hypnot·fantasy     +0.45  (CONSENSUS direction — Heaps & Nash)
+hypnot·suggs       +0.15  (deliberately small — dissociation)
+hypnot·dissoc      +0.30
+mnem·consc         +0.20
+mnem·gc            +0.15
+immig_age·*        0.0    (demographic — no σ correlations)
+grew_rural·nav_ab  +0.25  (Coutrot 2022 — CONSENSUS direction)
+```
+
+## 88. Loading table additions (rows beyond §73)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| blunt | w_emo_neg on anticipThreat records | ·−0.12/σ | CONSENSUS dir. (Miller 1980/1983) |
+| blunt | intrusion_thresh on threat-cued | +0.04/σ | CONSENSUS dir. |
+| blunt | vigil_recall_bias operand | uses (vigil − 0.8·blunt) | HYPOTHESIS form |
+| blunt | retell_omit on threat topics | +0.05/σ | HYPOTHESIS |
+| immig_age | bump window | + [a−3, a+12] second window | CONSENSUS (Schrauf & Rubin 1998/2000) |
+| trans_dep | content-E on shared w/ partner | ·−0.15/σ | CONSENSUS dir. (Wegner 1991) |
+| trans_dep | pointer-field mint | +0.3/σ | CONSENSUS dir. |
+| trans_dep | joint_boost (partnerPresent) | +0.1/σ | CONSENSUS dir. |
+| (all) | collab_inhibit (recallTogether) | 0.12 flat | CONSENSUS (Weldon & Bellinger 1997) |
+| (all) | collab_stab (drift ↓ on agreed) | −0.05 flat | CONSENSUS dir. |
+| offload | E_content on externalized | ·−0.20/σ | CONSENSUS (Sparrow 2011) |
+| offload | ext_pointer mint | +0.3/σ | CONSENSUS (Sparrow 2011) |
+| offload | first-lookup rehearsal credit | 0 (no retell_boost) | HYPOTHESIS rule |
+| consol | consol_beta_mult | ·−0.12/σ | CONSENSUS dir. (Gais 2002; Schabus 2004) |
+| consol | sleepFactor gain rescale | ×(1+0.1·consol) | CONSENSUS dir. |
+| consol | link_p (records born ≤1 sleep) | ·+0.05/σ | HYPOTHESIS |
+| nav_ab | w_place | +0.08/σ | CONSENSUS dir. |
+| nav_ab | place_reinstate | ·+0.15/σ | CONSENSUS dir. |
+| nav_ab | link_p on route/journey | +0.08/σ | CONSENSUS dir. |
+| nav_ab | whenEstimate σ on route-anchored | ·−0.10/σ | HYPOTHESIS |
+| nav_ab | interf_k on new-route records | −0.02/σ | DEBATED |
+| home_layout | w_place on matching topology | +0.08 (nav_layout_match) | CONSENSUS (Coutrot 2022) |
+| schizotyp | source_confuse | +0.08/σ | CONSENSUS (Peters 2007; 2022 meta) |
+| schizotyp | source_confuse_flip | BIDIRECTIONAL +0.06/σ | CONSENSUS (internal SM arm) |
+| schizotyp | intrusion_thresh | −0.04/σ | CONSENSUS dir. (Steel 2005) |
+| schizotyp | deja_thresh | −0.05/σ | CONSENSUS dir. |
+| schizotyp | phantom_p | +0.008/σ | DEBATED |
+| hypnot | imagine_gain (guided only) | ·+0.25/σ | CONSENSUS dir. (Heaps & Nash 1999) |
+| hypnot | misinfo_suscept (guided/auth only) | +0.05/σ | DEBATED (Wagstaff counterevidence) |
+| hypnot | conf_out on guided reconstructions | +0.06/σ | DEBATED |
+| mnem | link_p (deliberate:true) | ·+0.25/σ | CONSENSUS (Dresler 2017) |
+| mnem | beta_episodic (deliberate only) | ·−0.15/σ | CONSENSUS dir. (Wagner 2021) |
+| mnem | w_place cue at retrieval (deliberate) | +0.1/σ | CONSENSUS (Maguire 2003) |
+| mnem | search_breadth (deliberate recall) | +1/σ | HYPOTHESIS |
+| langs≥2 | tot_rate (nondominant reportLang) | +0.03 | CONSENSUS (Gollan & Acenas 2004) |
+| langs≥2 | tot_rate rescue (cognate_ok) | −0.01 | CONSENSUS (same) |
+
+## 89. New explicit nulls (Part VII's falsifiable edge)
+
+- `blunt → beta_*`, `blunt → E` on non-threat, `blunt →
+  suggs` = 0 (P835 — avoidance at the door, not the store).
+- `immig_age → beta_*` outside windows, `→ valence/arousal`
+  = 0 (P836 — distribution, not tagging).
+- `trans_dep → solo encoding`, `→ non-shared events` = 0
+  (P837 — the store split needs a partner to exist).
+- `offload → enc_base` on non-externalized, `→ misinfo` = 0
+  (P838 — the deficit is conditional on expected access).
+- `consol → E`, `→ theta`, `→ wake-time` = 0 (P839 —
+  invisible at night, visible in the morning).
+- `nav_ab → face/people`, `→ non-place beta_*` = 0 (P840).
+- `schizotyp → wmc` = 0 (Peters 2007's own null is our
+  lock), `→ beta_*`, `→ E` = 0 (P841).
+- `hypnot → anything outside guided/authoritative context`
+  = 0 (P842 — the contested channel stays in its cage).
+- `mnem → incidental encoding`, `→ theta`, `→ misinfo` = 0
+  (P843 — strategy must be deployed).
+- `langs≥2 → tot_rate` in dominant language = 0 (P844 —
+  the tax is language-specific).
+
+## 90. Falsifiable probes (P835–P846; validation-design §158)
+
+- **P835 the blunter's door (MUST — sign-locked):**
+  blunt=+1.5 vs −1.5 on matched anticipThreat events:
+  +blunt encodes fewer threat-field details and shows fewer
+  spontaneous threat-cued intrusions; recognition-mode
+  recovery of what WAS encoded is equal; non-threat events
+  identical in both arms (Miller's intake filter — a
+  difference on already-stored records FAILS).
+- **P836 the second bump (MUST):** immig_age=28 vs null
+  profiles, identical 70y lifespan event diet: recall
+  density shows a secondary mode at [25, 40] encodeAge only
+  in the immigrant arm; valence/arousal distributions of
+  the mode's records match the lifespan baseline (Schrauf &
+  Rubin 2000's own null); L1-cued retrieval of pre-28
+  records ≥1.4× L2-cued (the lang partition rides along).
+- **P837 borrowed halves (MUST):** trans_dep=+1.5 with
+  trans_partner set, on shared vs solo events: shared-event
+  content sparser + pointer fields minted; partnerPresent
+  recall restores content recall to ≥ solo-encode control;
+  partner_lost clears trans_partner → shared records emit
+  orphan_recall with high FOK and sparse content. A
+  trans_dep=−1.5 character on the same diet shows NO
+  pointer mints.
+- **P838 the camera ate the memory (MUST — conditional
+  lock):** offload=+1.5 vs −1.5, externalized vs
+  non-externalized event cells: the E deficit appears ONLY
+  in the externalized×high-offload cell; ext_pointer
+  survives +90d while sibling content fields decay;
+  lookup-mediated reports of the content are accurate but
+  first-lookup grants no retell_boost; pointer_dead →
+  orphan_recall.
+- **P839 the night's yield (MUST):** consol=+1.5 vs −1.5,
+  identical encoding day + identical sleepQuality: same-day
+  recall identical (E untouched), +1d recall diverges by
+  the consol_beta_mult loading, +7d ordering preserved;
+  wake-side params identical (the trait only operates
+  inside the consolidation window).
+- **P840 the wrong grid (SHOULD):** nav_ab=+1.5
+  home_layout=grid vs nav_ab=−1.5 home_layout=organic, both
+  living in the Mission's grid: place-cued recall and
+  place_reinstate gains favor the grid-matched profile;
+  route-anchored whenEstimate tighter in +nav_ab;
+  people/face recall identical across all four cells.
+- **P841 the leaky monitor (MUST — wmc null locked):**
+  schizotyp=+2 vs 0 at matched wmc: bidirectional
+  source_confuse_flip errors rise (imagined→performed AND
+  said→thought), intrusion and deja_vu rates rise; enc_base,
+  beta_*, and wmc-side params identical (Peters 2007's
+  control is the falsifier).
+- **P842 the gated channel (MUST — context lock):**
+  hypnot=+2 vs 0: under guided_imagery+authoritative arms,
+  imagine_gain and adoption diverge as priced; under plain
+  hearAccount arms the two profiles are IDENTICAL within
+  jitter — any ungated difference FAILS (the Wagstaff
+  hedge is structural).
+- **P843 the deployed strategy (MUST — gate-locked):**
+  mnem=+1.5 vs 0: deliberate-encode records show the
+  link_p/beta/w_place gains; incidental records from the
+  same session identical; deliberate gains persist at +120d
+  (Wagner durability); a mnem=+1.5 character who never
+  receives deliberate:true events is indistinguishable
+  from mnem=0.
+- **P844 the tip of which tongue (SHOULD):** langs={es,en}
+  dominantLang=es profile reporting in en vs es: tot_rate
+  elevated only in the nondominant arm; cognate_ok context
+  partially rescues; TOT resolution rate equal in both arms
+  (incidence tax, not duration tax).
+- **P845 pointer ecology (SHOULD):** a trans_dep=+1.5 AND
+  offload=+1.5 profile distributes a 100-event diet across
+  {full-encode, partner-pointer, ext-pointer} buckets; total
+  internally-held content is LOWER than either single-trait
+  profile, but joint/lookup-supported report accuracy is
+  comparable — the character is a router, not a store.
+- **P846 blunter vs vigil pole (OBSERVE):** the bipolar
+  blunt/vigil axis on threat events produces opposite
+  intrusion signatures (−pole hypervigilant texture per
+  §24, +pole silent texture per §77) with matched
+  non-threat behavior — report-only, no band.
+
+## 91. Part VII honest limits
+
+- The transactive and offloading legs model *storage
+  location* with pointer fields — the real phenomena include
+  directory-update and coordination-cost dynamics (Wegner's
+  three TMS components) we compress into one trait +
+  one partner field. The orphan_recall phenotype is our
+  formalization of bereavement reports, not a measured
+  quantity.
+- `consol`'s loadings ride the v0.1 consolidation window;
+  real spindle physiology interacts with age and sleep
+  staging in ways we flatten into two multipliers.
+- The hypnot channel is the weakest evidence we have ever
+  priced — the loading is small, context-locked, and one
+  replication verdict from becoming a third mandated null.
+  It stays because the dissociation (hypnotic ≠
+  interrogative suggestibility) is itself a documented
+  individual difference worth representing.
+- `immig_age`'s second window width (a−3 to a+12) is a fit
+  to Schrauf & Rubin's small-n distributions; the mechanism
+  (novelty + PI release) suggests the leading edge should
+  be sharper than the trailing — we did not model the
+  asymmetry.
+- `blunt` bipolarizes a construct the literature sometimes
+  treats as two separable dimensions (monitoring and
+  blunting subscales correlate imperfectly); the −0.5
+  vigil correlation encodes the bipolar reading. If
+  playtests want a high-monitor high-avoider, split the
+  axis — don't stretch it.
+- Pointer fields create a new record-shape the drift
+  catalog (§13.1) must classify: pointer/ext_pointer are
+  T-tier (tags) with write-once pointer targets — they
+  decay like verbatim but are never rewritten.

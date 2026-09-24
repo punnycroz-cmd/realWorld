@@ -7319,11 +7319,11 @@ P822 the asymmetry lock).
   unchanged; (d) weakened claims remain reportable
   (poison_reveal_null — store ≠ speech).
 
-Registry: P1–P834. v78 suite: P825–P834 — P825–P831, P833
-MUST; P832, P834 SHOULD. Locked-null arms: P825 (ordering +
-grow cap), P826 (frame/content), P827 (revert), P828
-(knowledge gate), P829 (store), P830 (episode), P833
-(store), P834 (reveal).
+Registry: P1–P846. v79 suite: P835–P846 — P835–P839, P841–P843
+MUST; P840, P844, P845 SHOULD; P846 OBSERVE. Locked-null arms:
+P835 (store), P836 (valence), P838 (global encode), P839
+(encode-side), P840 (face), P841 (wmc), P842 (ungated),
+P843 (passive), P844 (dominant language).
 
 ## 157. Sources verified this version (P825–P834 backing)
 
@@ -7412,3 +7412,149 @@ grow cap), P826 (frame/content), P827 (revert), P828
   belief/recollection promotion share, retro poisoning,
   field/flag operationalizations, and all locked-null
   mechanizations are RW HYPOTHESES.
+
+## 158. v79 probe specs (P835–P846 — individual-differences VII)
+
+- **P835 the blunter's door (MUST — sign-locked):**
+  blunt=+1.5 vs −1.5 on matched anticipThreat events:
+  +blunt encodes fewer threat-field details (blunt_avoid_k)
+  and shows fewer threat-cued intrusions; recognition-mode
+  recovery of encoded content equal; non-threat cells
+  identical (blunt_store_null — a difference on already-
+  stored records FAILS). Constrains blunt_avoid_k,
+  blunt_intr_k.
+- **P836 the second bump (MUST):** immig_age=28 vs null,
+  identical 70y event diet: recall density shows a
+  secondary mode inside [immig_age+immig_lo,
+  immig_age+immig_hi] only in the immigrant arm;
+  valence/arousal distributions inside the mode match the
+  lifespan baseline (immig_valence_null — hotter bump
+  FAILS); L1-cued pre-window recall ≥1.4× L2-cued.
+- **P837 borrowed halves (MUST):** trans_dep=+1.5 +
+  trans_partner set: shared events mint pointer fields and
+  encode less content; partnerPresent recall restores to
+  ≥ solo-encode control (joint_boost); partner_lost →
+  orphan_recall with high FOK + sparse content;
+  trans_dep=−1.5 mints zero pointers.
+- **P838 the camera ate the memory (MUST — conditional
+  lock):** offload=+1.5 vs −1.5 across externalized ×
+  non-externalized cells: E deficit only in the
+  externalized×high cell (offload_global_null — any
+  non-externalized difference FAILS); ext_pointer survives
+  +90d while sibling content decays; lookup reports
+  accurate, first lookup grants no retell_boost;
+  pointer_dead → orphan_recall.
+- **P839 the night's yield (MUST):** consol=±1.5, identical
+  encoding day + sleepQuality: same-day recall identical
+  (consol_encode_null), +1d diverges by consol_yield_k,
+  +7d ordering preserved; wake-side params identical.
+- **P840 the wrong grid (SHOULD):** nav_ab=+1.5/grid vs
+  −1.5/organic in the Mission grid: place-cued recall and
+  place_reinstate favor the grid-matched profile
+  (nav_layout_match); route-anchored whenEstimate tighter
+  in +nav_ab; people/face recall identical (nav_face_null).
+- **P841 the leaky monitor (MUST — wmc null locked):**
+  schizotyp=+2 vs 0 at matched wmc: bidirectional
+  source_confuse_flip errors rise (both directions must
+  move — one-directional FAILS), intrusion + deja_vu rates
+  rise; enc_base, beta_*, wmc params identical
+  (schz_wmc_null — Peters 2007's control is the falsifier).
+- **P842 the gated channel (MUST — context lock):**
+  hypnot=+2 vs 0: under guided_imagery+authoritative arms
+  imagine_gain/adoption diverge as priced; plain
+  hearAccount arms IDENTICAL within jitter —
+  hypnot_ungated_null FAILS on any ungated difference.
+- **P843 the deployed strategy (MUST — gate-locked):**
+  mnem=+1.5 vs 0: deliberate-encode records gain
+  link_p/beta/w_place/search_breadth legs; incidental
+  records identical (mnem_passive_null); deliberate gains
+  persist at +120d; mnem=+1.5 with zero deliberate:true
+  events indistinguishable from mnem=0.
+- **P844 the tip of which tongue (SHOULD):** langs={es,en},
+  dominantLang=es, reportLang en vs es: tot_rate elevated
+  only in nondominant arm (tot_dom_null — dominant-arm
+  elevation FAILS); cognate_ok partially rescues;
+  resolution rates equal (incidence tax, not duration).
+- **P845 pointer ecology (SHOULD):** trans_dep=+1.5 AND
+  offload=+1.5 distributes a 100-event diet across
+  {full-encode, pointer, ext_pointer}; internal content
+  LOWER than either single-trait profile; joint/lookup-
+  supported report accuracy comparable — router, not store.
+- **P846 blunter vs vigil pole (OBSERVE):** bipolar axis
+  produces opposite intrusion signatures on threat events
+  (−pole §24 texture, +pole §77 texture) with matched
+  non-threat behavior — report-only, no band.
+
+## 159. Sources verified this version (P835–P846 backing)
+
+- **Blunting (P835):** Miller 1980 ("When is a little
+  information a dangerous thing?" — monitoring-blunting
+  coping style); Miller & Mangan 1983. Anchors §77
+  `blunt_avoid_k`, `blunt_intr_k`, `blunt_store_null`.
+- **Immigration bump (P836):** Schrauf & Rubin 1998 (*JML*
+  39:437 — verified: bump followed age at immigration, not
+  10–30; language partitions pre/post records); Schrauf &
+  Rubin 2000 (*Appl. Cogn. Psychol.* — verified: era
+  memories not more detailed/emotional — distribution, not
+  tagging). Anchors `immig_lo/hi`, `immig_valence_null`.
+- **Transactive memory (P837):** Wegner 1987; Wegner, Erber
+  & Raymond 1991 (*JPSP* 61:923 — verified: natural couples
+  > impromptu pairs without assigned structure; assigned
+  structure hurts couples); Weldon & Bellinger 1997
+  (*JEP:LMC* 23:1160 — verified: collaborative inhibition;
+  group recall more stable over time). Anchors
+  `trans_shift`, `trans_ptr_k`, `joint_boost`,
+  `collab_inhibit`, `collab_stab`, `orphan_recall`.
+- **Offloading (P838):** Sparrow, Liu & Wegner 2011
+  (*Science* 333:776 — verified: expected access lowers
+  content recall, raises where-to-access recall); Risko &
+  Gilbert 2016 (*TiCS* 20:676 — intention offloading);
+  Henkel 2014 (camera/photo impairment). Anchors
+  `offload_k`, `ext_ptr_k`, `offload_global_null`,
+  `pointer_dead`.
+- **Consolidation yield (P839):** Gais, Mölle, Helms &
+  Born 2002 (spindle activity after learning predicts
+  retention); Schabus et al. 2004 (spindle differences in
+  good vs poor sleepers). Anchors `consol_yield_k`,
+  `consol_sleep_k`, `consol_encode_null`.
+- **Navigation (P840):** Coutrot et al. 2018 (*Curr. Biol.*
+  — Sea Hero Quest, age decline + small male advantage);
+  Coutrot et al. 2022 (*Nature* — verified, N=397,162:
+  rural-upbringing advantage; topology match — grid kids
+  ace grids). Anchors `navab_*`, `nav_layout_match`,
+  `nav_face_null`.
+- **Schizotypy (P841):** Peters, Smeets, Giesbrecht,
+  Jelicic & Merckelbach 2007 (*J. Nerv. Ment. Dis.* —
+  verified: performed/imagined source confusions, WMC
+  controlled out); Larøi, Collignon & Van der Linden 2005;
+  source-monitoring meta-analysis 2022 (44 studies —
+  internal SM + imagined stimuli specifically impaired);
+  Steel et al. 2005 (intrusion vulnerability account).
+  Anchors `schz_*`, `schz_wmc_null`.
+- **Hypnotizability (P842):** Heaps & Nash 1999 (*Psychon.
+  Bull. Rev.* — verified: imagination inflation correlates
+  with hypnotic suggestibility + dissociativity, NOT
+  vividness or interrogative suggestibility); Barnier &
+  McConkey 1992; Sheehan, Statham & Jamieson 1991;
+  Wagstaff sociocognitive counterline (accuracy-emphasized
+  highs more resistant — why all loadings are
+  context-locked). Anchors `hypnot_*`,
+  `hypnot_ungated_null`.
+- **Mnemonics (P843):** Maguire et al. 2003 (*Nat.
+  Neurosci.* — champions: strategy, not anatomy);
+  Dresler et al. 2017 (*Neuron* 93:1227 — verified: 6-week
+  loci training, athlete-like network changes, durable at
+  4 months); Wagner et al. 2021 (*Sci. Adv.* 7:eabc7606 —
+  verified: durable-memory formation specifically). Anchors
+  `mnem_*`, `mnem_passive_null`.
+- **Bilingual TOT (P844):** Gollan & Acenas 2004
+  (*JEP:LMC* 30:246 — verified: more TOTs on noncognates,
+  cognate/translation rescue, language-specific activation
+  mechanism); Gollan & Silverberg 2001. Anchors
+  `tot_nondom_k`, `tot_cognate_rescue`, `tot_dom_null`.
+- **Established vs hypothesis summary:** directions and
+  dissociations CONSENSUS except the hypnot channel
+  (DEBATED — context-locked on purpose) and
+  navab_interf_k (DEBATED); all magnitudes, window widths,
+  pointer-field mechanics, and orphan_recall are RW
+  HYPOTHESES.

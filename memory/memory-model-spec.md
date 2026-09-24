@@ -1,4 +1,45 @@
-# Memory Model Spec v5.26 — implementable human-like memory for RW characters
+# Memory Model Spec v5.27 — implementable human-like memory for RW characters
+
+> **v5.27 note (individual-differences VII — where the memory
+> lives):** `memory/individual-differences.md` Part VII
+> (§§77–91) adds the *storage-location* axes — distributed,
+> offloaded, relocated — plus the channel-refusal traits.
+> **Blunting** — `blunt` bipolarizes §24 vigilance: threat
+> intake filter at encoding (`blunt_avoid_k`), not at the
+> store (Miller 1980; locked `blunt_store_null`) — §77.
+> **Immigration bump** — `immig_age` unions a second bump
+> window [a−3, a+12] over [bump_lo, bump_hi], lang-partitioned
+> (Schrauf & Rubin 1998/2000; locked `immig_valence_null`)
+> — §78. **Transactive memory** — `trans_dep` + profile
+> `trans_partner`: shared events mint `pointer` fields
+> instead of content; `partnerPresent` restores via
+> `joint_boost`; `recallTogether` prices collaborative
+> inhibition (`collab_inhibit`/`collab_stab`); partner loss
+> orphans pointers → `orphan_recall` (Wegner 1987/1991;
+> Weldon & Bellinger 1997) — §79. **Offloading** — `offload`:
+> `externalized` events encode pointer-over-content
+> (`offload_k`, `ext_pointer`); `lookup` op resolves pointers
+> perfectly but first lookup grants no rehearsal;
+> `pointer_dead` orphans (Sparrow, Liu & Wegner 2011; Risko
+> & Gilbert 2016; locked `offload_global_null`) — §80.
+> **Consolidation yield** — `consol`: per-sleep yield inside
+> consol_window machinery only (Gais 2002; Schabus 2004;
+> locked `consol_encode_null`) — §81. **Navigation ability**
+> — `nav_ab` + `grew_rural`/`home_layout` (Coutrot 2018/2022;
+> `nav_layout_match`; locked `nav_face_null`) — §82.
+> **Schizotypy** — `schizotyp`: bidirectional
+> source_confuse_flip + intrusion/deja leakage, wmc-locked
+> (Peters 2007; Larøi 2005; 2022 SM meta; locked
+> `schz_wmc_null`) — §83. **Hypnotizability** — `hypnot`:
+> context-locked to guided/authoritative framings, our most
+> contested channel (Heaps & Nash 1999 vs Wagstaff — DEBATED;
+> locked `hypnot_ungated_null`) — §84. **Mnemonics** —
+> `mnem`: acquired skill gated to `deliberate:true` encoding
+> (Maguire 2003; Dresler 2017; Wagner 2021; locked
+> `mnem_passive_null`) — §85. **Bilingual TOT** — `langs≥2`
+> nondominant-language `tot_rate` tax with cognate rescue
+> (Gollan & Acenas 2004; dominant-language null) — §86.
+> Probes P835–P846.
 
 > **v5.26 note (false-memory VII — the credibility layer):**
 > `memory/false-memory.md` Part VII (§§76–84) prices the
@@ -11553,6 +11594,48 @@ MemoryParams = {
 //   `inevitable`, `nailed_it`, `insinuation_noticed`; ops
 //   `unbelieve`, `outcomeEvent` matching; sourceCredibility
 //   field update for §6.172.
+// v5.27 additions (individual-differences VII — ID§§77–86)
+"blunt_avoid_k": 0.12, "blunt_intr_k": 0.04,
+"blunt_recall_operand": 0.8, "blunt_retell_omit": 0.05, // §77
+"immig_lo": -3, "immig_hi": 12,                        // §78
+"trans_shift": 0.15, "trans_ptr_k": 0.3,
+"joint_boost": 0.1, "collab_inhibit": 0.12,
+"collab_stab": 0.05,                                   // §79
+"offload_k": 0.2, "ext_ptr_k": 0.3,                    // §80
+"consol_yield_k": 0.12, "consol_sleep_k": 0.1,
+"consol_link_k": 0.05,                                 // §81
+"navab_place_k": 0.08, "navab_reinstate_k": 0.15,
+"navab_link_k": 0.08, "navab_when_k": 0.1,
+"navab_interf_k": 0.02, "nav_layout_match": 0.08,      // §82
+"schz_src_k": 0.08, "schz_flip_k": 0.06,
+"schz_intr_k": 0.04, "schz_deja_k": 0.05,
+"schz_phantom_k": 0.008,                               // §83
+"hypnot_gain": 0.25, "hypnot_yield": 0.05,
+"hypnot_conf": 0.06,                                   // §84
+"mnem_link_k": 0.25, "mnem_beta_k": 0.15,
+"mnem_place_k": 0.1, "mnem_search_k": 1,               // §85
+"tot_nondom_k": 0.03, "tot_cognate_rescue": 0.01,      // §86
+// v5.27 locked nulls: blunt_store_null (the filter is at
+//   intake, not the store — P835); immig_valence_null
+//   (second window shifts density, never tagging — P836);
+//   offload_global_null (no enc_base cost on non-
+//   externalized events — P838); consol_encode_null (yield
+//   operates only inside consol_window — P839);
+//   nav_face_null (nav_ab never touches face/people —
+//   P840); schz_wmc_null (Peters 2007's control — P841);
+//   hypnot_ungated_null (inert outside guided/auth
+//   contexts — P842); mnem_passive_null (no benefit absent
+//   deliberate:true — P843); tot_dom_null (no tax in the
+//   dominant language — P844).
+// v5.27 fields: Event `anticipThreat`, `shared`,
+//   `externalized`, `pointer_dead`, `partner_lost`,
+//   `deliberate`; profile `trans_partner`, `dominantLang`,
+//   `immig_age`, `grew_rural`, `home_layout`; record
+//   `pointer`/`ext_pointer` (T-tier, write-once target);
+//   cueContext `partnerPresent`, `recallTogether`,
+//   `guided_imagery`, `authoritative`, `reportLang`,
+//   `cognate_ok`; ops `lookup`, `askPartner`; emission
+//   `orphan_recall`; bump window union rule (§78).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -11580,10 +11663,15 @@ pins tp_pastneg, tp_pastpos, tp_preshed, tp_presfat, tp_future,
 narr_agency, narr_comm, autobio_k, narr_coh_k, period_sal,
 epi_future_k — cast-profiles.md Part III §20; v5.25 adds
 `humor` — reappraisal-family joking style, loads extra + open,
-mild −neurot, feeds §6.157 only (EM§87)) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4/§17/§30/§43/§60/§73 (pinned traits conditioned per the
+mild −neurot, feeds §6.157 only (EM§87)); v5.27 adds the
+storage-location and channel axes `blunt`, `trans_dep`,
+`offload`, `consol`, `nav_ab`, `schizotyp`, `hypnot`, `mnem`
+plus bible-set demographic fields `immig_age`, `grew_rural`,
+`home_layout`, `dominantLang`, `trans_partner` — ID Part VII
+§87) — sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17/§30/§43/§60/§73/§87 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
-(§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
+(§3/§17/§88 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
 correlated (a low-WMC person is forgetful AND suggestible AND
 source-confused — Jaschinski & Wentura 2002; Zhu et al. 2010), and
@@ -13144,6 +13232,45 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; no new traits
     (loads on `distrust`, `checker`, `meta_conf`, `imagery`,
     `fantasy`, `dissoc`, `aging_rate` — all existing).
+- v5.27 additions (individual-differences.md Part VII §§77–86):
+  - **New traits:** `blunt` (bipolar monitoring/blunting —
+    §77), `trans_dep` (partner-as-store reliance — §79),
+    `offload` (digital externalization — §80), `consol`
+    (per-sleep consolidation yield — §81), `nav_ab`
+    (navigation ability — §82), `schizotyp` (reality-
+    monitoring leak, one-tailed — §83), `hypnot` (hypnotic
+    susceptibility, context-locked — §84), `mnem` (acquired
+    mnemonic skill — §85).
+  - **New profile/demographic fields:** `immig_age`,
+    `grew_rural`, `home_layout` ∈ {grid,organic},
+    `dominantLang`, `trans_partner:<charId>` (all bible-set,
+    snapshot-additive, absent = legacy).
+  - **Event fields:** `anticipThreat:true` (§77), `shared:true`
+    (§79), `externalized:true` (§80), `pointer_dead:true`
+    (§§79–80), `partner_lost:true` (§79), `deliberate:true`
+    (§85).
+  - **Record fields:** `pointer` / `ext_pointer` — T-tier
+    tags with write-once targets; decay like verbatim, never
+    rewritten by the §13.1 catalog.
+  - **cueContext fields:** `partnerPresent`, `recallTogether`
+    (§79), `guided_imagery`, `authoritative` (§84 — also
+    gates the §6.170 plantGain arms), `reportLang`,
+    `cognate_ok` (§86).
+  - **Ops:** `lookup` (world-mediated external-store resolve,
+    perfect content recall, no first-lookup rehearsal credit
+    — §80); `askPartner` (dyadic resolve of `pointer` fields
+    — §79). Emission `orphan_recall` on dead/orphaned pointer
+    resolution (sparse content + high FOK).
+  - **Bump rule:** the reminiscence window unions
+    [bump_lo,bump_hi] with [immig_age+immig_lo,
+    immig_age+immig_hi] when immig_age is set (§78).
+  - **Locked nulls:** `blunt_store_null`,
+    `immig_valence_null`, `offload_global_null`,
+    `consol_encode_null`, `nav_face_null`, `schz_wmc_null`,
+    `hypnot_ungated_null`, `mnem_passive_null`,
+    `tot_dom_null`.
+  - All snapshot-additive, absent = legacy; probes
+    P835–P846.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
