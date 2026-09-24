@@ -5623,3 +5623,567 @@ COULD.
   overshoots at the low end.
 - **Arousal match**: weakest empirical base in this pass —
   kept sub-`w_msd` deliberately; COULD-tier probe only.
+
+# Part X — v113: the news heard, the gate on the gift, the event that became a lens, the foil that felt hot, and the arc left open (2026-09-24, tenth pass)
+
+Part I–IX built: consolidation dynamics, competition, valence
+fidelity, stress timing, confidence decoupling, conditioned
+affect, trauma phenotype, mood bleed (I); peak-end tags, sleep
+quieting, item-context split, verbal dampening, regulation
+trait, generalization, FAB boundary, contagion, reconsolidation
+extinction (II); discrete tags, inverted-U, outcome rewrite,
+smell, anniversary, trust conditioning, coherence healing,
+weapon focus, recall→mood, empathy gap (III); excitation
+transfer, audience tuning, catharsis null, savor/dampen,
+secure base, duration, temporal distance, distinctiveness,
+sex differences, granularity, impact bias, music (IV);
+anticipation, betrayal, secondhand fear, dream draw,
+shame/guilt, forgiveness, nostalgia, mood confabulation,
+inertia, habituation (V); prosody, affect flashback, jealousy,
+awe, directed-forgetting resistance, safety signals (VI);
+gratitude, co-rumination, distancing, humor, hot–cold,
+anxiety priority, positive widening, disgust, mood-repair,
+felt-vs-believed (VII); consistency bias, mood-as-context,
+suppression dents, redemption/contamination, immune neglect,
+choice-supportive, affect boundaries, positivity effect,
+dissociation, photo encoding (VIII); hangover, potency,
+regret, cringe, pain, fusion, two-factor gate, perceptual
+bypass, sleep-debt skew, arousal match (IX).
+
+Part X closes the ten biggest remaining gaps: **the flashbulb
+record is of the hearing, not the thing** (§126); **the
+emotional gift is attention-gated** (§127); **the label cools
+the tag at birth** (§128); **the interrupted arc stays hot**
+(§129); **a central event becomes a lens on new events**
+(§130); **an attributed mood loses its bleed** (§131); **the
+motivation behind the emotion picks the rehearsal ecology**
+(§132); **the hot event refuses to recede** (§133);
+**emotion itself is an oldness heuristic** (§134); **the two
+regulators leave different dents in the trace** (§135).
+
+## 126. The flashbulb is of the hearing — the reception record
+
+Brown & Kulik 1977's canonical flashbulb fields (place,
+ongoing activity, informant, own affect, others' affect,
+aftermath) are all *reception-context* fields — the memory is
+of hearing the news, not of the event (which the rememberer
+never witnessed). Neisser & Harsch 1992 (Challenger): three-
+year-delayed reception reports were massively inconsistent
+with baseline while confidence stayed high; the *event* facts
+were even worse. Curci & Luminet 2006 (9/11, six countries):
+reception memory stayed high and consistent across groups
+while event memory varied; the rehearsal determinant
+(media + conversation) drives the *reception* record, not the
+remote event. **[CONSENSUS: reception-vs-event split is the
+definitional heart of the flashbulb literature; rehearsal
+feeds the reception record]**
+
+**Spec consequence (new §4.74, `recep_*`):** when
+`hearAccount`/`observe` delivers an event with `arousal ≥
+recep_thresh` (0.8) AND `scope:"remote"` (a hearsay account
+of an off-scene event — news, rumor of a distant happening),
+the character mints a companion record `reception:true`:
+
+- its cueVector holds the *reception frame* — bearer
+  (who told), place, ongoing activity, own posture/affect —
+  encoded with `recep_frame_gain` (0.4) bonus; the remote
+  event's content fields stay `source:"hearsay"`-thin.
+- the reception record gets `flashbulb_conf_floor` (§5) on
+  confidence; the remote content does not.
+- **locked `recep_content_null`:** reception minting NEVER
+  upgrades remote content to `witnessed` — "I remember
+  exactly where I was when I heard" does not mean "I saw it".
+- each subsequent *discussion* of the news consolidates the
+  reception record (`recep_share_gain` 0.15 per
+  `discussEvent` touching it — Curci & Luminet's rehearsal
+  determinant), while the hearsay content gets only normal
+  retell_boost.
+
+Emergent: two neighbors both remember the landlord's
+announcement — but what each preserves is *where they stood
+and who told them*, and those frames diverge and confabulate
+over years while the announcement itself blurs.
+
+## 127. The gift needs the hands — attention gates the emotional advantage
+
+Kensinger & Corkin 2004 (PNAS): the emotional-memory
+advantage has two routes — an automatic amygdala route
+(works without attentional mediation) and a cognitive route
+requiring attention/elaborative resources; divided attention
+at encoding abolishes most of the emotional advantage.
+Kensinger & Corkin 2003; Talmi et al. 2007 consistent.
+Mather & Knight 2005: the older-adult *positivity* advantage
+is specifically resource-dependent — it collapses under
+divided attention, and the whole emotional benefit is more
+attention-dependent in the old. **[CONSENSUS: the
+enhancement is resource-demanding; the automatic amygdala
+component (blink, conditioning) is not]**
+
+**Spec consequence (new §4.75, `emo_attn_*`):** the `w_emo`
+encoding leg — and the downstream `emo_consol_gain` (§2) —
+scale by effective attention:
+
+```
+w_emo_eff = w_emo · (emo_attn_floor + (1 − emo_attn_floor)·attention)
+// emo_attn_floor(age_eff): 0.4@30 → 0.3@65 → 0.15@75 → 0.10@85
+//   older advantage MORE attention-dependent (Mather & Knight 2005)
+```
+
+Locked `emo_attn_blink_null`: the §2.2 emotional blink and
+§4.9 conditioning acquisition do NOT take this gate —
+arousal still costs neighbors and conditions cues even when
+the character wasn't really paying attention. The
+dissociation is the point (P1197): a distracted character
+gains no mnemonic gift from the fight they half-watched, but
+the conversation beside it still dies, and the dread on the
+place still lands.
+
+## 128. Name it at the gate — affect labeling cools the tag at birth
+
+Lieberman et al. 2007 (Psychol. Sci. 18:421): putting a
+feeling into words reduces amygdala response during the
+affective experience itself — labeling is *encoding-time*
+regulation, distinct from §16's retelling dampening (which
+works on the tag at rehearse). Kircanski, Lieberman &
+Craske 2012 (spider exposure): verbalizing negative affect
+reduced subsequent physiological responding — the label
+blunts what conditions. **[CONSENSUS that labeling
+down-regulates felt affect online; the memorial-tag cooling
+is our extension — flagged HYPOTHESIS on magnitude]**
+
+**Spec consequence (new §4.76, `label_*`):** events carrying
+`labeled:true` (the character articulated the feeling in
+scene — self-talk, dialogue, or written note; world-builder
+supplies via utterance content) store their emotional tag
+cooled:
+
+```
+at mint:  emotional.arousal *= (1 − label_dampen·emo_gran)
+          // label_dampen ≈ 0.25; granularity trait §49 —
+          // precise namers cool more ("I'm betrayed, not
+          // just upset") than coarse namers
+```
+
+Locked `label_som_null`: §4.9 CondEntry acquisition is
+UNAFFECTED — the named fear still conditions the cue
+(Kircanski is about response reduction, not extinction;
+Bechara's affect survives the story). The character who
+says "this terrifies me" feels it slightly less but still
+learns the doorway.
+
+## 129. The arc left open — unresolved emotional events stay hot
+
+Zeigarnik (1927) is already modeled at the *intention* level
+(`zeig_resist`, encoding-mechanics §64). The emotional analog
+is record-level: an affectively charged event that ends
+**without closure** — the argument cut off mid-sentence, the
+door slammed before the apology — keeps a rehearsal drive
+until resolution. Martin & Tesser 1989/1996 (goal-blockage
+rumination): ruminative thought persists while a goal
+remains blocked; Bower-type unresolved-conflict rehearsal.
+Horowitz's completion principle (1976): unresolved
+experiences intrude until integrated. **[CONSENSUS on
+rumination's goal-blockage basis; the record-level flag is
+our formalization — HYPOTHESIS on magnitude]**
+
+**Spec consequence (new §4.77 mint + §5.130 ecology):**
+events with `arousal ≥ unresolv_thresh` (0.6) that end
+without a closure marker mint `unresolved:true` (world
+supplies `closed:true` on the resolution event — apology,
+reconciliation, decisive end, sharing ≥1 core people/topic
+field). Until closure:
+
+```
+intrusion_thresh_eff = intrusion_thresh − unresolv_intrude (0.15)
+rehearsal draw += unresolv_draw (0.10)   // §4.13 ecology
+at closure: premium decays by closure_decay (0.3)/day —
+            the resolved fight goes quiet over ~3 days,
+            it doesn't snap shut
+```
+
+Locked `unresolv_neutral_null`: interrupted *neutral* events
+take no intrusion premium via this channel (task
+interruption is zeig_resist's scope). Emergent: the
+half-finished fight at the park resurfaces in the shower
+three nights running — then dies within days of the
+make-up conversation. (P1204)
+
+## 130. The event that became a lens — event centrality
+
+Berntsen & Rubin 2006 (*Behav. Res. Ther.* 44:219, CES;
+verified): a highly central event becomes a *reference point*
+for interpreting new experiences and generating expectations —
+the trauma-organized life reads new ambiguities through the
+old wound. Berntsen & Rubin 2007 (Appl. Cogn. Psychol.):
+CES correlates PTSD severity (r≈.38) controlling anxiety/
+depression/dissociation — it is the *integration-as-lens*,
+not fragmentation, that predicts pathology. Boals, Murrell &
+Berntsen: §32's coherence brake already noted the trait.
+**[CONSENSUS: central events anchor identity and bias
+inference; applies to positive turning points too —
+weddings, births — not only trauma]**
+
+**Spec consequence (new §5.127, `central_*`):** records with
+`arousal·selfRelevance ≥ central_thresh` (0.85·0.8 ≈ 0.68
+product) mint `central:true`. Three consequences:
+
+```
+lens:    when a NEW event is ambiguous (cueMatch spread low —
+         no dominant interpretation), the strongest matching
+         central record is injected into C as an appraisal
+         cue (central_lens_w 0.2): the new event's valence
+         encoding is pulled toward the lens's valence —
+         betrayal-central characters read new slights darker
+anchor:  central records feed §5.86 landmark routing —
+         dating and chaptering organize around them
+draw:    voluntary-rehearsal draw += central_draw (0.10) —
+         central records are retold as self-explanation
+```
+
+Locked `lens_fact_null`: the lens contributes an *appraisal
+bias* (valence prior) to the new record — it NEVER writes
+content fields into it. The lens colors what the new event
+*means*, not what it contains. (P1200)
+
+## 131. The mood you can explain away — the attribution discount
+
+§8's `mood_bleed` is unconditional: current mood always
+bleeds a little into the retold tag. Schwarz & Clore 1983
+(feelings-as-information): the effect is eliminated when the
+mood's actual cause is made salient — people discount the
+feeling once they attribute it to an irrelevant source.
+**[CONSENSUS: attribution removes the informational use of
+the mood; the discount is partial in real data, never full]**
+
+**Spec consequence (new §5.128):** `cueContext` may carry
+`mood_source:true` — the character knows why they feel this
+way (just argued, just won, hungover) AND the source is
+unrelated to the record being reconstructed:
+
+```
+mood_bleed_eff = mood_bleed · (1 − attrib_disc)   // ≈0.6
+// when mood_source attributed AND unrelated to record
+// related source (mood ABOUT the record) → no discount
+```
+
+The rainy-day control is now mechanical: a character who
+knows they're raw from a bad night tells yesterday's neutral
+event straighter than one who can't place the feeling.
+(P1202)
+
+## 132. Anger rehearsed, fear hidden, envy unspoken — the motivational ecology
+
+§26's discrete-emotion tag carries *what* the record felt but
+not *what it makes the character do with it*. Carver &
+Harmon-Jones 2009 (Psych. Bull. 135:183): anger is
+*approach*-motivated despite negative valence — it drives
+engagement, not withdrawal. Consequence for the rehearsal
+ecology: anger records are *retold* (voluntary rehearsal —
+the grievance polished), fear/sadness records *intrude* but
+are voluntarily avoided. Smith & Kim 2007 (Psych. Bull.
+133:46): envy is the taboo emotion — felt, rehearsed
+privately, almost never confessed; the envious record
+circulates internally without an emission channel.
+**[CONSENSUS on the motivational direction of anger vs fear;
+envy-as-unspeakable is well supported]**
+
+**Spec consequence (new §5.129):** the discrete tag gains
+`motiv ∈ {approach, avoid, ambivalent}` (default per §26
+emotion: anger→approach; fear/sadness/shame→avoid;
+disgust→avoid; joy/pride→approach; new member `envy`→
+ambivalent). Retrieval-draw adjustments:
+
+```
+approach tag:  voluntary-rehearsal draw += approach_rehearse
+               (0.15) — anger/pride records are retold,
+               reconsolidating the tag on schedule
+avoid tag:     voluntary draw ×0.6; intrusion channel
+               unchanged (intrusions don't wait for consent)
+ambivalent (envy): voluntary draw ×0.5 (taboo — §60's shame
+               asymmetry logic), intrusion_draw +=
+               envy_intrude (0.10) — the private hot loop:
+               felt often, said never
+```
+
+Emergent: the character rehearses the insult out loud for
+weeks, dodges the memory of the scare, and keeps envying
+the sister's kitchen silently forever. (P1203)
+
+## 133. The hot event refuses to recede — arousal resists telescoping
+
+§6.282's forward telescoping compresses emitted elapsed
+estimates — but not uniformly. Van Boven, Kane, McGraw &
+Dale 2010 (*JPSP* 98:872; verified, 6 experiments):
+emotional intensity reduces *perceived* psychological
+distance — emotionally described autobiographical events
+(and a national tragedy) feel temporally closer than matched
+neutral ones; the effect is mediated by felt intensity and
+reverses when an alternative interpretation of the feeling
+is supplied. Complements §46 (failure feels farther —
+a *self-evaluative* distance) and §6.282 (the calendar's
+compressive drift): the felt clock has an arousal brake.
+**[CONSENSUS direction; our emission-side implementation is
+the model's]**
+
+**Spec consequence (new §6.287, `tele_emo_resist`):** the
+§6.282 telescoping compression is attenuated by the record's
+arousal:
+
+```
+tele_shift_eff = tele_shift · (1 − tele_emo_resist·arousal)
+// tele_emo_resist ≈ 0.6 — a 0.9-arousal record telescopes
+// at ~46% of a neutral record's rate; felt "recentness" is
+// part of what the floor buys (§5 phenomenology)
+```
+
+Interaction note: attribution (§131) operates here too —
+Van Boven's Experiment 5 (alternative interpretation
+reversed the effect) is the same attribution discount
+mechanism; when `mood_source` attributed, apply
+`attrib_disc` to the resistance as well. Emergent: the old
+character says the divorce was "last year" about a neutral
+errand's frame but "just yesterday" about the fight —
+correctly, in the only sense they mean it. (P1204)
+
+## 134. Hot reads as old — emotion as an oldness heuristic
+
+Dougal & Rotello 2007 (*PBR* 14:423; verified): the elevated
+"remember" rate for emotional stimuli in recognition is a
+*response bias*, not recollection — emotional foils are
+endorsed "old" more because arousal itself is taken as
+evidence of prior occurrence. Kapucu, Rotello, Ready & Seidl
+2008 (*JEP:LMC* 34:703; verified): young adults show the bias
+mainly for *negative* foils; older adults for BOTH negative
+and positive — the aged criterion treats any heat as
+familiarity. **[CONSENSUS for the bias; DEBATED whether a
+small true recollection advantage coexists — Kensinger's
+camp reads partial accuracy gains]**
+
+**Spec consequence (new §6.285, `emo_foil_bias`):** in
+`mode:"recognition"` (§5.6), candidate foils/lures carrying
+emotional content get a criterion shift:
+
+```
+P(false-alarm | foil) += emo_foil_bias · arousal_foil
+// emo_foil_bias ≈ 0.15; valence leg:
+//   neg foils: full weight, all ages
+//   pos foils: ×emo_foil_pos_leg(age_eff):
+//              0.3@30 → 0.5@55 → 0.8@75   (Kapucu 2008)
+```
+
+Locked `foil_recall_null`: recall mode has no foil criterion
+— this is a recognition-mode bias only. Emergent: "no, but
+it *sounds* like something that happened" — the elder
+misremembers which compliments were actually paid, and
+everyone misremembers which insults were. (P1201)
+
+## 135. Two regulators, two dents — distraction vs reappraisal on the trace
+
+The spec's `regulate_style` trait (v1.7) is a scalar
+preference; the strategies differ *mechanically* on what they
+do to the record. Sheppes & Gross 2011 (*Pers. Soc. Psychol.
+Rev.* 17:379; verified) + Sheppes, Scheibe, Suri & Gross 2011
+(*Psychol. Sci.* 22:1391, choice experiments; verified):
+distraction is an early-selection filter — it blocks
+elaborative processing of the emotional content (the trace
+stays as minted, just less rehearsed/retrieved while
+deployed); reappraisal is a late-selection semantic
+reinterpretation — it operates ON the emotional
+representation, rewriting the tag at reconsolidation. Choice:
+people prefer distraction at high intensity, reappraisal at
+low. **[CONSENSUS on the early/late architecture and the
+intensity-dependent choice; our trace-level consequences are
+the model's extension]**
+
+**Spec consequence (new §6.286, `distract_*`/`reapp_*`
+split):**
+
+```
+regulation choice at encode/retell:
+    if arousal ≥ reg_choice_knee (0.7): distraction preferred
+    else: reappraisal preferred
+    // knee shifts left with age — older profiles prefer
+    // attentional deployment (reg_knee_age −0.15@75;
+    // Suri/Isaacowitz aging ER work — DEBATED knot)
+
+distraction:   bout-scoped retrieval-drive suppression —
+               record's draw probability ×(1−distract_drive_k
+               0.4) for distract_dur (≈2h); the stored
+               emotional tag is BIT-IDENTICAL —
+               locked distract_tag_null (the unfelt
+               afternoon still happened at full heat;
+               it just isn't being reached for)
+
+reappraisal:   at reconsolidation, emotional.valence drifts
+               toward the reinterpreted frame by
+               reapp_tag_k (0.10) per bout — the tag itself
+               cools permanently (§16's mechanism, now with
+               the correct trace-level complement)
+```
+
+Emergent: the suppressor's hot day stays hot in the drawer;
+the reappraiser's same day slowly becomes "it was awkward,
+but we were both tired". (P1205)
+
+## 136. Spec delta (v5.60 → v5.61)
+
+- §4.74 `recep_thresh`/`recep_frame_gain`/`recep_share_gain` —
+  remote-news minting of `reception:true` records;
+  `recep_content_null` locked.
+- §4.75 `emo_attn_floor(age_eff)` — attention gates w_emo;
+  `emo_attn_blink_null` (blink + conditioning exempt).
+- §4.76 `label_dampen` on the mint tag × `emo_gran`;
+  `label_som_null` (conditioning unaffected).
+- §4.77 `unresolv_thresh` mints `unresolved:true`;
+  `unresolv_neutral_null`.
+- §5.127 `central_thresh`/`central_lens_w`/`central_draw` —
+  `central:true` lens/anchor/draw; `lens_fact_null`.
+- §5.128 `attrib_disc` on `mood_bleed` when `mood_source`
+  salient + unrelated.
+- §5.129 `motiv` field on the discrete tag +
+  `approach_rehearse`/`envy_intrude`; enum += {envy, pride}.
+- §5.130 `unresolv_intrude`/`unresolv_draw`/`closure_decay`
+  — open-arc intrusion until `closed:true`.
+- §6.285 `emo_foil_bias`/`emo_foil_pos_leg(age_eff)` on
+  recognition foils; `foil_recall_null`.
+- §6.286 `distract_drive_k`/`distract_dur`/`reapp_tag_k`/
+  `reg_choice_knee`/`reg_knee_age`; `distract_tag_null`.
+- §6.287 `tele_emo_resist` — arousal brakes §6.282
+  telescoping; attribution discount applies to the brake.
+- Locked nulls this pass: `recep_content_null`,
+  `emo_attn_blink_null`, `label_som_null`,
+  `unresolv_neutral_null`, `lens_fact_null`,
+  `foil_recall_null`, `distract_tag_null` (7).
+- Fields/state: record flags `reception:true`,
+  `central:true`, `unresolved:true`; discrete-tag `motiv`;
+  emotion enum += {envy, pride}; ctx `mood_source`; event
+  flags `labeled:true`, `closed:true`, `scope:"remote"`.
+
+## 137. Age guidance (extends §§10/23/37/53/67/81/95/109/123)
+
+- `recep_*`: flat — reception flashbulbs are age-preserved
+  phenomenology (confidence may even inflate more in old).
+- `emo_attn_floor`: steep decline with age (0.4→0.10 by 85)
+  — the one strong age knot this pass; the old need their
+  attention on it or the advantage evaporates.
+- `label_dampen`: mild decline — granularity knots §49
+  already sag; the leg rides `emo_gran` so no new knot.
+- `unresolv_*`: intrusion premium decays ≥65 (rumination
+  declines — §64 inertia knots already priced).
+- `central_lens_w`: flat-mild — the lens strengthens when it
+  is bump-era (transition-anchored records dominate).
+- `attrib_disc`: weakens ≥65 (older adults lean on feelings
+  more as information — HYPOTHESIS, Hess-affect literature
+  direction; knot −0.2@75).
+- `emo_foil_pos_leg`: the Kapucu aging finding directly —
+  0.3@30 → 0.8@75.
+- `reg_knee_age`: −0.15@75 — distraction preferred earlier.
+- `tele_emo_resist`: flat — the arousal brake on felt
+  distance is a judgment phenomenon; §6.282's age_leg still
+  drives the underlying compression.
+
+## 138. Validation probes (P1196–P1205; registry continues)
+
+- **P1196 reception mint (MUST, scope-lock):** remote
+  arousal-0.85 hearsay mints `reception:true` — bearer/place
+  fields recollect ≥1.4× the remote content's; content stays
+  `hearsay`, NEVER `witnessed` (`recep_content_null`);
+  each discussEvent grows frame strength not content.
+  Neisser & Harsch 1992; Curci & Luminet 2006.
+- **P1197 attention gate (MUST, dissociation):** daLoad-0.8
+  encoding of an arousal-0.8 event loses ≥70% of the w_emo
+  advantage vs undivided control, while the §2.2 blink on
+  neighbors is preserved ≥90% (`emo_attn_blink_null`);
+  the floor knot steepens ≥65. Kensinger & Corkin 2004;
+  Mather & Knight 2005.
+- **P1198 affect labeling (SHOULD):** `labeled:true` events
+  mint arousal tags lower by ≈label_dampen·gran vs unlabeled
+  controls; CondEntry strength unchanged
+  (`label_som_null`). Lieberman 2007; Kircanski 2012.
+- **P1199 unresolved arc (SHOULD):** interrupted
+  arousal-0.7 events intrude ≥1.5× matched-resolved over
+  7d, premium collapsing within ~3d of `closed:true` (a
+  one-day snap shut FAILS — closure is relief, not
+  amnesia); interrupted neutral events show NO premium
+  (`unresolv_neutral_null`). Martin & Tesser 1989;
+  Horowitz 1976.
+- **P1200 central lens (MUST, scope-lock):** `central:true`
+  records appear in C on ambiguous new events ≥3× base
+  rate and shift new-event valence encoding toward lens
+  valence; lens records write ZERO content fields into the
+  new record (`lens_fact_null`). Berntsen & Rubin 2006.
+- **P1201 emotional foil (MUST, mode-lock):** recognition
+  foils with arousal ≥0.5 false-alarm ≥1.4× matched neutral
+  foils; positive-foil leg rises with age (Kapucu shape);
+  recall mode unaffected (`foil_recall_null`). Dougal &
+  Rotello 2007.
+- **P1202 attribution discount (SHOULD):** salient unrelated
+  `mood_source` cuts reported mood_bleed by ≈attrib_disc;
+  mood ABOUT the record discounts ≈0. Schwarz & Clore 1983.
+- **P1203 motivational ecology (MUST):** anger records
+  voluntarily rehearse ≥2× fear records at matched arousal/
+  valence-magnitude; envy records show high intrusion +
+  suppressed emission (the unspoken loop). Carver &
+  Harmon-Jones 2009; Smith & Kim 2007.
+- **P1204 telescoping brake (SHOULD, report-only):** emitted
+  elapsed estimates for arousal-0.9 records compress at
+  ≈(1−tele_emo_resist·0.9) of neutral rate; stored
+  timestamps bit-identical (§6.282's P1192 invariant
+  inherited); attributed `mood_source` attenuates the
+  resistance. Van Boven, Kane, McGraw & Dale 2010.
+- **P1205 regulation dents (MUST, trace-lock):** distraction
+  leaves the stored tag bit-identical while suppressing
+  draw (`distract_tag_null`); reappraisal drifts stored
+  valence by ≈reapp_tag_k/bout; arousal ≥ knee flips
+  strategy preference. Sheppes & Gross 2011; Sheppes et
+  al. 2011.
+
+Registry: P1–P1205. v113 suite: P1196, P1197, P1200, P1201,
+P1203, P1205 MUST (P1196, P1197, P1200, P1201, P1205 carry
+locked-null legs); P1198, P1199, P1202, P1204 SHOULD.
+P1204 inherits the report-vs-store discipline of P1192.
+
+## 139. Honest limits (Part X)
+
+- **Reception minting** rests on the definitional flashbulb
+  claim — solid. The `recep_share_gain` consolidation-per-
+  discussion pricing is ours (the literature shows rehearsal
+  *predicts* reception consistency, not a per-bout gain).
+- **Attention gate**: Kensinger & Corkin's two-route account
+  is established, but the exact attention-scaling form
+  (linear floor) is our simplification — the real
+  relationship is probably thresholded.
+- **Labeling**: Lieberman's effect is on *felt* affect
+  online; that it cools the *stored* tag proportionally is
+  our extension. Kircanski suggests the conditioning side is
+  reduced too — our `label_som_null` is the conservative
+  read (the alternative would weaken CondEntry acquisition).
+- **Unresolved arcs**: goal-blockage rumination is real;
+  the `closed:true` marker requires the world to declare
+  resolution events — a bookkeeping dependency, flagged.
+- **Centrality**: CES is a self-report scale; the lens
+  mechanism (cue injection on ambiguity) is the operational
+  reading of "reference point for attribution" — defensible
+  but not directly parameterized by any study.
+- **Attribution discount**: Schwarz & Clore's original
+  manipulation was heavy-handed (drawing attention to the
+  weather); everyday self-attribution is probably weaker —
+  attrib_disc 0.6 may overshoot; P1202 bounds it.
+- **Foil bias**: Dougal & Rotello is a word-list paradigm;
+  extending to event foils is a leap — the Kapucu age
+  pattern is the load-bearing claim, the magnitudes ours.
+- **Motivational ecology**: anger-as-approach is solid for
+  *behavioral* drive; the rehearsal-draw mapping is our
+  formalization. Envy's taboo asymmetry is Smith & Kim's
+  phenomenology — `envy_intrude` is unpriced by any source.
+- **Telescoping brake**: Van Boven et al. measured felt
+  distance on a self-report scale; folding it into §6.282's
+  emitted-estimate compression is a defensible operational
+  reading, and the attribution interaction (their Exp. 5)
+  is preserved. `tele_emo_resist` 0.6 is unpriced — P1204
+  tests direction and report-only scope, not magnitude.
+- **Regulation split**: Sheppes' early/late architecture is
+  textbook; that distraction leaves the tag bit-identical is
+  our strict reading — the honest bound is "much less tag
+  change than reappraisal," and `distract_tag_null` locks
+  the strong version so P1205 can falsify it.

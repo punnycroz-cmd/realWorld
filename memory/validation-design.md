@@ -11650,3 +11650,72 @@ P1193. Locked-null legs exercised: `strat_teach_null`
   the knots.
 
 Probe registry: P1–P1195 (v112 adds P1186–P1195).
+
+## 233. v113 suite — emotional-memory X (P1196–P1205)
+
+Ten probes for the EM Part X mechanisms (spec §§4.74–4.77,
+§§5.127–5.130, §§6.285–6.287). MUST tier on definitional
+splits (reception-vs-content, attention-vs-automatic,
+lens-vs-content, mode-lock, trace-lock); SHOULD where the
+literature gives direction without magnitude.
+
+- **P1196 reception mint (MUST — scope-lock):** remote
+  arousal-0.85 hearsay mints `reception:true`; bearer/place/
+  activity fields recollect ≥1.4× remote content fields;
+  content keeps `source:"hearsay"` forever
+  (`recep_content_null` — a witnessed upgrade FAILS);
+  each `discussEvent` adds `recep_share_gain` to the frame,
+  zero to content. Neisser & Harsch 1992; Curci & Luminet
+  2006.
+- **P1197 attention gate (MUST — dissociation):** daLoad-0.8
+  encoding of an arousal-0.8 event retains ≤30% of the
+  undivided w_emo advantage, while neighbor-record blink
+  loss is preserved ≥90% (`emo_attn_blink_null`);
+  `emo_attn_floor` knot steepens ≥65 — older profiles lose
+  more under the same load. Kensinger & Corkin 2004;
+  Mather & Knight 2005.
+- **P1198 affect labeling (SHOULD):** `labeled:true` mints
+  arousal tags ≈label_dampen·gran below unlabeled controls;
+  CondEntry strength on the same cues unchanged
+  (`label_som_null`). Lieberman et al. 2007; Kircanski et
+  al. 2012.
+- **P1199 open arc (SHOULD):** interrupted arousal-0.7
+  events intrude ≥1.5× matched-resolved over 7d; premium
+  collapses within ~3d of `closed:true` (same-day snap
+  shut FAILS); interrupted neutral events show NO premium
+  (`unresolv_neutral_null`). Martin & Tesser 1989; Horowitz
+  1976.
+- **P1200 central lens (MUST — scope-lock):** `central:true`
+  records enter C on ambiguous new-event encodes ≥3× base
+  rate and shift the new record's valence toward lens
+  valence; lens writes ZERO content fields
+  (`lens_fact_null`). Berntsen & Rubin 2006/2007.
+- **P1201 emotional foil (MUST — mode-lock):** recognition
+  foils with arousal ≥0.5 false-alarm ≥1.4× matched neutral
+  foils; positive-foil leg rises with age (0.3→0.8 Kapucu
+  shape); recall mode flat (`foil_recall_null`). Dougal &
+  Rotello 2007; Kapucu et al. 2008.
+- **P1202 attribution discount (SHOULD):** salient unrelated
+  `mood_source` cuts reported mood_bleed ≈attrib_disc; mood
+  ABOUT the record discounts ≈0; same discount applies to
+  `tele_emo_resist`. Schwarz & Clore 1983; Van Boven et al.
+  2010 Exp. 5.
+- **P1203 motivational ecology (MUST):** anger-tagged
+  records voluntarily rehearse ≥2× fear-tagged at matched
+  arousal and |valence|; envy-tagged show intrusion ≥ avoid
+  baseline with emission suppressed ≥50% (the unspoken
+  loop). Carver & Harmon-Jones 2009; Smith & Kim 2007.
+- **P1204 telescoping brake (SHOULD — report-only):**
+  emitted elapsed estimates for arousal-0.9 records
+  compress at ≈(1−0.6·0.9) of neutral rate; stored
+  timestamps bit-identical (P1192 invariant inherited);
+  `mood_source` attribution attenuates the brake.
+  Van Boven et al. 2010.
+- **P1205 regulation dents (MUST — trace-lock):**
+  distraction arm leaves the stored tag bit-identical while
+  suppressing draw for distract_dur (`distract_tag_null`);
+  reappraisal arm drifts stored valence ≈reapp_tag_k/bout;
+  arousal ≥ `reg_choice_knee` flips the chosen arm.
+  Sheppes & Gross 2011; Sheppes et al. 2011.
+
+Probe registry: P1–P1205 (v113 adds P1196–P1205).

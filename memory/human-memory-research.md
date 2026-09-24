@@ -4765,3 +4765,65 @@ this version.
   targets; probes P1186–P1195 test the literature's
   structures (rescue shape, dissociations, report-vs-store
   invariants), not the fitted numbers.
+
+## 88. v113 additions — the reception, the gate, the lens, the foil (emotional-memory X)
+
+Emotional-memory Part X (§§126–139) sources — the flashbulb
+as reception memory, the attention price of the emotional
+advantage, encode-time labeling, open arcs, centrality-as-
+lens, mood-attribution discount, motivational rehearsal
+ecology, emotional-foil bias, telescoping brake, and the
+distraction/reappraisal trace split.
+
+- **Reception memory:** Neisser & Harsch 1992 (Challenger —
+  reception reports inconsistent at 3y, confidence intact);
+  Curci & Luminet 2006 (*Memory* 14 — 9/11 six-country
+  follow-up: reception memory consistent, event memory
+  variable; rehearsal drives the frame); Brown & Kulik
+  1977 (canonical reception fields). Spec §4.74 `recep_*`
+  + locked `recep_content_null`.
+- **Attention gate:** Kensinger & Corkin 2004 (*PNAS* 101 —
+  two-route account; DA abolishes the mediated advantage);
+  Mather & Knight 2005 (positivity advantage is
+  resource-dependent). Spec §4.75 `emo_attn_floor` +
+  locked `emo_attn_blink_null`.
+- **Affect labeling:** Lieberman et al. 2007 (*Psychol.
+  Sci.* 18:421); Kircanski, Lieberman & Craske 2012.
+  Spec §4.76 `label_dampen` + locked `label_som_null`.
+- **Open arcs:** Martin & Tesser 1989/1996 (goal-blockage
+  rumination); Horowitz 1976 (completion principle);
+  Zeigarnik 1927 — record-level sibling of
+  encoding-mechanics §64. Spec §§4.77/5.130 `unresolv_*` +
+  locked `unresolv_neutral_null`.
+- **Event centrality:** Berntsen & Rubin 2006 (*Behav. Res.
+  Ther.* 44:219 — CES); Berntsen & Rubin 2007 (CES–PTSD
+  r≈.38 controlling affect); Boals, Murrell & Berntsen.
+  Spec §5.127 `central_*` + locked `lens_fact_null`.
+- **Attribution discount:** Schwarz & Clore 1983
+  (feelings-as-information; salient irrelevant cause
+  eliminates the effect). Spec §5.128 `attrib_disc`.
+- **Motivational ecology:** Carver & Harmon-Jones 2009
+  (*Psych. Bull.* 135:183 — anger is approach-motivated);
+  Smith & Kim 2007 (*Psych. Bull.* 133:46 — envy, the
+  unspoken comparison). Spec §5.129 `motiv` +
+  `approach_rehearse`/`envy_intrude`; enum += {envy, pride}.
+- **Emotional foil bias:** Dougal & Rotello 2007 (*PBR*
+  14:423 — "remember" bias, not recollection); Kapucu,
+  Rotello, Ready & Seidl 2008 (*JEP:LMC* 34:703 — old
+  biased to BOTH valences). Spec §6.285 `emo_foil_bias` +
+  `emo_foil_pos_leg` + locked `foil_recall_null`.
+- **Telescoping brake:** Van Boven, Kane, McGraw & Dale
+  2010 (*JPSP* 98:872 — emotional intensity shrinks felt
+  distance; attribution reverses). Spec §6.287
+  `tele_emo_resist`, report-side only.
+- **Regulation dents:** Sheppes & Gross 2011 (*Pers. Soc.
+  Psychol. Rev.* 17:379 — early/late selection); Sheppes,
+  Scheibe, Suri & Gross 2011 (*Psychol. Sci.* 22:1391 —
+  intensity-dependent choice). Spec §6.286
+  `distract_*`/`reapp_*`/`reg_choice_knee` + locked
+  `distract_tag_null`.
+- **Marked hypothesis:** all magnitudes are RW calibration
+  targets; the literature supplies the dissociations
+  (reception-vs-content, gate-vs-blink, lens-vs-content,
+  mode-lock, report-vs-store, hide-vs-cool) — probes
+  P1196–P1205 test those structures, not the fitted knots.

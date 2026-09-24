@@ -1,5 +1,47 @@
-# Memory Model Spec v5.60 — implementable human-like memory for RW characters
+# Memory Model Spec v5.61 — implementable human-like memory for RW characters
 
+> **v5.61 note (emotional-memory X — the news heard, the
+> gate on the gift, the named feeling, the open arc, the
+> lens, the explained mood, the rehearsed anger, the hot
+> foil, and the regulator's dent):** `memory/emotional-
+> memory.md` Part X (§§126–139) + spec §§4.74–4.77,
+> §§5.127–5.130, §§6.285–6.287. **Flashbulbs are of the
+> hearing** — `scope:"remote"` arousal ≥ `recep_thresh`
+> mints `reception:true` records whose bearer/place/activity
+> frame gets the confidence floor while remote content stays
+> hearsay (Neisser & Harsch 1992; Curci & Luminet 2006);
+> locked `recep_content_null`. **The gift needs hands** —
+> `w_emo` scales by `emo_attn_floor(age_eff)`+attention
+> (Kensinger & Corkin 2004); locked `emo_attn_blink_null`
+> (blink + conditioning exempt). **Name it at the gate** —
+> `labeled:true` events mint arousal tags cooled by
+> `label_dampen`·`emo_gran` (Lieberman 2007); locked
+> `label_som_null`. **The arc left open** — `unresolved:true`
+> records intrude (`unresolv_intrude`) until `closed:true`
+> (Martin & Tesser 1989); locked `unresolv_neutral_null`.
+> **The event that became a lens** — `central:true` records
+> bias new-event appraisal via `central_lens_w` (Berntsen &
+> Rubin 2006); locked `lens_fact_null`. **The explained
+> mood** — `attrib_disc` on `mood_bleed` when the mood's
+> source is salient and unrelated (Schwarz & Clore 1983).
+> **Motivational ecology** — discrete tags gain `motiv`
+> ∈{approach,avoid,ambivalent}: anger rehearsed, fear
+> intruded-not-told, envy the private loop (Carver &
+> Harmon-Jones 2009; Smith & Kim 2007). **Hot reads as
+> old** — `emo_foil_bias` on recognition foils, positive leg
+> age-rising (Dougal & Rotello 2007; Kapucu et al. 2008);
+> locked `foil_recall_null`. **Hot refuses to recede** —
+> `tele_emo_resist` brakes §6.282 telescoping (Van Boven et
+> al. 2010), attribution-discounted. **Two regulators, two
+> dents** — distraction suppresses draw with tag bit-
+> identical (locked `distract_tag_null`), reappraisal drifts
+> stored valence by `reapp_tag_k`; `reg_choice_knee` picks
+> (Sheppes & Gross 2011). Locked nulls: `recep_content_null`,
+> `emo_attn_blink_null`, `label_som_null`,
+> `unresolv_neutral_null`, `lens_fact_null`,
+> `foil_recall_null`, `distract_tag_null`. Probes P1196–
+> P1205.
+>
 > **v5.60 note (age-decline X — the unplayed strategy, the
 > retired watch, the discounted effort, the borrowed belief,
 > the unwritten routine, the crowded afternoon, the felt
@@ -6229,6 +6271,78 @@ failed self-check on slip:true → emit `slip_check` intent
 `pm_focal`/habitual intentions — the Tuesday errand fires;
 it's the record of having done it that's thin.
 
+### 4.74 The news lands twice — `recep_*` (new in v5.61)
+
+EM§126; Neisser & Harsch 1992 (Challenger — reception-frame
+reports inconsistent yet confident); Curci & Luminet 2006
+(9/11, six countries — reception consistency high, event
+memory variable; rehearsal predicts the frame). When
+`hearAccount`/`observe` delivers an event with `arousal ≥
+recep_thresh` (0.8) AND `scope:"remote"`, mint a companion
+record `reception:true` whose cueVector holds the reception
+frame (bearer, place, ongoing activity, own posture/affect —
+Brown & Kulik 1977's canonical fields) at
+`E·(1+recep_frame_gain)` (0.4); the remote content stays
+`source:"hearsay"` thin. `flashbulb_conf_floor` (§5) applies
+to the reception record only. Each `discussEvent` touching
+it adds `recep_share_gain` (0.15) to frame strength —
+discussion consolidates the *hearing*, not the event.
+
+**Locked `recep_content_null`:** reception minting NEVER
+upgrades remote content to `witnessed` — "I remember where
+I was when I heard" is not "I saw it". P1196.
+
+### 4.75 The gift needs hands — `emo_attn_*` (new in v5.61)
+
+EM§127; Kensinger & Corkin 2004 (PNAS — two routes;
+divided attention abolishes the mediated advantage);
+Mather & Knight 2005 (older positivity advantage is
+resource-dependent). The `w_emo` encoding leg and the §2
+`emo_consol_gain` downstream scale by effective attention:
+
+```
+w_emo_eff = w_emo · (emo_attn_floor + (1−emo_attn_floor)·attention)
+emo_attn_floor(age_eff): 0.4@30 → 0.3@65 → 0.15@75 → 0.10@85
+```
+
+**Locked `emo_attn_blink_null`:** the §2.2 blink and §4.9
+conditioned-affect acquisition take NO attention gate —
+arousal costs neighbors and conditions cues even when the
+character half-attended. The dissociation is the finding.
+P1197.
+
+### 4.76 Name it at the gate — `label_dampen` (new in v5.61)
+
+EM§128; Lieberman et al. 2007 (affect labeling ↓ amygdala
+online); Kircanski, Lieberman & Craske 2012 (labeling in
+exposure ↓ subsequent responding). Events carrying
+`labeled:true` (feeling articulated in-scene — self-talk,
+dialogue, note; world-builder supplies) mint their
+emotional tag cooled:
+
+```
+emotional.arousal *= (1 − label_dampen·emo_gran)   // ≈0.25·gran
+```
+
+`emo_gran` (§49 granularity trait) scales it — precise
+namers cool more. **Locked `label_som_null`:** §4.9
+CondEntry acquisition unaffected — the named fear still
+conditions the cue. P1198.
+
+### 4.77 The arc left open — `unresolv_*` mint (new in v5.61)
+
+EM§129; Martin & Tesser 1989/1996 (goal-blockage rumination);
+Horowitz 1976 (completion principle). Events with `arousal ≥
+unresolv_thresh` (0.6) ending without a closure marker mint
+`unresolved:true`. The world supplies `closed:true` on the
+resolution event (apology, decisive end — sharing ≥1 core
+people/topic field). Retrieval ecology at §5.130. Distinct
+from `zeig_resist` (intention-level, encoding-mechanics
+§64) — this flag is record-level and affect-driven.
+
+**Locked `unresolv_neutral_null`:** interrupted neutral
+events take no premium via this channel. P1199.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -9277,6 +9391,78 @@ pot_k 0.3; d_norm = character's own young-adult median
 The thinned year weighs less because the archive is thin —
 every prior decline compounds into the report. P1193 asserts
 zero direct age term.
+
+### 5.127 The event that became a lens — `central_*` (new in v5.61)
+
+EM§130; Berntsen & Rubin 2006 (CES — a central event is a
+reference point for interpreting new experience and
+generating expectations); Berntsen & Rubin 2007 (CES
+correlates PTSD r≈.38 controlling affect measures). Records
+with `arousal·selfRelevance ≥ central_thresh` (0.68 product)
+mint `central:true`. Three consequences: (a) **lens** — when
+a new event is ambiguous (no dominant interpretation in the
+cueMatch spread), the strongest matching central record is
+injected into C as an appraisal cue at `central_lens_w`
+(0.2), pulling the new record's valence encoding toward the
+lens's; (b) **anchor** — central records feed §5.86
+landmark routing for dating/chaptering; (c) **draw** —
+voluntary-rehearsal draw += `central_draw` (0.10): they are
+retold as self-explanation. Applies to positive turning
+points too (weddings, births) — centrality is
+valence-blind.
+
+**Locked `lens_fact_null`:** the lens contributes an
+appraisal prior only — it NEVER writes content fields into
+the new record. P1200.
+
+### 5.128 The explained mood — `attrib_disc` (new in v5.61)
+
+EM§131; Schwarz & Clore 1983 (feelings-as-information —
+the mood-as-input effect vanishes when the mood's cause is
+salient and irrelevant). `cueContext` may carry
+`mood_source:true` when the character can attribute the
+current mood to a cause unrelated to the record being
+reconstructed:
+
+```
+mood_bleed_eff = mood_bleed·(1 − attrib_disc)   // ≈0.6
+// mood ABOUT the record (related source) → no discount
+```
+
+The rainy-day control, mechanized: a character who knows
+they're raw from last night tells yesterday straighter.
+Also applies to §6.287's `tele_emo_resist` (Van Boven Exp.
+5 reversal). P1202.
+
+### 5.129 Anger rehearsed, fear hidden, envy unspoken — `motiv` (new in v5.61)
+
+EM§132; Carver & Harmon-Jones 2009 (anger is
+approach-motivated despite negative valence); Smith & Kim
+2007 (envy — felt, rehearsed privately, rarely confessed).
+The §26 discrete-emotion tag gains `motiv ∈ {approach,
+avoid, ambivalent}` (defaults: anger→approach; fear/sadness/
+shame/disgust→avoid; joy/pride→approach; new member
+`envy`→ambivalent). Retrieval-draw adjustments:
+
+```
+approach:    voluntary-rehearsal draw += approach_rehearse (0.15)
+avoid:       voluntary draw ×0.6; intrusion channel untouched
+ambivalent:  voluntary draw ×0.5 (taboo — §60 logic);
+             intrusion_draw += envy_intrude (0.10)
+```
+
+Emotion enum extended: += {envy, pride}. P1203.
+
+### 5.130 The open arc intrudes — `unresolv_*` ecology (new in v5.61)
+
+EM§129's flag lands here. `unresolved:true` records get
+`intrusion_thresh − unresolv_intrude` (0.15) and rehearsal
+draw += `unresolv_draw` (0.10) until a `closed:true` event
+sharing ≥1 core field resolves them; post-closure the
+premium decays by `closure_decay` (0.3)/day — relief over
+~3 days, never a snap shut. Emergent: the half-finished
+fight resurfaces in the shower for nights, then dies within
+days of the make-up conversation. P1199.
 
 ---
 
@@ -14761,6 +14947,67 @@ records, never overwrites live ones. Distinct from §73's
 monitoring confidence — that overclaims retrieval; this
 overclaims prophecy.
 
+### 6.285 Hot reads as old — `emo_foil_bias` (new in v5.61)
+
+EM§134; Dougal & Rotello 2007 (*PBR* 14:423 — emotional
+"remember" judgments are response bias, not recollection);
+Kapucu, Rotello, Ready & Seidl 2008 (*JEP:LMC* 34:703 —
+young biased mainly to negative foils, old to BOTH valences).
+In `mode:"recognition"` (§5.6), foils carrying emotional
+content get a criterion shift:
+
+```
+P(false-alarm | foil) += emo_foil_bias·arousal_foil   // ≈0.15
+  negative foils: full weight at all ages
+  positive foils: ×emo_foil_pos_leg(age_eff)
+                  0.3@30 → 0.5@55 → 0.8@75   (Kapucu shape)
+```
+
+**Locked `foil_recall_null`:** recall mode has no foil
+criterion — a recognition-mode bias only. P1201.
+
+### 6.286 Two regulators, two dents — `distract_*`/`reapp_*` (new in v5.61)
+
+EM§135; Sheppes & Gross 2011 (early- vs late-selection
+regulation); Sheppes, Scheibe, Suri & Gross 2011 (high
+intensity → distraction chosen, low → reappraisal). Splits
+the v1.7 `regulate_style` scalar into trace-level operators:
+
+```
+choice:      arousal ≥ reg_choice_knee (0.7) → distraction;
+             else reappraisal. Knee shifts left with age
+             (reg_knee_age −0.15@75 — attentional deployment
+             cheaper when control thins; DEBATED knot)
+distraction: draw probability ×(1−distract_drive_k 0.4) for
+             distract_dur (≈2h, bout-scoped); the stored
+             emotional tag is BIT-IDENTICAL —
+             locked distract_tag_null
+reappraisal: at reconsolidation, emotional.valence drifts
+             toward the reinterpreted frame by reapp_tag_k
+             (0.10)/bout — permanent tag cooling, the
+             trace-level complement of §16's retell leg
+```
+
+P1205 locks the asymmetry: one channel hides the record,
+the other cools it.
+
+### 6.287 The hot event refuses to recede — `tele_emo_resist` (new in v5.61)
+
+EM§133; Van Boven, Kane, McGraw & Dale 2010 (*JPSP* 98:872 —
+emotional intensity reduces perceived psychological
+distance; mediated by felt intensity; reversed by an
+alternative attribution). §6.282's `tele_shift` is
+attenuated by record arousal:
+
+```
+tele_shift_eff = tele_shift · (1 − tele_emo_resist·arousal)
+                 // tele_emo_resist ≈ 0.6; ×(1−attrib_disc)
+                 // when mood_source attributed (Exp. 5)
+```
+
+Report-side only — the P1192 stored-timestamp invariant
+holds (P1204 inherits it).
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -16967,6 +17214,44 @@ MemoryParams = {
 //   `pi_n` (clears on sleep/boundary); record flag
 //   `slip:true`; emissions `slip_check` intent,
 //   `tele_shift`, `order_confused:true`. All snapshot-
+//   additive; absent = legacy.
+// v5.61 additions (emotional-memory X — EM§§126–135)
+"recep_thresh": 0.8, "recep_frame_gain": 0.4,
+"recep_share_gain": 0.15,                           // §4.74
+"label_dampen": 0.25,                               // §4.76
+"unresolv_thresh": 0.6, "unresolv_intrude": 0.15,
+"unresolv_draw": 0.10, "closure_decay": 0.3,        // §§4.77/5.130
+"central_thresh": 0.68, "central_lens_w": 0.2,
+"central_draw": 0.10,                               // §5.127
+"attrib_disc": 0.6,                                 // §5.128
+"approach_rehearse": 0.15, "envy_intrude": 0.10,    // §5.129
+"emo_foil_bias": 0.15,                              // §6.285
+"distract_drive_k": 0.4, "distract_dur": 2.0,
+"reapp_tag_k": 0.10, "reg_choice_knee": 0.7,        // §6.286
+"tele_emo_resist": 0.6,                             // §6.287
+// v5.61 knot tables (functions, not scalars):
+//   emo_attn_floor(age_eff): 0.4@30 → 0.3@65 →
+//     0.15@75 → 0.10@85                            (§4.75)
+//   emo_foil_pos_leg(age_eff): 0.3@30 → 0.5@55 →
+//     0.8@75                                       (§6.285)
+//   reg_knee_age(age_eff): 0@55 → −0.05@65 →
+//     −0.15@75 → −0.2@85                           (§6.286)
+//   attrib_disc age leg: −0.2@75 (HYPOTHESIS)      (§5.128)
+// v5.61 locked nulls: recep_content_null (remote content
+//   never witnessed — P1196); emo_attn_blink_null (blink +
+//   conditioning exempt — P1197); label_som_null
+//   (CondEntry acquisition unaffected — P1198);
+//   unresolv_neutral_null (neutral interruptions take no
+//   premium — P1199); lens_fact_null (central lens never
+//   writes content — P1200); foil_recall_null (recall mode
+//   immune — P1201); distract_tag_null (stored tag bit-
+//   identical under distraction — P1205).
+// v5.61 fields/state: record flags `reception:true`,
+//   `central:true`, `unresolved:true`; discrete-emotion
+//   tag field `motiv` ∈{approach,avoid,ambivalent};
+//   emotion enum += {envy, pride}; ctx field
+//   `mood_source`; event flags `labeled:true`,
+//   `closed:true`, `scope:"remote"`. All snapshot-
 //   additive; absent = legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
@@ -19992,6 +20277,65 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 11 scalars + 5 locked nulls +
     8 knot functions + 6 field/state additions. Probes
     P1186–P1195.
+
+- v5.61 additions (emotional-memory X — EM§§126–135, spec
+  §§4.74–4.77, §§5.127–5.130, §§6.285–6.287):
+  - **Reception contract:** `hearAccount`/`observe` with
+    `arousal ≥ recep_thresh` AND `scope:"remote"` mints a
+    `reception:true` companion record — frame fields
+    (bearer/place/activity) hot, remote content stays
+    `hearsay` forever (`recep_content_null` — P1196);
+    `discussEvent` adds `recep_share_gain` to the frame.
+  - **Attention-gate contract:** `w_emo` and
+    `emo_consol_gain` scale by `emo_attn_floor(age_eff)`
+    +attention; §2.2 blink and §4.9 conditioning are
+    EXEMPT (`emo_attn_blink_null` — P1197).
+  - **Labeling contract:** `labeled:true` events mint
+    cooled arousal tags (`label_dampen`·`emo_gran`);
+    CondEntry acquisition unaffected (`label_som_null` —
+    P1198). World-builder supplies the flag from utterance
+    content.
+  - **Open-arc contract:** `unresolv_thresh` mints
+    `unresolved:true` on unclosed emotional events;
+    intrusion premium until `closed:true`, decaying
+    `closure_decay`/day post-resolution; neutral
+    interruptions immune (`unresolv_neutral_null` —
+    P1199). World supplies `closed:true` on resolution
+    events.
+  - **Centrality contract:** `central:true` records inject
+    as appraisal cues into ambiguous new events
+    (`central_lens_w`), anchor landmark dating, and draw
+    rehearsal — but write ZERO content fields into other
+    records (`lens_fact_null` — P1200).
+  - **Attribution contract:** `mood_source` on C discounts
+    `mood_bleed` (and §6.287's resistance) by `attrib_disc`
+    when the source is salient + unrelated (P1202).
+  - **Motivational ecology contract:** discrete tags carry
+    `motiv` ∈{approach,avoid,ambivalent}; anger rehearses
+    (`approach_rehearse`), fear intrudes-not-told, envy
+    runs the private loop (`envy_intrude`, suppressed
+    emission). Emotion enum += {envy, pride} (P1203).
+  - **Foil contract:** recognition-mode foils get
+    `emo_foil_bias`·arousal_foil false-alarm weight,
+    positive leg age-rising (`emo_foil_pos_leg`); recall
+    mode immune (`foil_recall_null` — P1201).
+  - **Telescoping-brake contract:** `tele_emo_resist`
+    attenuates `tele_shift` by record arousal — report-
+    side only, P1192's stored-timestamp invariant
+    inherited (P1204).
+  - **Regulation-dents contract:** `reg_choice_knee` picks
+    distraction vs reappraisal; distraction suppresses draw
+    for `distract_dur` with the stored tag bit-identical
+    (`distract_tag_null`); reappraisal drifts stored
+    valence `reapp_tag_k`/bout (P1205).
+  - **Locked boundaries game-systems must honor:**
+    `recep_content_null`, `emo_attn_blink_null`,
+    `label_som_null`, `unresolv_neutral_null`,
+    `lens_fact_null`, `foil_recall_null`,
+    `distract_tag_null`.
+  - **New params (§7):** 15 scalars + 7 locked nulls +
+    4 knot functions + 7 field/state additions. Probes
+    P1196–P1205.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
