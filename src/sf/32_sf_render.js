@@ -3983,6 +3983,12 @@ function sfRenderWorld(cw, ch){
     const _sv70 = VILLAGERS[inspectedPawnIdx];
     if(v.inBuilding && (v !== VILLAGERS[controlledPawnIdx] ||
         (_sv70 && _sv70.inBuilding && v.inside === _sv70.inside))) continue;
+    // same view-rect cull the props get — off-screen pawns skip the
+    // y-sort and the draw call entirely (inBuilding pawns keep stale
+    // world x/y so the rect test can't apply to them)
+    if(!v.inBuilding &&
+       (v.x < cam.x - cw / 2 / cam.zoom - 64 || v.x > cam.x + cw / 2 / cam.zoom + 64 ||
+        v.y < cam.y - ch / 2 / cam.zoom / SF_TILT - 200 || v.y > cam.y + ch / 2 / cam.zoom / SF_TILT + 32)) continue;
     drawables.push({ kind: 'pawn', y: v.y, v });
   }
   drawables.sort((a, b) => a.y - b.y);
