@@ -6588,6 +6588,12 @@ function loop(timestamp){
     simTick(dtH);
   }
 
+  // lowest quality rung renders at half rate — the sim still ticks
+  // every rAF so the world never stutters, the picture just updates
+  // ~30 times a second (what iOS caps rAF at in low-power mode anyway)
+  if(typeof SF_QUAL !== 'undefined' && SF_QUAL.lvl >= 2 && (G.frame & 1))
+    return;
+
   renderWorld();
   updateHUD();
 }
@@ -26820,18 +26826,28 @@ function sfLensEnd(cw, ch){
       ? clamp(W.rain, 0, 1) : 0;
     if(rainK > 0.12){
       const nD = Math.floor((6 + rainK * 14) * sfQualF());
+      /* droplet bead pre-rendered once — a radial gradient per droplet
+         per frame was the classic canvas anti-pattern; blit the sprite
+         instead (alpha comes from globalAlpha, same look) */
+      if(!SF_LENS.dropSpr){
+        const s = document.createElement('canvas'); s.width = s.height = 64;
+        const sg = s.getContext('2d');
+        const gr = sg.createRadialGradient(32, 32, 6, 32, 32, 32);
+        gr.addColorStop(0, 'rgba(200,215,230,0.7)');
+        gr.addColorStop(0.75, 'rgba(30,40,55,0.35)');
+        gr.addColorStop(1, 'rgba(30,40,55,0)');
+        sg.fillStyle = gr; sg.fillRect(0, 0, 64, 64);
+        SF_LENS.dropSpr = s;
+      }
       for(let i = 0; i < nD; i++){
         const rx = phash(i, 1, 3890) * W;
         const slide = (2 + phash(i, 5, 3894) * 9) * dpr;
         const ry = (phash(i, 2, 3891) * H + SF_WX.t * slide) % (H + 40 * dpr) - 20 * dpr;
         const rr = (3 + phash(i, 3, 3892) * 10) * dpr;
         const a = (0.10 + 0.14 * phash(i, 4, 3893)) * rainK;
-        const g2 = ctx.createRadialGradient(rx, ry, rr * 0.2, rx, ry, rr);
-        g2.addColorStop(0, `rgba(200,215,230,${a * 0.7})`);
-        g2.addColorStop(0.75, `rgba(30,40,55,${a * 0.35})`);
-        g2.addColorStop(1, 'rgba(30,40,55,0)');
-        ctx.fillStyle = g2;
-        ctx.beginPath(); ctx.arc(rx, ry, rr, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = Math.min(1, a * 2.4);
+        ctx.drawImage(SF_LENS.dropSpr, rx - rr, ry - rr, rr * 2, rr * 2);
+        ctx.globalAlpha = 1;
         const sunS = SF_LENS.sunOn ? Math.sign(SF_LENS.sunX * dpr - rx) : 0.4;
         ctx.fillStyle = `rgba(255,250,235,${Math.min(0.5, a * 1.4)})`;
         ctx.beginPath();

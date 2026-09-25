@@ -14,6 +14,12 @@ function loop(timestamp){
     simTick(dtH);
   }
 
+  // lowest quality rung renders at half rate — the sim still ticks
+  // every rAF so the world never stutters, the picture just updates
+  // ~30 times a second (what iOS caps rAF at in low-power mode anyway)
+  if(typeof SF_QUAL !== 'undefined' && SF_QUAL.lvl >= 2 && (G.frame & 1))
+    return;
+
   renderWorld();
   updateHUD();
 }
