@@ -254,7 +254,8 @@ function sfCamPipDraw(cw, ch){
      above 1× was silently un-throttling the second scene render. */
   const tNow = (typeof performance !== 'undefined'
                 ? performance.now() : Date.now()) / 1000;
-  if(tNow - SF_PIP.tLast >= 1.0){
+  const pipDt = 1.0 + (typeof SF_QUAL !== 'undefined' ? SF_QUAL.lvl : 0);
+  if(tNow - SF_PIP.tLast >= pipDt){
     SF_PIP.tLast = tNow;
     SF_PIP._in = true;
     // 384×216 parked feed: the soft-optics stack (blur plate, bokeh

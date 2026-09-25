@@ -5969,12 +5969,18 @@ function setupCanvas(){
     // render cost scales with dpr² — on 2x/3x screens the frame paints
     // 4-9x the pixels for sharpness most observers can't tell apart.
     // Cap at 1.5; ?hires=1 opts back into native resolution.
+    const cap = (typeof SF_QUAL !== 'undefined' && SF_QUAL.lvl >= 2)
+                ? 1.0 : 1.5;   // lowest quality rung renders 1x — half
+                               // the pixels of the 1.5 cap
     dpr = (typeof location !== 'undefined' &&
            /[?&]hires=1/.test(location.search))
           ? (window.devicePixelRatio || 1)
-          : Math.min(window.devicePixelRatio || 1, 1.5);
+          : Math.min(window.devicePixelRatio || 1, cap);
     cv.width = window.innerWidth * dpr;
-    cv.height = (window.innerHeight - 44) * dpr;
+    const topH = (typeof matchMedia !== 'undefined' &&
+                  (matchMedia('(pointer: coarse)').matches ||
+                   window.innerWidth <= 820)) ? 56 : 44;
+    cv.height = (window.innerHeight - topH) * dpr;
   }
   window.addEventListener('resize', resize);
   resize();
@@ -32488,7 +32494,7 @@ function sfLensEnd(cw, ch){
     const rainK = (SF_LENS.mode === 'street' && typeof W !== 'undefined')
       ? clamp(W.rain, 0, 1) : 0;
     if(rainK > 0.12){
-      const nD = Math.floor(6 + rainK * 14);
+      const nD = Math.floor((6 + rainK * 14) * sfQualF());
       for(let i = 0; i < nD; i++){
         const rx = phash(i, 1, 3890) * W;
         const slide = (2 + phash(i, 5, 3894) * 9) * dpr;
@@ -33581,7 +33587,7 @@ function sfRainOverlay(cw, ch, slant){
   ctx.fillRect(0, 0, cw, ch);
   ctx.strokeStyle = `rgba(190,215,240,${clamp(W.rain * 0.5, 0, 0.6)})`;
   ctx.lineWidth = 1;
-  const drops = Math.floor(70 + W.rain * 190);
+  const drops = Math.floor((70 + W.rain * 190) * sfQualF());
   const bucket = Math.floor(SF_WX.t * 15);
   ctx.beginPath();
   for(let i = 0; i < drops; i++){
@@ -34283,6 +34289,31 @@ function sfSplashOverlay(cw, yTop, yBot){
       ivy, flower boxes) is distance-tiered so far walls cost far less.
    Physically: same sun, same wind, same wet streets — just cheaper. */
 const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0, info: '' };
+/* v87: adaptive quality governor — when the smoothed frame cost stays
+   above ~26ms the rig steps detail down a level (fewer rain droplets,
+   slower PiP feed, coarser lens plate); when it holds under ~12ms it
+   steps back up. Touch devices start one level down; ?q=low|med|high
+   pins a level and disables the governor. */
+const SF_QUAL = { lvl: 0, auto: true, cool: 0 };
+(function(){
+  try{
+    const q = (typeof location !== 'undefined' &&
+               (location.search.match(/[?&]q=(low|med|high)/) || [])[1]);
+    if(q){ SF_QUAL.lvl = { high: 0, med: 1, low: 2 }[q]; SF_QUAL.auto = false; }
+    else if(typeof matchMedia !== 'undefined' &&
+            matchMedia('(pointer: coarse)').matches) SF_QUAL.lvl = 1;
+  }catch(e){}
+})();
+function sfQualTick(){
+  if(!SF_QUAL.auto) return;
+  if(--SF_QUAL.cool > 0) return;
+  const old = SF_QUAL.lvl;
+  if(SF_PERF.ms > 26 && SF_QUAL.lvl < 2){ SF_QUAL.lvl++; SF_QUAL.cool = 90; }
+  else if(SF_PERF.ms < 12 && SF_QUAL.lvl > 0){ SF_QUAL.lvl--; SF_QUAL.cool = 240; }
+  if(SF_QUAL.lvl !== old && typeof window !== 'undefined')
+    window.dispatchEvent(new Event('resize'));   // dpr cap is level-keyed
+}
+function sfQualF(){ return [1, 0.55, 0.3][SF_QUAL.lvl]; }
 /* ---------------- v82: the light-field cache --------------------------
    Profiling (devtools/perf_v82.js) showed the street pass spending ~40%
    of its JS time re-answering the same three questions ~1.7k times per
@@ -34317,6 +34348,7 @@ function sfLFGet(slot, k){
 function sfLFSet(slot, k, v){ SF_LFM[slot].m.set(k, v); return v; }
 function sfPerfBegin(){
   SF_FRAME++;
+  sfQualTick();
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   if(SF_PERF.last) SF_PERF.fps += (1000 / Math.max(1, now - SF_PERF.last) - SF_PERF.fps) * 0.06;
   SF_PERF.last = now; SF_PERF.t0 = now; SF_PERF.info = '';
@@ -34328,7 +34360,7 @@ function sfPerfHud(cw, ch){
   const lfT = SF_LF_HIT + SF_LF_MIS;
   const lfPct = lfT ? Math.round(100 * SF_LF_HIT / lfT) : 0;
   const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms` +
-              ` LF${lfPct}%` +
+              ` LF${lfPct}% Q${SF_QUAL.lvl}` +
               (SF_PERF.info ? ' ' + SF_PERF.info : '');
   ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
   const tw = ctx.measureText(lab).width;
@@ -46150,7 +46182,8 @@ function sfCamPipDraw(cw, ch){
      above 1× was silently un-throttling the second scene render. */
   const tNow = (typeof performance !== 'undefined'
                 ? performance.now() : Date.now()) / 1000;
-  if(tNow - SF_PIP.tLast >= 1.0){
+  const pipDt = 1.0 + (typeof SF_QUAL !== 'undefined' ? SF_QUAL.lvl : 0);
+  if(tNow - SF_PIP.tLast >= pipDt){
     SF_PIP.tLast = tNow;
     SF_PIP._in = true;
     // 384×216 parked feed: the soft-optics stack (blur plate, bokeh

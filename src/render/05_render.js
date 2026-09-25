@@ -11,12 +11,18 @@ function setupCanvas(){
     // render cost scales with dpr² — on 2x/3x screens the frame paints
     // 4-9x the pixels for sharpness most observers can't tell apart.
     // Cap at 1.5; ?hires=1 opts back into native resolution.
+    const cap = (typeof SF_QUAL !== 'undefined' && SF_QUAL.lvl >= 2)
+                ? 1.0 : 1.5;   // lowest quality rung renders 1x — half
+                               // the pixels of the 1.5 cap
     dpr = (typeof location !== 'undefined' &&
            /[?&]hires=1/.test(location.search))
           ? (window.devicePixelRatio || 1)
-          : Math.min(window.devicePixelRatio || 1, 1.5);
+          : Math.min(window.devicePixelRatio || 1, cap);
     cv.width = window.innerWidth * dpr;
-    cv.height = (window.innerHeight - 44) * dpr;
+    const topH = (typeof matchMedia !== 'undefined' &&
+                  (matchMedia('(pointer: coarse)').matches ||
+                   window.innerWidth <= 820)) ? 56 : 44;
+    cv.height = (window.innerHeight - topH) * dpr;
   }
   window.addEventListener('resize', resize);
   resize();
