@@ -58,15 +58,27 @@
 #rwPip canvas{width:100%;display:block;image-rendering:pixelated}
 #rwPip .pl{font:10px ui-monospace,Menlo,monospace;color:#e8a04c;background:#181d26;
   padding:3px 8px;letter-spacing:.08em}
-/* phones: the side rail becomes a bottom sheet — tabs stay tappable,
-   the canvas keeps the upper half of the screen */
-@media (max-width: 720px){
+/* touch devices / small screens: the side rail becomes a bottom sheet
+   (tabs stay tappable, canvas keeps the upper half) and can be hidden
+   entirely behind the floating PANEL button */
+#rwShellFab{display:none;position:fixed;right:12px;bottom:12px;z-index:70;
+  background:#e8a04c;border:0;border-radius:999px;color:#1a1408;
+  font:600 12.5px 'Segoe UI',system-ui,sans-serif;padding:10px 16px;
+  box-shadow:0 8px 22px rgba(0,0,0,.55);cursor:pointer}
+#rwHide{display:none;background:none;border:1px solid #333c48;color:#a89f8a;
+  border-radius:4px;font:inherit;font-size:14px;line-height:1;padding:4px 8px;
+  cursor:pointer;margin-left:8px}
+@media (max-width: 820px), (pointer: coarse){
   #rwShell{top:auto;left:0;right:0;bottom:0;width:auto;height:52vh;
-    border-left:0;border-top:1px solid #2c3440}
+    border-left:0;border-top:1px solid #2c3440;
+    transition:transform .25s ease}
+  #rwShell.hidden{transform:translateY(110%)}
   #rwTabs{overflow-x:auto}
   #rwTabs button{padding:10px 8px;font-size:9.5px}
   #rwBody{padding:8px 10px;-webkit-overflow-scrolling:touch}
   #rwPip{left:8px;top:52px;width:200px}
+  #rwShellFab{display:block}
+  #rwHide{display:block}
 }
 /* wire */
 .wl{list-style:none;margin:0;padding:0}
@@ -111,6 +123,7 @@
     <span class="rw-cred"><span id="rwCred">0</span>cr
       <button id="rwAd" class="ad" title="watch a spot — the honest trickle">+ad</button>
       <button id="rwMint" title="local demo grant — no payment rails exist">+500</button></span>
+    <button id="rwHide" title="hide panel">✕</button>
   </div>
   <div id="rwTabs">
     <button data-t="watch" class="on">Watch</button>
@@ -125,6 +138,7 @@
   <div id="rwBody"></div>
 </div>
 <div id="rwPip"><div class="pl" id="rwPipLab">feed</div><canvas id="rwPipCv" width="600" height="340"></canvas></div>
+<button id="rwShellFab">PANEL</button>
 
 <script>
 /* the shell runs in the SAME window as the game bundle — VILLAGERS,
@@ -133,6 +147,22 @@
   var $ = function(id){ return document.getElementById(id); };
   var body = $('rwBody'), pip = $('rwPip'), pipCv = $('rwPipCv'), pipLab = $('rwPipLab');
   var tab = 'watch';
+  /* touch / small screens: rail starts hidden behind the PANEL button */
+  var rwSmall = function(){
+    return (window.matchMedia &&
+            (matchMedia('(pointer: coarse)').matches || innerWidth <= 820));
+  };
+  var rwShellEl = $('rwShell'), rwFab = $('rwShellFab'), rwHideB = $('rwHide');
+  var rwSetOpen = function(open){
+    rwShellEl.classList.toggle('hidden', !open);
+    rwFab.textContent = open ? 'HIDE' : 'PANEL';
+  };
+  rwFab.addEventListener('click', function(){
+    rwSetOpen(rwShellEl.classList.contains('hidden'));
+  });
+  rwHideB.addEventListener('click', function(){ rwSetOpen(false); });
+  if(rwSmall()) rwSetOpen(false);
+  window.addEventListener('resize', function(){ if(!rwSmall()) rwSetOpen(true); });
   var pid = function(){ return ($('rwPid').value || 'spectator-1').trim(); };
   var esc = function(s){ return String(s == null ? '' : s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };

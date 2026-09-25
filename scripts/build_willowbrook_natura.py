@@ -235,9 +235,10 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     padding: 12px; font-family: monospace; font-size: 11.5px; line-height: 1.5;
     color: #cbd5e1; overflow-y: auto; z-index: 999; display: none; white-space: pre-wrap;
   }
-  /* Phones: inspector becomes a bottom sheet, top bar scrolls, canvas
-     takes touch gestures (drag = pan, pinch = zoom, tap = inspect). */
-  @media (max-width: 720px){
+  /* Touch devices / phones: inspector becomes a bottom sheet, top bar
+     scrolls, keyboard hints disappear, canvas takes touch gestures
+     (drag = pan, pinch = zoom, tap = inspect). */
+  @media (max-width: 820px), (pointer: coarse){
     #top { padding: 0 8px; gap: 6px; overflow-x: auto; overflow-y: hidden;
            font-size: 11.5px; }
     .top-left, .top-right, .top-center { gap: 6px; flex-shrink: 0; }
