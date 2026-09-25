@@ -239,22 +239,25 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
      scrolls, keyboard hints disappear, canvas takes touch gestures
      (drag = pan, pinch = zoom, tap = inspect). */
   @media (max-width: 820px), (pointer: coarse){
-    #top { padding: 0 8px; gap: 6px; overflow-x: auto; overflow-y: hidden;
-           font-size: 11.5px; }
-    .top-left, .top-right, .top-center { gap: 6px; flex-shrink: 0; }
-    .pill { padding: 2px 8px; font-size: 10.5px; }
-    .btn { padding: 4px 8px; font-size: 11px; min-height: 30px; }
-    #cv { touch-action: none; }
+    #top { height: 56px; padding: 0 10px; gap: 8px;
+           overflow-x: auto; overflow-y: hidden; font-size: 15px; }
+    #cv { top: 56px; height: calc(100vh - 56px); touch-action: none; }
+    .top-left, .top-right, .top-center { gap: 8px; flex-shrink: 0; }
+    .title { font-size: 16px; }
+    .pill { padding: 6px 13px; font-size: 14px; }
+    .btn { padding: 8px 14px; font-size: 14px; min-height: 40px; }
     #pawn-inspector {
       left: 8px; right: 8px; bottom: 8px; width: auto;
-      max-height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 10px 12px; gap: 8px;
+      max-height: 46vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 14px 16px; gap: 10px; font-size: 15px;
     }
     #help-bar { display: none; }
-    #debug-feed { right: 8px; bottom: 8px; width: 46vw; max-height: 30vh; }
-    #toast { top: 50px; font-size: 11px; max-width: 92vw;
+    #debug-feed { right: 8px; bottom: 8px; width: 60vw; max-height: 30vh;
+                  font-size: 12px; }
+    #toast { top: 62px; font-size: 14px; max-width: 92vw;
              text-align: center; }
-    #autotest { right: 8px; left: 8px; top: 52px; width: auto; }
+    #autotest { right: 8px; left: 8px; top: 62px; width: auto;
+                font-size: 13px; }
   }
 </style>
 </head>

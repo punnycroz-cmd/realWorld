@@ -69,16 +69,30 @@
   border-radius:4px;font:inherit;font-size:14px;line-height:1;padding:4px 8px;
   cursor:pointer;margin-left:8px}
 @media (max-width: 820px), (pointer: coarse){
-  #rwShell{top:auto;left:0;right:0;bottom:0;width:auto;height:52vh;
-    border-left:0;border-top:1px solid #2c3440;
+  #rwShell{top:auto;left:0;right:0;bottom:0;width:auto;height:56vh;
+    border-left:0;border-top:1px solid #2c3440;font-size:16px;
     transition:transform .25s ease}
   #rwShell.hidden{transform:translateY(110%)}
+  #rwShell .rw-head{padding:12px 14px;gap:10px;flex-wrap:wrap}
+  #rwShell .rw-head b{font-size:13px}
+  #rwShell .rw-head .pid{font-size:13px}
+  #rwShell .rw-head input{width:130px;padding:6px 8px;font-size:14px}
+  #rwShell .rw-cred{font-size:15px}
+  #rwShell .rw-cred button{font-size:13px;padding:5px 10px}
+  #rwHide{display:block;padding:8px 12px;font-size:18px}
   #rwTabs{overflow-x:auto}
-  #rwTabs button{padding:10px 8px;font-size:9.5px}
-  #rwBody{padding:8px 10px;-webkit-overflow-scrolling:touch}
-  #rwPip{left:8px;top:52px;width:200px}
-  #rwShellFab{display:block}
-  #rwHide{display:block}
+  #rwTabs button{padding:14px 12px;font-size:13px;min-width:76px;flex:1 0 auto}
+  #rwBody{padding:12px 14px;-webkit-overflow-scrolling:touch}
+  #rwShell label{font-size:13px}
+  #rwShell select,#rwShell input[type=text],#rwShell input[type=number],
+  #rwShell textarea{padding:10px;font-size:15px}
+  #rwShell button.act{padding:14px;font-size:16px}
+  .rw-cams button{padding:12px 8px;font-size:14px}
+  .wl li{padding:10px 0;font-size:15px}
+  .wl .t{font-size:13px}
+  .ld{font-size:14px}
+  #rwPip{left:8px;top:64px;width:230px}
+  #rwShellFab{display:block;padding:14px 20px;font-size:15px}
 }
 /* wire */
 .wl{list-style:none;margin:0;padding:0}
