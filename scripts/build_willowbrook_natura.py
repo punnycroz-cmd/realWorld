@@ -235,6 +235,26 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     padding: 12px; font-family: monospace; font-size: 11.5px; line-height: 1.5;
     color: #cbd5e1; overflow-y: auto; z-index: 999; display: none; white-space: pre-wrap;
   }
+  /* Phones: inspector becomes a bottom sheet, top bar scrolls, canvas
+     takes touch gestures (drag = pan, pinch = zoom, tap = inspect). */
+  @media (max-width: 720px){
+    #top { padding: 0 8px; gap: 6px; overflow-x: auto; overflow-y: hidden;
+           font-size: 11.5px; }
+    .top-left, .top-right, .top-center { gap: 6px; flex-shrink: 0; }
+    .pill { padding: 2px 8px; font-size: 10.5px; }
+    .btn { padding: 4px 8px; font-size: 11px; min-height: 30px; }
+    #cv { touch-action: none; }
+    #pawn-inspector {
+      left: 8px; right: 8px; bottom: 8px; width: auto;
+      max-height: 42vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding: 10px 12px; gap: 8px;
+    }
+    #help-bar { display: none; }
+    #debug-feed { right: 8px; bottom: 8px; width: 46vw; max-height: 30vh; }
+    #toast { top: 50px; font-size: 11px; max-width: 92vw;
+             text-align: center; }
+    #autotest { right: 8px; left: 8px; top: 52px; width: auto; }
+  }
 </style>
 </head>
 <body>

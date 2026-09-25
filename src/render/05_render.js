@@ -21,8 +21,67 @@ function setupCanvas(){
   window.addEventListener('resize', resize);
   resize();
 
-  // Interactive Canvas Pointer: Select Villager / Click-to-Move
+  // Touch/mouse gestures: one-finger drag pans, pinch zooms; a short
+  // tap still selects. The press-and-release select below only fires
+  // when the pointer never became a drag.
+  const ptrs = new Map();
+  let dragDist = 0, pinchD0 = 0, pinchZ0 = 0;
+  const sfTop = () => (typeof SF_MODE !== 'undefined' && SF_MODE &&
+                      typeof SF_VIEW !== 'undefined' && SF_VIEW === 'top');
   cv.addEventListener('pointerdown', (e) => {
+    cv.setPointerCapture && cv.setPointerCapture(e.pointerId);
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if(ptrs.size === 2){
+      const [a, b] = [...ptrs.values()];
+      pinchD0 = Math.hypot(a.x - b.x, a.y - b.y);
+      pinchZ0 = cam.zoom;
+    }
+    dragDist = 0;
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if(!ptrs.has(e.pointerId)) return;
+    const prev = ptrs.get(e.pointerId);
+    const dx = e.clientX - prev.x, dy = e.clientY - prev.y;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if(ptrs.size === 2){
+      // pinch zoom about the pair's current spread
+      const [a, b] = [...ptrs.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if(pinchD0 > 0)
+        cam.zoom = clamp(pinchZ0 * d / pinchD0, 0.25, 4);
+      return;
+    }
+    dragDist += Math.abs(dx) + Math.abs(dy);
+    if(dragDist > 10){
+      // pan: screen px -> world px (y is foreshortened in SF top view)
+      const tilt = sfTop() && typeof SF_TILT !== 'undefined' ? SF_TILT : 1;
+      cam.x -= dx / cam.zoom;
+      cam.y -= dy / cam.zoom / tilt;
+      // free the camera from follow-lerp while the user drives it
+      if(typeof SF_CAM_FREE !== 'undefined') SF_CAM_FREE = true;
+    }
+  });
+  const ptrUp = (e) => {
+    ptrs.delete(e.pointerId);
+    if(ptrs.size < 2) pinchD0 = 0;
+  };
+  cv.addEventListener('pointerup', ptrUp);
+  cv.addEventListener('pointercancel', ptrUp);
+  cv.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const k = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    cam.zoom = clamp(cam.zoom * k, 0.25, 4);
+  }, { passive: false });
+
+  // Interactive Canvas Pointer: Select Villager / Click-to-Move —
+  // fires on pointerup only when the press never became a pan/pinch.
+  let lastTap = null;
+  cv.addEventListener('pointerdown', (e) => {
+    lastTap = { x: e.clientX, y: e.clientY };
+  });
+  cv.addEventListener('pointerup', (e) => {
+    if(dragDist > 10 || !lastTap){ lastTap = null; return; }
+    lastTap = null;
     // SF street view: pointer drags drive the camera, not select/move
     if(typeof SF_MODE !== 'undefined' && SF_MODE && SF_VIEW === 'street') return;
     const rect = cv.getBoundingClientRect();
